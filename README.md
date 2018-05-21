@@ -36,14 +36,14 @@ upfront (i.e. the newest version of Python that happens to be installed).
 
 ## `py -3`
 1. Check `PY_PYTHON3`; if set to e.g. `3.6`, run as `py -3.6` (error to only set as `3`?)
-1. Search `PATH` for `python3.N`
-1. Use executable with largest `N`
+1. Search `PATH` for `python3.X`
+1. Use executable with largest `X`
 
 ## `py`
 
 1. Check `PY_PYTHON`; if set to e.g. `3`, run as `py -3`; if set to e.g. `3.6`, run as `py -3.6`
-1. Search `PATH` for `python.N.M`
-1. Use executable with largest `N`, then largest `M`
+1. Search `PATH` for `pythonX.Y`
+1. Use executable with largest `X`, then largest `Y`
 
 
 # Implementation notes
