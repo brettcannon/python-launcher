@@ -1,0 +1,10 @@
+[package]
+name = "python-launcher"
+version = "0.1.0"
+authors = ["Brett Cannon <brett@python.org>"]
+
+[dependencies]
+
+[[bin]]
+name = "py"
+path = "src/main.rs"
