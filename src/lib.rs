@@ -118,7 +118,8 @@ pub fn check_cli_arg(arg: String) -> RequestedVersion {
     }
 }
 
-fn path_directories() -> Vec<path::PathBuf> {
+/// Returns the entries in `PATH`.
+fn path_entries() -> Vec<path::PathBuf> {
     let path_val = match env::var_os("PATH") {
         Some(val) => val,
         None => return Vec::new(),
@@ -182,9 +183,29 @@ mod tests {
     }
 
     #[test]
-    fn test_path_directories() {
+    fn unit_test_path_entries() {
+        let paths = vec!["/a", "/b", "/c"];
+        if let Ok(joined_paths) = env::join_paths(&paths) {
+            let original_paths = env::var_os("PATH");
+            env::set_var("PATH", joined_paths);
+            assert_eq!(
+                path_entries(),
+                paths
+                    .iter()
+                    .map(|p| path::PathBuf::from(p))
+                    .collect::<Vec<path::PathBuf>>()
+            );
+            match original_paths {
+                Some(paths) => env::set_var("PATH", paths),
+                None => env::set_var("PATH", ""),
+            }
+        }
+    }
+
+    #[test]
+    fn system_test_path_entries() {
         if let Some(paths) = env::var_os("PATH") {
-            let found_paths = path_directories();
+            let found_paths = path_entries();
             assert_eq!(found_paths.len(), env::split_paths(&paths).count());
             for (index, path) in env::split_paths(&paths).enumerate() {
                 assert_eq!(found_paths[index], path);
