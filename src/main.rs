@@ -33,7 +33,7 @@ fn main() {
         version = match env::args().nth(1) {
             // XXX `-0`
             // XXX `-h`/`--help`
-            Some(arg) => py::check_cli_arg(arg),
+            Some(arg) => py::check_cli_arg(&arg),
             None => py::RequestedVersion::Any,
         };
     }
