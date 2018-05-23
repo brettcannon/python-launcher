@@ -1,6 +1,7 @@
 use std::env;
 use std::path;
 
+/// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type VersionComponent = u16;
 
 #[derive(Debug, PartialEq)]
@@ -75,15 +76,13 @@ enum VersionMatch {
 // comparable/sortable
 
 /* XXX Iterator for fully-qualified `pythonX.Y` executables:
-fn directory_contents()
-    Get the contents of those directories - I/O
-    -> Return a collection
 fn filter_python_executables()
     Look for `pythonX.Y` entries
     Exact or loose match? Exact then done, else save and keep looking
     -> Map of Version: Path
 */
 
+/// Converts a `Vec<char>` to a `VersionComponent` integer.
 fn char_vec_to_int(char_vec: &Vec<char>) -> Result<VersionComponent, String> {
     let joined_string = char_vec.into_iter().collect::<String>();
     let parse_result = joined_string.parse::<VersionComponent>();
@@ -106,6 +105,10 @@ fn parse_version_from_cli(arg: String) -> RequestedVersion {
     }
 }
 
+/// Checks if the string contains a version specifier.
+///
+/// If not version specifier is found, `RequestedVersion::Any` is returned.
+//
 // https://docs.python.org/3.8/using/windows.html#from-the-command-line
 pub fn check_cli_arg(arg: String) -> RequestedVersion {
     let version_from_cli = parse_version_from_cli(arg);
