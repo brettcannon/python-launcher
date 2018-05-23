@@ -8,3 +8,7 @@ matrix:
   allow_failures:
     - rust: nightly
   fast_finish: true
+
+notifications:
+  on_success: never
+  on_failure: always
