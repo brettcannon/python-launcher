@@ -4,6 +4,7 @@ use std::path;
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type VersionComponent = u16;
 
+/// Represents the version of Python a user requsted.
 #[derive(Debug, PartialEq)]
 pub enum RequestedVersion {
     Any,
