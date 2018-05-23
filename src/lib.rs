@@ -13,7 +13,8 @@ pub enum RequestedVersion {
 }
 
 impl RequestedVersion {
-    fn from_string(ver: String) -> Result<Self, String> {
+    /// Creates a new `RequestedVersion` from a version specifier string.
+    fn from_string(ver: &String) -> Result<Self, String> {
         let mut char_iter = ver.chars();
         let mut major_ver: Vec<char> = Vec::new();
         let mut dot = false;
@@ -93,11 +94,14 @@ fn char_vec_to_int(char_vec: &Vec<char>) -> Result<VersionComponent, String> {
     )))
 }
 
-fn parse_version_from_cli(arg: String) -> RequestedVersion {
+/// Attempts to parse a version specifier from a CLI argument.
+///
+/// Any failure to parse leads to `RequestedVersion::Any` being returned.
+fn parse_version_from_cli(arg: &String) -> RequestedVersion {
     if arg.starts_with("-") {
-        let mut version = arg;
+        let mut version = arg.clone();
         version.remove(0);
-        match RequestedVersion::from_string(version) {
+        match RequestedVersion::from_string(&version) {
             Ok(v) => v,
             Err(_) => RequestedVersion::Any,
         }
@@ -111,7 +115,7 @@ fn parse_version_from_cli(arg: String) -> RequestedVersion {
 /// If not version specifier is found, `RequestedVersion::Any` is returned.
 //
 // https://docs.python.org/3.8/using/windows.html#from-the-command-line
-pub fn check_cli_arg(arg: String) -> RequestedVersion {
+pub fn check_cli_arg(arg: &String) -> RequestedVersion {
     let version_from_cli = parse_version_from_cli(arg);
     if version_from_cli != RequestedVersion::Any {
         version_from_cli
@@ -138,50 +142,50 @@ mod tests {
     #[test]
     #[allow(non_snake_case)]
     fn test_RequestedVersion_from_string() {
-        assert!(RequestedVersion::from_string(".3".to_string()).is_err());
-        assert!(RequestedVersion::from_string("3.".to_string()).is_err());
-        assert!(RequestedVersion::from_string("h".to_string()).is_err());
-        assert!(RequestedVersion::from_string("3.b".to_string()).is_err());
-        assert!(RequestedVersion::from_string("a.7".to_string()).is_err());
+        assert!(RequestedVersion::from_string(&".3".to_string()).is_err());
+        assert!(RequestedVersion::from_string(&"3.".to_string()).is_err());
+        assert!(RequestedVersion::from_string(&"h".to_string()).is_err());
+        assert!(RequestedVersion::from_string(&"3.b".to_string()).is_err());
+        assert!(RequestedVersion::from_string(&"a.7".to_string()).is_err());
         assert_eq!(
-            RequestedVersion::from_string("3".to_string()),
+            RequestedVersion::from_string(&"3".to_string()),
             Ok(RequestedVersion::Loose(3))
         );
         assert_eq!(
-            RequestedVersion::from_string("3.8".to_string()),
+            RequestedVersion::from_string(&"3.8".to_string()),
             Ok(RequestedVersion::Exact(3, 8))
         );
-        assert!(RequestedVersion::from_string("3.6.5".to_string()).is_err());
+        assert!(RequestedVersion::from_string(&"3.6.5".to_string()).is_err());
     }
 
     #[test]
     fn test_parse_version_from_cli() {
         assert_eq!(
-            parse_version_from_cli("path/to/file".to_string()),
+            parse_version_from_cli(&"path/to/file".to_string()),
             RequestedVersion::Any
         );
         assert_eq!(
-            parse_version_from_cli("3".to_string()),
+            parse_version_from_cli(&"3".to_string()),
             RequestedVersion::Any
         );
         assert_eq!(
-            parse_version_from_cli("-S".to_string()),
+            parse_version_from_cli(&"-S".to_string()),
             RequestedVersion::Any
         );
         assert_eq!(
-            parse_version_from_cli("--something".to_string()),
+            parse_version_from_cli(&"--something".to_string()),
             RequestedVersion::Any
         );
         assert_eq!(
-            parse_version_from_cli("-3".to_string()),
+            parse_version_from_cli(&"-3".to_string()),
             RequestedVersion::Loose(3)
         );
         assert_eq!(
-            parse_version_from_cli("-3.6".to_string()),
+            parse_version_from_cli(&"-3.6".to_string()),
             RequestedVersion::Exact(3, 6)
         );
         assert_eq!(
-            parse_version_from_cli("-3.6.4".to_string()),
+            parse_version_from_cli(&"-3.6.4".to_string()),
             RequestedVersion::Any
         );
     }
