@@ -1,3 +1,4 @@
+use std::collections;
 use std::env;
 use std::path;
 
@@ -133,6 +134,25 @@ fn path_entries() -> Vec<path::PathBuf> {
         None => return Vec::new(),
     };
     env::split_paths(&path_val).collect()
+}
+
+/// Gets the files contained in its argument.
+fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBuf> {
+    let mut files = collections::HashSet::new();
+    if let Ok(contents) = path.read_dir() {
+        for content in contents {
+            if let Ok(found_content) = content {
+                let path = found_content.path();
+                if path.is_file() {
+                    files.insert(path);
+                }
+            }
+        }
+    }
+    // Get the contents of the directory - I/O
+    // Filter down to just files
+    // -> Return a collection of file paths
+    files
 }
 
 #[cfg(test)]
