@@ -16,7 +16,7 @@ upfront (i.e. the newest version of Python that happens to be installed).
 - [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)
   - Want a better format like TOML?
-  - Want to reuse `pyvenv.cfg`?
+  - Want to use `Pipfile` and its `python_version` field?
   - Probably want a way to override things, e.g. wanting a framework build on macOS somehow
     - Aliasing? E.g. `2.7-framework=/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
     - Just provide a way to specify a specific interpreter for a specific version? E.g. `2.7=/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
