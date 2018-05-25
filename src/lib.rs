@@ -63,26 +63,18 @@ impl RequestedVersion {
     }
 }
 
-/*
+#[derive(Debug, PartialEq, Eq, Hash)]
 struct Version {
     major: VersionComponent,
     minor: VersionComponent,
 }
 
+/*
 enum VersionMatch {
     NotAtAll,
     Loosely,
     Exactly,
 }
-*/
-// fmt::Display
-// comparable/sortable
-
-/* XXX Iterator for fully-qualified `pythonX.Y` executables:
-fn filter_python_executables()
-    Look for `pythonX.Y` entries
-    Exact or loose match? Exact then done, else save and keep looking
-    -> Map of Version: Path
 */
 
 /// Converts a `Vec<char>` to a `VersionComponent` integer.
@@ -136,7 +128,7 @@ fn path_entries() -> Vec<path::PathBuf> {
     env::split_paths(&path_val).collect()
 }
 
-/// Gets the files contained in its argument.
+/// Gets the files contained in the directory.
 fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBuf> {
     let mut files = collections::HashSet::new();
     if let Ok(contents) = path.read_dir() {
@@ -149,10 +141,43 @@ fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBu
             }
         }
     }
-    // Get the contents of the directory - I/O
-    // Filter down to just files
-    // -> Return a collection of file paths
+
     files
+}
+
+/// Filters the file paths down to `pythonX.Y` files.
+fn filter_python_executables(
+    paths: collections::HashSet<path::PathBuf>,
+) -> collections::HashMap<Version, path::PathBuf> {
+    let mut executables = collections::HashMap::new();
+    for path in paths {
+        let unencoded_file_name = match path.file_name() {
+            Some(x) => x,
+            None => continue,
+        };
+        let file_name = match unencoded_file_name.to_str() {
+            Some(x) => x,
+            None => continue,
+        };
+        if file_name.len() < "python3.0".len() || !file_name.starts_with("python") {
+            continue;
+        }
+        let version_part = &file_name["python".len()..];
+        if let Ok(found_version) = RequestedVersion::from_string(&version_part.to_string()) {
+            match found_version {
+                RequestedVersion::Exact(major, minor) => executables.insert(
+                    Version {
+                        major: major,
+                        minor: minor,
+                    },
+                    path.clone(),
+                ),
+                _ => continue,
+            };
+        }
+    }
+
+    return executables;
 }
 
 #[cfg(test)]
@@ -174,6 +199,10 @@ mod tests {
         assert_eq!(
             RequestedVersion::from_string(&"3.8".to_string()),
             Ok(RequestedVersion::Exact(3, 8))
+        );
+        assert_eq!(
+            RequestedVersion::from_string(&"42.13".to_string()),
+            Ok(RequestedVersion::Exact(42, 13))
         );
         assert!(RequestedVersion::from_string(&"3.6.5".to_string()).is_err());
     }
@@ -203,6 +232,10 @@ mod tests {
         assert_eq!(
             parse_version_from_cli(&"-3.6".to_string()),
             RequestedVersion::Exact(3, 6)
+        );
+        assert_eq!(
+            parse_version_from_cli(&"-42.13".to_string()),
+            RequestedVersion::Exact(42, 13)
         );
         assert_eq!(
             parse_version_from_cli(&"-3.6.4".to_string()),
@@ -238,6 +271,39 @@ mod tests {
             for (index, path) in env::split_paths(&paths).enumerate() {
                 assert_eq!(found_paths[index], path);
             }
+        }
+    }
+
+    #[test]
+    fn test_filter_python_executables() {
+        let paths = vec![
+            "/bad/path/python",    // Under-specified.
+            "/bad/path/python3",   // Under-specified.
+            "/bad/path/hello",     // Not Python.
+            "/bad/path/pytho3.6",  // Typo.
+            "/bad/path/rython3.6", // Typo.
+            "/good/path/python3.6",
+            "/good/python42.13",
+        ];
+        let all_paths = paths
+            .iter()
+            .map(|p| path::PathBuf::from(p))
+            .collect::<collections::HashSet<path::PathBuf>>();
+        let results = filter_python_executables(all_paths);
+        let good_version1 = Version { major: 3, minor: 6 };
+        let good_version2 = Version {
+            major: 42,
+            minor: 13,
+        };
+        let mut expected = paths[5];
+        match results.get(&good_version1) {
+            Some(path) => assert_eq!(*path, path::PathBuf::from(expected)),
+            None => panic!("{:?} not found", good_version1),
+        };
+        expected = paths[6];
+        match results.get(&good_version2) {
+            Some(path) => assert_eq!(*path, path::PathBuf::from(expected)),
+            None => panic!("{:?} not found", good_version2),
         }
     }
 }
