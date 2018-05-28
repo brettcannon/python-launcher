@@ -63,18 +63,56 @@ impl RequestedVersion {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+/// The version of Python found.
+#[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 struct Version {
     major: VersionComponent,
     minor: VersionComponent,
 }
 
-/*
+/// Represents how tight of a match a `Version` is to a `RequestedVersion`.
+#[derive(Debug, PartialEq)]
 enum VersionMatch {
-    NotAtAll,
-    Loosely,
-    Exactly,
+    NotAtAll, // Not compatible.
+    Loosely,  // Compatible, but potential for a better, newer match.
+    Exactly,  // Matches a major.minor exactly.
 }
+
+impl Version {
+    fn matches(&self, requested: &RequestedVersion) -> VersionMatch {
+        match requested {
+            RequestedVersion::Any => VersionMatch::Loosely,
+            RequestedVersion::Loose(major) => if self.major == *major {
+                VersionMatch::Loosely
+            } else {
+                VersionMatch::NotAtAll
+            },
+            RequestedVersion::Exact(major, minor) => {
+                if self.major == *major && self.minor == *minor {
+                    VersionMatch::Exactly
+                } else {
+                    VersionMatch::NotAtAll
+                }
+            }
+        }
+    }
+}
+
+/* XXX def find_executables():
+executables = {}
+for path in path_entries():
+    contents = directory_contents()
+    for version, path in filter_python_executables():
+        # XXX Break out into separate function? Put into filter_python_executables?
+        version_match = version.matches(requested_version)
+        if version_match in {Loosely, Exactly} and version not in executables and is_file(path):
+            executables[version] = path
+            if version_match == Exactly:
+                return executables
+return executables
+
+XXX def choose_executable(executables):
+    return sorted(executables.items(), key=operator.itemgetter(0))[-1]
 */
 
 /// Converts a `Vec<char>` to a `VersionComponent` integer.
@@ -128,24 +166,23 @@ fn path_entries() -> Vec<path::PathBuf> {
     env::split_paths(&path_val).collect()
 }
 
-/// Gets the files contained in the directory.
+/// Gets the contents of a directory.
+///
+/// Exists primarily to unwrap and ignore any unencodeable names.
 fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBuf> {
-    let mut files = collections::HashSet::new();
+    let mut paths = collections::HashSet::new();
     if let Ok(contents) = path.read_dir() {
         for content in contents {
             if let Ok(found_content) = content {
-                let path = found_content.path();
-                if path.is_file() {
-                    files.insert(path);
-                }
+                paths.insert(found_content.path());
             }
         }
     }
 
-    files
+    paths
 }
 
-/// Filters the file paths down to `pythonX.Y` files.
+/// Filters the paths down to `pythonX.Y` paths.
 fn filter_python_executables(
     paths: collections::HashSet<path::PathBuf>,
 ) -> collections::HashMap<Version, path::PathBuf> {
@@ -305,5 +342,34 @@ mod tests {
             Some(path) => assert_eq!(*path, path::PathBuf::from(expected)),
             None => panic!("{:?} not found", good_version2),
         }
+    }
+
+    #[test]
+    fn test_version_matches() {
+        let any = RequestedVersion::Any;
+        let loose_42 = RequestedVersion::Loose(42);
+        let exact_42_13 = RequestedVersion::Exact(42, 13);
+
+        let version_3_6 = Version { major: 3, minor: 6 };
+        let version_42_0 = Version {
+            major: 42,
+            minor: 0,
+        };
+        let version_42_13 = Version {
+            major: 42,
+            minor: 13,
+        };
+
+        assert_eq!(version_3_6.matches(&any), VersionMatch::Loosely);
+        assert_eq!(version_3_6.matches(&loose_42), VersionMatch::NotAtAll);
+        assert_eq!(version_3_6.matches(&exact_42_13), VersionMatch::NotAtAll);
+
+        assert_eq!(version_42_0.matches(&any), VersionMatch::Loosely);
+        assert_eq!(version_42_0.matches(&loose_42), VersionMatch::Loosely);
+        assert_eq!(version_42_0.matches(&exact_42_13), VersionMatch::NotAtAll);
+
+        assert_eq!(version_42_13.matches(&any), VersionMatch::Loosely);
+        assert_eq!(version_42_13.matches(&loose_42), VersionMatch::Loosely);
+        assert_eq!(version_42_13.matches(&exact_42_13), VersionMatch::Exactly);
     }
 }
