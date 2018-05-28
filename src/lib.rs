@@ -5,6 +5,9 @@ use std::path;
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type VersionComponent = u16;
 
+/// A mapping of executable version and paths.
+type Executables = collections::HashMap<Version, path::PathBuf>;
+
 /// Represents the version of Python a user requsted.
 #[derive(Debug, PartialEq)]
 pub enum RequestedVersion {
@@ -98,22 +101,34 @@ impl Version {
     }
 }
 
-/* XXX def find_executables():
-executables = {}
-for path in path_entries():
-    contents = directory_contents()
-    for version, path in filter_python_executables():
-        # XXX Break out into separate function? Put into filter_python_executables?
-        version_match = version.matches(requested_version)
-        if version_match in {Loosely, Exactly} and version not in executables and is_file(path):
-            executables[version] = path
-            if version_match == Exactly:
-                return executables
-return executables
+/// Collect Python executables matching requested version from PATH.
+fn find_executables(requested_version: &RequestedVersion) -> Executables {
+    let mut executables = Executables::new();
+    for path in path_entries().into_iter() {
+        let exes_here = filter_python_executables(directory_contents(&path));
+        for (version, executable) in exes_here.into_iter() {
+            if executables.contains_key(&version) || !executable.is_file() {
+                continue
+            }
+            match version.matches(requested_version) {
+                VersionMatch::Exactly => {
+                    executables.insert(version, executable);
+                    return executables;
+                },
+                VersionMatch::Loosely => {
+                    executables.insert(version, executable);
+                },
+                VersionMatch::NotAtAll => {},
+            }
+        }
+    }
+    executables
+}
 
-XXX def choose_executable(executables):
-    return sorted(executables.items(), key=operator.itemgetter(0))[-1]
-*/
+/// Choose the best (highest-versioned) Python executable from given mapping.
+fn choose_executable(executables: Executables) -> Option<path::PathBuf> {
+    executables.into_iter().max_by(|(k1, _), (k2, _)| k1.cmp(k2)).map(|(_, v)| v)
+}
 
 /// Converts a `Vec<char>` to a `VersionComponent` integer.
 fn char_vec_to_int(char_vec: &Vec<char>) -> Result<VersionComponent, String> {
@@ -185,8 +200,8 @@ fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBu
 /// Filters the paths down to `pythonX.Y` paths.
 fn filter_python_executables(
     paths: collections::HashSet<path::PathBuf>,
-) -> collections::HashMap<Version, path::PathBuf> {
-    let mut executables = collections::HashMap::new();
+) -> Executables {
+    let mut executables = Executables::new();
     for path in paths {
         let unencoded_file_name = match path.file_name() {
             Some(x) => x,
@@ -371,5 +386,22 @@ mod tests {
         assert_eq!(version_42_13.matches(&any), VersionMatch::Loosely);
         assert_eq!(version_42_13.matches(&loose_42), VersionMatch::Loosely);
         assert_eq!(version_42_13.matches(&exact_42_13), VersionMatch::Exactly);
+    }
+
+    #[test]
+    fn test_choose_executable() {
+        let zero_exes = Executables::new();
+        let one_exe = vec![
+            (Version { major: 3, minor: 8 }, path::PathBuf::from("3.8"))
+        ].into_iter().collect();
+        let many_exes = vec![
+            (Version { major: 2, minor: 5 }, path::PathBuf::from("2.5")),
+            (Version { major: 3, minor: 8 }, path::PathBuf::from("3.8")),
+            (Version { major: 3, minor: 5 }, path::PathBuf::from("3.5")),
+        ].into_iter().collect();
+
+        assert_eq!(choose_executable(zero_exes), None);
+        assert_eq!(choose_executable(one_exe), Some(path::PathBuf::from("3.8")));
+        assert_eq!(choose_executable(many_exes), Some(path::PathBuf::from("3.8")));
     }
 }
