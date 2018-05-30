@@ -17,10 +17,14 @@
 // 1. Search `PATH` for `pythonX.Y`
 // 1. Use executable with largest `X`, then largest `Y`
 
+extern crate libc;
 extern crate python_launcher;
 
 use std::collections;
 use std::env;
+use std::ffi;
+use std::os::raw;
+use std::os::unix::ffi::OsStrExt;
 
 use python_launcher as py;
 
@@ -34,6 +38,7 @@ fn main() {
         requested_version = match env::args().nth(1) {
             // XXX `-0`
             // XXX `-h`/`--help`
+            // XXX Need to strip out version and return a new argv.
             Some(arg) => py::check_cli_arg(&arg),
             None => py::RequestedVersion::Any,
         };
@@ -64,6 +69,23 @@ fn main() {
     println!("Found {:?}", found_versions);
     let chosen_path = py::choose_executable(&found_versions);
     println!("Chose {:?}", chosen_path);
+
+    // https://users.rust-lang.org/t/rookie-going-from-std-process-to-libc-exec/10180/3
+    let exec_cstr = ffi::CString::new(chosen_path.unwrap().as_os_str().as_bytes()).unwrap();
+    let prog: *const raw::c_char = exec_cstr.as_ptr();
+
+    let args: Vec<ffi::CString> = vec![exec_cstr];
+    let mut args_raw: Vec<*const raw::c_char> = args.iter().map(|arg| arg.as_ptr()).collect();
+    args_raw.push(std::ptr::null());
+    let argv: *const *const raw::c_char = args_raw.as_ptr();
+
+    unsafe {
+        libc::execv(prog, argv);
+    }
+
+    use std::io::Error;
+    let errno: i32 = Error::last_os_error().raw_os_error().unwrap();
+    println!("errno = {}", errno);
 
     // XXX shebang
     // https://docs.python.org/3.8/using/windows.html#customizing-default-python-versions
