@@ -44,14 +44,3 @@ upfront (i.e. the newest version of Python that happens to be installed).
 1. Check `PY_PYTHON`; if set to e.g. `3`, run as `py -3`; if set to e.g. `3.6`, run as `py -3.6`
 1. Search `PATH` for `pythonX.Y`
 1. Use executable with largest `X`, then largest `Y`
-
-
-# Implementation notes
-
-[std::fs::read_dir](https://doc.rust-lang.org/std/fs/fn.read_dir.html)
-
-[std::vec::Vec::sort_by_key](https://doc.rust-lang.org/std/vec/struct.Vec.html#method.sort_by_key)
-
-[execv](https://linux.die.net/man/3/execv):
-1. [nix::unistd::exec](https://docs.rs/nix/0.9.0/nix/unistd/fn.execv.html)
-1. [libc::execv](https://docs.rs/libc/0.2.40/libc/fn.execv.html)
