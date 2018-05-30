@@ -138,6 +138,7 @@ pub fn check_cli_arg(arg: &String) -> RequestedVersion {
         println!("No version found in the first CLI arg");
         RequestedVersion::Any
     }
+    // XXX Return a modified argv.
 }
 
 /// Returns the entries in `PATH`.
