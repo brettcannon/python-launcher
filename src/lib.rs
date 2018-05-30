@@ -65,21 +65,21 @@ impl RequestedVersion {
 
 /// The version of Python found.
 #[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
-struct Version {
+pub struct Version {
     major: VersionComponent,
     minor: VersionComponent,
 }
 
 /// Represents how tight of a match a `Version` is to a `RequestedVersion`.
 #[derive(Debug, PartialEq)]
-enum VersionMatch {
+pub enum VersionMatch {
     NotAtAll, // Not compatible.
     Loosely,  // Compatible, but potential for a better, newer match.
     Exactly,  // Matches a major.minor exactly.
 }
 
 impl Version {
-    fn matches(&self, requested: &RequestedVersion) -> VersionMatch {
+    pub fn matches(&self, requested: &RequestedVersion) -> VersionMatch {
         match requested {
             RequestedVersion::Any => VersionMatch::Loosely,
             RequestedVersion::Loose(major) => if self.major == *major {
@@ -97,23 +97,6 @@ impl Version {
         }
     }
 }
-
-/* XXX def find_executables():
-executables = {}
-for path in path_entries():
-    contents = directory_contents()
-    for version, path in filter_python_executables():
-        # XXX Break out into separate function? Put into filter_python_executables?
-        version_match = version.matches(requested_version)
-        if version_match in {Loosely, Exactly} and version not in executables and is_file(path):
-            executables[version] = path
-            if version_match == Exactly:
-                return executables
-return executables
-
-XXX def choose_executable(executables):
-    return sorted(executables.items(), key=operator.itemgetter(0))[-1]
-*/
 
 /// Converts a `Vec<char>` to a `VersionComponent` integer.
 fn char_vec_to_int(char_vec: &Vec<char>) -> Result<VersionComponent, String> {
@@ -158,7 +141,7 @@ pub fn check_cli_arg(arg: &String) -> RequestedVersion {
 }
 
 /// Returns the entries in `PATH`.
-fn path_entries() -> Vec<path::PathBuf> {
+pub fn path_entries() -> Vec<path::PathBuf> {
     let path_val = match env::var_os("PATH") {
         Some(val) => val,
         None => return Vec::new(),
@@ -169,7 +152,7 @@ fn path_entries() -> Vec<path::PathBuf> {
 /// Gets the contents of a directory.
 ///
 /// Exists primarily to unwrap and ignore any unencodeable names.
-fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBuf> {
+pub fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBuf> {
     let mut paths = collections::HashSet::new();
     if let Ok(contents) = path.read_dir() {
         for content in contents {
@@ -183,7 +166,7 @@ fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBu
 }
 
 /// Filters the paths down to `pythonX.Y` paths.
-fn filter_python_executables(
+pub fn filter_python_executables(
     paths: collections::HashSet<path::PathBuf>,
 ) -> collections::HashMap<Version, path::PathBuf> {
     let mut executables = collections::HashMap::new();
@@ -215,6 +198,17 @@ fn filter_python_executables(
     }
 
     return executables;
+}
+
+pub fn choose_executable(
+    version_paths: &collections::HashMap<Version, path::PathBuf>,
+) -> Option<path::PathBuf> {
+    let mut pairs: Vec<(&Version, &path::PathBuf)> = version_paths.iter().collect();
+    pairs.sort_unstable_by_key(|p| p.0);
+    match pairs.last() {
+        Some((_, path)) => Some(path.to_path_buf()),
+        None => None,
+    }
 }
 
 #[cfg(test)]
@@ -371,5 +365,40 @@ mod tests {
         assert_eq!(version_42_13.matches(&any), VersionMatch::Loosely);
         assert_eq!(version_42_13.matches(&loose_42), VersionMatch::Loosely);
         assert_eq!(version_42_13.matches(&exact_42_13), VersionMatch::Exactly);
+    }
+
+    #[test]
+    fn test_choose_executable() {
+        let version_3_6 = Version { major: 3, minor: 6 };
+        let version_42_0 = Version {
+            major: 42,
+            minor: 0,
+        };
+        let version_42_13 = Version {
+            major: 42,
+            minor: 13,
+        };
+        let path_3_6 = path::PathBuf::from("/python3.6");
+        let path_42_0 = path::PathBuf::from("/python42.0");
+        let path_42_13 = path::PathBuf::from("/python42.13");
+        let mut mapping = collections::HashMap::new();
+
+        match choose_executable(&mapping) {
+            Some(_) => panic!("found a non-existent path"),
+            None => (),
+        };
+
+        mapping.insert(version_3_6, path_3_6.clone());
+        match choose_executable(&mapping) {
+            Some(path) => assert_eq!(path, path_3_6),
+            None => panic!("no path found"),
+        }
+
+        mapping.insert(version_42_0, path_42_0);
+        mapping.insert(version_42_13, path_42_13.clone());
+        match choose_executable(&mapping) {
+            Some(path) => assert_eq!(path, path_42_13),
+            None => panic!("no path found"),
+        }
     }
 }

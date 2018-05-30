@@ -19,25 +19,51 @@
 
 extern crate python_launcher;
 
+use std::collections;
 use std::env;
 
 use python_launcher as py;
 
 fn main() {
     println!("Args: {:?}", env::args());
-    let mut version = py::RequestedVersion::Any;
+    let mut requested_version = py::RequestedVersion::Any;
     // https://docs.python.org/3.8/using/windows.html#from-the-command-line
     // XXX shebang?
     // https://docs.python.org/3.8/using/windows.html#shebang-lines
     if env::args().len() > 1 {
-        version = match env::args().nth(1) {
+        requested_version = match env::args().nth(1) {
             // XXX `-0`
             // XXX `-h`/`--help`
             Some(arg) => py::check_cli_arg(&arg),
             None => py::RequestedVersion::Any,
         };
     }
-    println!("CLI version: {:?}", version);
+    println!("CLI version: {:?}", requested_version);
+
+    let mut found_versions = collections::HashMap::new();
+    for path in py::path_entries() {
+        let all_contents = py::directory_contents(&path);
+        for (version, path) in py::filter_python_executables(all_contents) {
+            match version.matches(&requested_version) {
+                py::VersionMatch::NotAtAll => continue,
+                py::VersionMatch::Loosely => {
+                    if !found_versions.contains_key(&version) && path.is_file() {
+                        found_versions.insert(version, path);
+                    }
+                }
+                py::VersionMatch::Exactly => {
+                    if path.is_file() {
+                        found_versions.insert(version, path);
+                        break;
+                    }
+                }
+            };
+        }
+
+        println!("Found {:?}", found_versions);
+        let chosen_path = py::choose_executable(&found_versions);
+        println!("Chose {:?}", chosen_path);
+    }
 
     // XXX shebang
     // https://docs.python.org/3.8/using/windows.html#customizing-default-python-versions
