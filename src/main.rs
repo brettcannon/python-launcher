@@ -71,6 +71,7 @@ fn main() {
     println!("Chose {:?}", chosen_path);
 
     // https://users.rust-lang.org/t/rookie-going-from-std-process-to-libc-exec/10180/3
+    // XXX abstract out.
     let exec_cstr = ffi::CString::new(chosen_path.unwrap().as_os_str().as_bytes()).unwrap();
     let prog: *const raw::c_char = exec_cstr.as_ptr();
 
