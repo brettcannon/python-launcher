@@ -59,11 +59,11 @@ fn main() {
                 }
             };
         }
-
-        println!("Found {:?}", found_versions);
-        let chosen_path = py::choose_executable(&found_versions);
-        println!("Chose {:?}", chosen_path);
     }
+
+    println!("Found {:?}", found_versions);
+    let chosen_path = py::choose_executable(&found_versions);
+    println!("Chose {:?}", chosen_path);
 
     // XXX shebang
     // https://docs.python.org/3.8/using/windows.html#customizing-default-python-versions
