@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Brett Cannon <brett@python.org>"]
 
 [dependencies]
+libc = "0.2.41"
 
 [[bin]]
 name = "py"
