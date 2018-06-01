@@ -31,16 +31,16 @@ use nix::unistd;
 use python_launcher as py;
 
 fn main() {
-    println!("Args: {:?}", env::args());
+    let mut args = env::args().collect::<Vec<String>>();
+    args.remove(0); // Strip the path to this executable.
     let mut requested_version = py::RequestedVersion::Any;
 
-    if env::args().len() > 1 {
-        requested_version = match env::args().nth(1) {
-            Some(arg) => py::check_cli_arg(&arg),
-            None => py::RequestedVersion::Any,
-        };
+    if args.len() >= 1 {
+        if let Ok(version) = py::parse_version_from_flag(&args[0]) {
+            requested_version = version;
+            args.remove(0);
+        }
     }
-    println!("CLI version: {:?}", requested_version);
 
     let mut found_versions = collections::HashMap::new();
     for path in py::path_entries() {
@@ -64,14 +64,13 @@ fn main() {
     }
 
     println!("Found {:?}", found_versions);
-    let args = vec![String::from("."), String::from("bunk")];
+    //let args = vec![String::from("."), String::from("bunk")];
     let chosen_path = py::choose_executable(&found_versions).unwrap();
     match run(&chosen_path, &args) {
         Err(e) => println!("{:?}", e),
         Ok(_) => (),
     };
 
-    // XXX Strip out e.g. -3 as appropriate.
     // XXX shebang https://docs.python.org/3.8/using/windows.html#shebang-lines
     // https://docs.python.org/3.8/using/windows.html#customizing-default-python-versions
     // XXX Environment variable (if appropriate)? `PY_PYTHON`, `PY_PYTHON{major}`
@@ -85,6 +84,7 @@ fn main() {
 }
 
 fn run(executable: &path::PathBuf, args: &Vec<String>) -> nix::Result<()> {
+    println!("Args: {:?}", args);
     let executable_as_cstring = ffi::CString::new(executable.as_os_str().as_bytes()).unwrap();
     let mut argv = vec![executable_as_cstring.clone()];
     argv.extend(

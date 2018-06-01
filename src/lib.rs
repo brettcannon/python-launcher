@@ -111,34 +111,14 @@ fn char_vec_to_int(char_vec: &Vec<char>) -> Result<VersionComponent, String> {
 /// Attempts to parse a version specifier from a CLI argument.
 ///
 /// Any failure to parse leads to `RequestedVersion::Any` being returned.
-fn parse_version_from_cli(arg: &String) -> RequestedVersion {
+pub fn parse_version_from_flag(arg: &String) -> Result<RequestedVersion, String> {
     if arg.starts_with("-") {
         let mut version = arg.clone();
         version.remove(0);
-        match RequestedVersion::from_string(&version) {
-            Ok(v) => v,
-            Err(_) => RequestedVersion::Any,
-        }
+        RequestedVersion::from_string(&version)
     } else {
-        RequestedVersion::Any
+        Err("flag does not start with `-`".to_string())
     }
-}
-
-/// Checks if the string contains a version specifier.
-///
-/// If not version specifier is found, `RequestedVersion::Any` is returned.
-//
-// https://docs.python.org/3.8/using/windows.html#from-the-command-line
-pub fn check_cli_arg(arg: &String) -> RequestedVersion {
-    let version_from_cli = parse_version_from_cli(arg);
-    if version_from_cli != RequestedVersion::Any {
-        version_from_cli
-    } else {
-        // XXX shebang from file
-        println!("No version found in the first CLI arg");
-        RequestedVersion::Any
-    }
-    // XXX Return a modified argv.
 }
 
 /// Returns the entries in `PATH`.
@@ -240,39 +220,24 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_version_from_cli() {
+    fn test_parse_version_from_flag() {
+        assert!(parse_version_from_flag(&"path/to/file".to_string()).is_err());
+        assert!(parse_version_from_flag(&"3".to_string()).is_err());
+        assert!(parse_version_from_flag(&"-S".to_string()).is_err());
+        assert!(parse_version_from_flag(&"--something".to_string()).is_err());
         assert_eq!(
-            parse_version_from_cli(&"path/to/file".to_string()),
-            RequestedVersion::Any
+            parse_version_from_flag(&"-3".to_string()),
+            Ok(RequestedVersion::Loose(3))
         );
         assert_eq!(
-            parse_version_from_cli(&"3".to_string()),
-            RequestedVersion::Any
+            parse_version_from_flag(&"-3.6".to_string()),
+            Ok(RequestedVersion::Exact(3, 6))
         );
         assert_eq!(
-            parse_version_from_cli(&"-S".to_string()),
-            RequestedVersion::Any
+            parse_version_from_flag(&"-42.13".to_string()),
+            Ok(RequestedVersion::Exact(42, 13))
         );
-        assert_eq!(
-            parse_version_from_cli(&"--something".to_string()),
-            RequestedVersion::Any
-        );
-        assert_eq!(
-            parse_version_from_cli(&"-3".to_string()),
-            RequestedVersion::Loose(3)
-        );
-        assert_eq!(
-            parse_version_from_cli(&"-3.6".to_string()),
-            RequestedVersion::Exact(3, 6)
-        );
-        assert_eq!(
-            parse_version_from_cli(&"-42.13".to_string()),
-            RequestedVersion::Exact(42, 13)
-        );
-        assert_eq!(
-            parse_version_from_cli(&"-3.6.4".to_string()),
-            RequestedVersion::Any
-        );
+        assert!(parse_version_from_flag(&"-3.6.4".to_string()).is_err());
     }
 
     #[test]
