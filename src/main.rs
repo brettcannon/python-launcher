@@ -1,4 +1,3 @@
-// https://doc.rust-lang.org/book/second-edition/ch12-03-improving-error-handling-and-modularity.html
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
@@ -17,28 +16,26 @@
 // 1. Search `PATH` for `pythonX.Y`
 // 1. Use executable with largest `X`, then largest `Y`
 
-extern crate libc;
+//extern crate libc;
+extern crate nix;
 extern crate python_launcher;
 
 use std::collections;
 use std::env;
 use std::ffi;
-use std::os::raw;
 use std::os::unix::ffi::OsStrExt;
+use std::path;
+
+use nix::unistd;
 
 use python_launcher as py;
 
 fn main() {
     println!("Args: {:?}", env::args());
     let mut requested_version = py::RequestedVersion::Any;
-    // https://docs.python.org/3.8/using/windows.html#from-the-command-line
-    // XXX shebang?
-    // https://docs.python.org/3.8/using/windows.html#shebang-lines
+
     if env::args().len() > 1 {
         requested_version = match env::args().nth(1) {
-            // XXX `-0`
-            // XXX `-h`/`--help`
-            // XXX Need to strip out version and return a new argv.
             Some(arg) => py::check_cli_arg(&arg),
             None => py::RequestedVersion::Any,
         };
@@ -67,33 +64,37 @@ fn main() {
     }
 
     println!("Found {:?}", found_versions);
-    let chosen_path = py::choose_executable(&found_versions);
-    println!("Chose {:?}", chosen_path);
+    let args = vec![String::from("."), String::from("bunk")];
+    let chosen_path = py::choose_executable(&found_versions).unwrap();
+    match run(&chosen_path, &args) {
+        Err(e) => println!("{:?}", e),
+        Ok(_) => (),
+    };
 
-    // https://users.rust-lang.org/t/rookie-going-from-std-process-to-libc-exec/10180/3
-    // XXX abstract out.
-    let exec_cstr = ffi::CString::new(chosen_path.unwrap().as_os_str().as_bytes()).unwrap();
-    let prog: *const raw::c_char = exec_cstr.as_ptr();
-
-    let args: Vec<ffi::CString> = vec![exec_cstr];
-    let mut args_raw: Vec<*const raw::c_char> = args.iter().map(|arg| arg.as_ptr()).collect();
-    args_raw.push(std::ptr::null());
-    let argv: *const *const raw::c_char = args_raw.as_ptr();
-
-    unsafe {
-        libc::execv(prog, argv);
-    }
-
-    use std::io::Error;
-    let errno: i32 = Error::last_os_error().raw_os_error().unwrap();
-    println!("errno = {}", errno);
-
-    // XXX shebang
+    // XXX Strip out e.g. -3 as appropriate.
+    // XXX shebang https://docs.python.org/3.8/using/windows.html#shebang-lines
     // https://docs.python.org/3.8/using/windows.html#customizing-default-python-versions
     // XXX Environment variable (if appropriate)? `PY_PYTHON`, `PY_PYTHON{major}`
     // https://docs.python.org/3.8/using/windows.html#virtual-environments
     // XXX Virtual environment takes precedence when no version specified; `VIRTUAL_ENV`
+    // XXX `-0`
+    // XXX `-h`/`--help`
     // XXX Config file?
     // https://docs.python.org/3.8/using/windows.html#diagnostics
     // XXX PYLAUNCH_DEBUG
+}
+
+fn run(executable: &path::PathBuf, args: &Vec<String>) -> nix::Result<()> {
+    let executable_as_cstring = ffi::CString::new(executable.as_os_str().as_bytes()).unwrap();
+    let mut argv = vec![executable_as_cstring.clone()];
+    argv.extend(
+        args.iter()
+            .map(|arg| ffi::CString::new(arg.as_str()).unwrap()),
+    );
+
+    let result = unistd::execv(&executable_as_cstring, &argv);
+    match result {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e),
+    }
 }
