@@ -21,12 +21,12 @@ upfront (i.e. the newest version of Python that happens to be installed).
     - Aliasing? E.g. `2.7-framework=/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
     - Just provide a way to specify a specific interpreter for a specific version? E.g. `2.7=/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
 - [Specifying the version](https://www.python.org/dev/peps/pep-0397/#python-version-qualifiers)
-  - Unspecified defaults to `2` is no longer true?
   - [On the commmand-line](https://www.python.org/dev/peps/pep-0397/#command-line-handling)
   - Environment variables
 - `py -0`
   - Output well-formatted JSON to start in order for it to be consumable?
   - Output column format like `pip list`?
+- `py -h` emits its own help before continuing on to `python`
 
 # Search order
 
@@ -36,8 +36,8 @@ upfront (i.e. the newest version of Python that happens to be installed).
 
 ## `py -3`
 1. Check `PY_PYTHON3`; if set to e.g. `3.6`, run as `py -3.6` (error to only set as `3`?)
-1. Search `PATH` for `python3.X`
-1. Use executable with largest `X`
+1. Search `PATH` for `python3.Y`
+1. Use executable with largest `Y`
 
 ## `py`
 
