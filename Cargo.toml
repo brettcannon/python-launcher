@@ -2,9 +2,17 @@
 name = "python-launcher"
 version = "0.1.0"
 authors = ["Brett Cannon <brett@python.org>"]
+repository = "https://github.com/brettcannon/python-launcher"
+readme = "README.md"
+license = "MIT"
+keywords = ["Python"]
+categories = ["command-line-utilities"]
+
+[badges]
+travis-ci = { repository = "brettcannon/python-launcher" }
+maintenance = { status = "experimental" }
 
 [dependencies]
-#libc = "0.2.41"
 nix = "0.10.0"
 
 [[bin]]
