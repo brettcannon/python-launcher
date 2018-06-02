@@ -3,7 +3,7 @@
 An implementation of the `py` command for UNIX-based platforms.
 
 The goal is to have `py` become the cross-platform command that all Python users
-use when executing a Python interpreter. Not only is it is short and to the
+use when executing a Python interpreter. Not only is it short and to the
 point, but it also provides a single command that documentation can use in
 examples which will work regardless of what operating system a user is on.
 Lastly, it side-steps the "what should the `python` command point to?" debate by
