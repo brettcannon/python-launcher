@@ -1,5 +1,6 @@
 [package]
 name = "python-launcher"
+description = "The Python launcher for UNIX"
 version = "0.1.0"
 authors = ["Brett Cannon <brett@python.org>"]
 repository = "https://github.com/brettcannon/python-launcher"
