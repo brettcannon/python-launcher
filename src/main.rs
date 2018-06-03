@@ -42,6 +42,18 @@ fn main() {
         }
     }
 
+    match requested_version {
+        py::RequestedVersion::Any => match py::check_default_env_var() {
+            Ok(found_version) => requested_version = found_version,
+            _ => (),
+        },
+        py::RequestedVersion::Loose(major) => match py::check_major_env_var(major) {
+            Ok(found_version) => requested_version = found_version,
+            _ => (),
+        },
+        py::RequestedVersion::Exact(_, _) => (),
+    };
+
     let mut found_versions = collections::HashMap::new();
     for path in py::path_entries() {
         let all_contents = py::directory_contents(&path);

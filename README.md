@@ -16,10 +16,15 @@ installed).
 1. Search `PATH` for `python3.6`
 
 ## `py -3`
+1. Use the `PY_PYTHON3` environment variable if defined
+   (e.g. `PY_PYTHON3=3.6`)
 1. Search `PATH` for all instances of `python3.Y`
 1. Find the executable with largest `Y`
 
 ## `py`
+1. Use the `PY_PYTHON` environment variable if defined
+   (e.g. `PY_PYTHON=3`)
+   version requested and search accordingly
 1. Search `PATH` for all instances of `pythonX.Y`
 1. Find the executable with largest `X.Y` version
 

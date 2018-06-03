@@ -1,5 +1,6 @@
 use std::collections;
 use std::env;
+use std::error::Error;
 use std::path;
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
@@ -192,6 +193,23 @@ pub fn choose_executable(
     }
 }
 
+fn check_env_var(env_var_name: &String) -> Result<RequestedVersion, String> {
+    let env_var = match env::var(env_var_name) {
+        Ok(e) => e,
+        Err(e) => return Err(e.description().to_string()),
+    };
+
+    RequestedVersion::from_string(&env_var)
+}
+
+pub fn check_default_env_var() -> Result<RequestedVersion, String> {
+    check_env_var(&"PY_PYTHON".to_string())
+}
+
+pub fn check_major_env_var(major: VersionComponent) -> Result<RequestedVersion, String> {
+    check_env_var(&format!("PY_PYTHON{}", major))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -367,4 +385,41 @@ mod tests {
             None => panic!("no path found"),
         }
     }
+
+    #[test]
+    fn test_check_default_env_var() {
+        env::remove_var("PY_PYTHON");
+        match check_default_env_var() {
+            Err(_) => (),
+            Ok(_) => panic!("supposedly a value was found when PY_PYTHON isn't set"),
+        };
+
+        env::set_var("PY_PYTHON", "42.13");
+        assert_eq!(check_default_env_var(), Ok(RequestedVersion::Exact(42, 13)));
+
+        env::set_var("PY_PYTHON", "some bunk");
+        match check_default_env_var() {
+            Err(_) => (),
+            Ok(_) => panic!("supposedly found a value when PY_PYTHON set to 'some bunk'"),
+        }
+    }
+
+    #[test]
+    fn test_check_major_env_var() {
+        env::remove_var("PY_PYTHON42");
+        match check_major_env_var(42) {
+            Err(_) => (),
+            Ok(_) => panic!("supposedly a value was found when PY_PYTHON42 isn't set"),
+        };
+
+        env::set_var("PY_PYTHON42", "42.13");
+        assert_eq!(check_major_env_var(42), Ok(RequestedVersion::Exact(42, 13)));
+
+        env::set_var("PY_PYTHON42", "some bunk");
+        match check_major_env_var(42) {
+            Err(_) => (),
+            Ok(_) => panic!("supposedly found a value when PY_PYTHON42 set to 'some bunk'"),
+        }
+    }
+
 }
