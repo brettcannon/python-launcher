@@ -63,7 +63,6 @@ fn main() {
         }
     }
 
-    println!("Found {:?}", found_versions);
     let chosen_path = py::choose_executable(&found_versions).unwrap();
     match run(&chosen_path, &args) {
         Err(e) => println!("{:?}", e),
@@ -83,7 +82,6 @@ fn main() {
 }
 
 fn run(executable: &path::PathBuf, args: &Vec<String>) -> nix::Result<()> {
-    println!("Args: {:?}", args);
     let executable_as_cstring = ffi::CString::new(executable.as_os_str().as_bytes()).unwrap();
     let mut argv = vec![executable_as_cstring.clone()];
     argv.extend(
