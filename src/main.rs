@@ -68,17 +68,6 @@ fn main() {
         Err(e) => println!("{:?}", e),
         Ok(_) => (),
     };
-
-    // XXX shebang https://docs.python.org/3.8/using/windows.html#shebang-lines
-    // https://docs.python.org/3.8/using/windows.html#customizing-default-python-versions
-    // XXX Environment variable (if appropriate)? `PY_PYTHON`, `PY_PYTHON{major}`
-    // https://docs.python.org/3.8/using/windows.html#virtual-environments
-    // XXX Virtual environment takes precedence when no version specified; `VIRTUAL_ENV`
-    // XXX `-0`
-    // XXX `-h`/`--help`
-    // XXX Config file?
-    // https://docs.python.org/3.8/using/windows.html#diagnostics
-    // XXX PYLAUNCH_DEBUG
 }
 
 fn run(executable: &path::PathBuf, args: &Vec<String>) -> nix::Result<()> {

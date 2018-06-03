@@ -27,11 +27,11 @@ installed).
 
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
-- [Specifying the version](https://www.python.org/dev/peps/pep-0397/#python-version-qualifiers)
-  - Environment variables
+- [Virtual environment takes precedence when no version specified](https://docs.python.org/3.8/using/windows.html#virtual-environments) (`VIRTUAL_ENV`)
 - [Shebang line parsing](https://www.python.org/dev/peps/pep-0397/#shebang-line-parsing)
   - Only the [first argument if it's a file and doesn't start with `-`](https://www.python.org/dev/peps/pep-0397/#command-line-handling)
   - Not necessary, but nice to have
+- [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)
 - `py -0`
   - Output well-formatted JSON to start in order for it to be consumable?
   - Output column format like `pip list`?
