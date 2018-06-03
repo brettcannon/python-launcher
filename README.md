@@ -30,6 +30,12 @@ installed).
 
 # TODO
 
+**NOTE**: I am using this project to learn
+[Rust](https://www.rust-lang.org/), so please don't be offended if I choose to
+implement something myself instead of accepting a pull request that you submit.
+(Pull requests to do something I have already implemented in a more idiomatic
+fashion are very much appreciated, though.)
+
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
 - [Virtual environment takes precedence when no version specified](https://docs.python.org/3.8/using/windows.html#virtual-environments) (`VIRTUAL_ENV`)
