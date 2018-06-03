@@ -64,7 +64,6 @@ fn main() {
     }
 
     println!("Found {:?}", found_versions);
-    //let args = vec![String::from("."), String::from("bunk")];
     let chosen_path = py::choose_executable(&found_versions).unwrap();
     match run(&chosen_path, &args) {
         Err(e) => println!("{:?}", e),
