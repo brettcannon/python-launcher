@@ -41,6 +41,10 @@ fashion are very much appreciated, though.)
 - [Shebang line parsing](https://www.python.org/dev/peps/pep-0397/#shebang-line-parsing)
   - Only the [first argument if it's a file and doesn't start with `-`](https://www.python.org/dev/peps/pep-0397/#command-line-handling)
   - Not necessary, but nice to have
+  - `#! interpreter [optional-arg]`
+  - Supports "/usr/bin/python", "/usr/local/bin/python", "/usr/bin/env python", and "python"
+  - Any other shebang is considered ready to be executed
+  - Default "python" to Python 2 for backwards-compatibility?
 - [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)
 - `py -0`
   - Output well-formatted JSON to start in order for it to be consumable?
