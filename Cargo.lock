@@ -56,7 +56,7 @@ dependencies = [
 
 [[package]]
 name = "python-launcher"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "nix 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
