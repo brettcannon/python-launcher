@@ -17,14 +17,14 @@ installed).
 
 ## `py -3`
 1. Use the `PY_PYTHON3` environment variable if defined
-   (e.g. `PY_PYTHON3=3.6`)
+   (e.g. `PY_PYTHON3=3.6`); the search proceeds based on the value found
 1. Search `PATH` for all instances of `python3.Y`
 1. Find the executable with largest `Y`
 
 ## `py`
+1. Use `${VIRTUAL_ENV}/bin/python` if set
 1. Use the `PY_PYTHON` environment variable if defined
-   (e.g. `PY_PYTHON=3`)
-   version requested and search accordingly
+   (e.g. `PY_PYTHON=3`); the search proceeds based on the value found
 1. Search `PATH` for all instances of `pythonX.Y`
 1. Find the executable with largest `X.Y` version
 
@@ -38,7 +38,6 @@ fashion are very much appreciated, though.)
 
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
-- [Virtual environment takes precedence when no version specified](https://docs.python.org/3.8/using/windows.html#virtual-environments) (`VIRTUAL_ENV`)
 - [Shebang line parsing](https://www.python.org/dev/peps/pep-0397/#shebang-line-parsing)
   - Only the [first argument if it's a file and doesn't start with `-`](https://www.python.org/dev/peps/pep-0397/#command-line-handling)
   - Not necessary, but nice to have

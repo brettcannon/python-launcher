@@ -42,6 +42,20 @@ fn main() {
         }
     }
 
+    if requested_version == py::RequestedVersion::Any {
+        if let Some(venv_root) = env::var_os("VIRTUAL_ENV") {
+            let mut path = path::PathBuf::new();
+            path.push(venv_root);
+            path.push("bin");
+            path.push("python");
+            match run(&path, &args) {
+                Err(e) => println!("{:?}", e),
+                Ok(_) => (),
+            };
+            return;
+        }
+    }
+
     match requested_version {
         py::RequestedVersion::Any => match py::check_default_env_var() {
             Ok(found_version) => requested_version = found_version,
