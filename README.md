@@ -53,7 +53,7 @@ fashion are very much appreciated, though.)
 - [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)
   - Want a better format like TOML?
-  - Want to use `Pipfile` and its `python_version` field?
+  - Want to use `Pipfile`/`Pipfile.lock` and its `python_version` field?
   - `pyenv` and its `.python_version`?
   - Probably want a way to override things, e.g. wanting a framework build on macOS somehow
     - Aliasing? E.g. `2.7-framework=/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
