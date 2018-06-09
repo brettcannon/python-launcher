@@ -1,22 +1,6 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-// `py -3.6`
-// 1. Search `PATH` for `python3.6`
-
-// `py -3`
-// 1. Check `PY_PYTHON3` (no checks for sanity, e.g. `3` and `2.7` are acceptable)
-// 1. Search `PATH` for `python3.X`
-// 1. Use executable with largest `X`
-
-// `py`
-// 1. Check shebang
-// 1. Check for virtual environment (and then `python`)
-// 1. Check `PY_PYTHON`; if set to e.g. `3`, run as `py -3`; if set to e.g. `3.6`, run as `py -3.6`
-// 1. Search `PATH` for `pythonX.Y`
-// 1. Use executable with largest `X`, then largest `Y`
-
-//extern crate libc;
 extern crate nix;
 extern crate python_launcher;
 
@@ -36,9 +20,13 @@ fn main() {
     let mut requested_version = py::RequestedVersion::Any;
 
     if args.len() >= 1 {
-        if let Ok(version) = py::parse_version_from_flag(&args[0]) {
-            requested_version = version;
-            args.remove(0);
+        if args[0].starts_with("-") {
+            if let Some(version) = py::version_from_flag(&args[0]) {
+                requested_version = version;
+                args.remove(0);
+            }
+        } else {
+            // XXX Try for a shebang.
         }
     }
 

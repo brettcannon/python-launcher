@@ -109,16 +109,17 @@ fn char_vec_to_int(char_vec: &Vec<char>) -> Result<VersionComponent, String> {
     )))
 }
 
-/// Attempts to parse a version specifier from a CLI argument.
+/// Attempts to find a version specifier from a CLI argument.
 ///
-/// Any failure to parse leads to `RequestedVersion::Any` being returned.
-pub fn parse_version_from_flag(arg: &String) -> Result<RequestedVersion, String> {
-    if arg.starts_with("-") {
-        let mut version = arg.clone();
-        version.remove(0);
-        RequestedVersion::from_string(&version)
-    } else {
-        Err("flag does not start with `-`".to_string())
+/// It is assumed that the flag from the command-line is passed as-is
+/// (i.e. the flag starts with `-`).
+pub fn version_from_flag(arg: &String) -> Option<RequestedVersion> {
+    assert!(arg.starts_with("-"));
+    let mut version = arg.clone();
+    version.remove(0);
+    match RequestedVersion::from_string(&version) {
+        Ok(version) => Some(version),
+        Err(_) => None,
     }
 }
 
@@ -238,24 +239,22 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_version_from_flag() {
-        assert!(parse_version_from_flag(&"path/to/file".to_string()).is_err());
-        assert!(parse_version_from_flag(&"3".to_string()).is_err());
-        assert!(parse_version_from_flag(&"-S".to_string()).is_err());
-        assert!(parse_version_from_flag(&"--something".to_string()).is_err());
+    fn test_version_from_flag() {
+        assert!(version_from_flag(&"-S".to_string()).is_none());
+        assert!(version_from_flag(&"--something".to_string()).is_none());
         assert_eq!(
-            parse_version_from_flag(&"-3".to_string()),
-            Ok(RequestedVersion::Loose(3))
+            version_from_flag(&"-3".to_string()),
+            Some(RequestedVersion::Loose(3))
         );
         assert_eq!(
-            parse_version_from_flag(&"-3.6".to_string()),
-            Ok(RequestedVersion::Exact(3, 6))
+            version_from_flag(&"-3.6".to_string()),
+            Some(RequestedVersion::Exact(3, 6))
         );
         assert_eq!(
-            parse_version_from_flag(&"-42.13".to_string()),
-            Ok(RequestedVersion::Exact(42, 13))
+            version_from_flag(&"-42.13".to_string()),
+            Some(RequestedVersion::Exact(42, 13))
         );
-        assert!(parse_version_from_flag(&"-3.6.4".to_string()).is_err());
+        assert!(version_from_flag(&"-3.6.4".to_string()).is_none());
     }
 
     #[test]
