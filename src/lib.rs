@@ -214,11 +214,13 @@ pub fn check_major_env_var(major: VersionComponent) -> Result<RequestedVersion, 
 }
 
 // XXX Shebang:
-//      Look for magic paths ("/usr/bin/python", "/usr/local/bin/python", "/usr/bin/env python", and "python")
-//      Find out specified Python version (`python` defaults to 2?)
-//      Split out any arguments
-//      Prepend extra arguments to `argv`
-//      Continue search for an appropriate Python version
+//      fn find_python_in_shebang(shebang: String) -> Option<(RequestedVersion, Vector<String>)>:
+//          Look for magic paths ("/usr/bin/python", "/usr/local/bin/python", "/usr/bin/env python", and "python")
+//          Split out specified Python version (`python` defaults to 2?)
+//          Split out any arguments
+//      In main():
+//          Prepend extra arguments to `argv`
+//          Continue search for an appropriate Python version
 
 fn find_shebang(reader: impl io::Read) -> Option<String> {
     let mut buffered_reader = io::BufReader::new(reader);
