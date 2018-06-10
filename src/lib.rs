@@ -1,6 +1,8 @@
 use std::collections;
 use std::env;
 use std::error::Error;
+use std::io;
+use std::io::BufRead;
 use std::path;
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
@@ -211,6 +213,29 @@ pub fn check_major_env_var(major: VersionComponent) -> Result<RequestedVersion, 
     check_env_var(&format!("PY_PYTHON{}", major))
 }
 
+// XXX Shebang:
+//      Look for magic paths ("/usr/bin/python", "/usr/local/bin/python", "/usr/bin/env python", and "python")
+//      Find out specified Python version (`python` defaults to 2?)
+//      Split out any arguments
+//      Prepend extra arguments to `argv`
+//      Continue search for an appropriate Python version
+
+fn find_shebang(reader: impl io::Read) -> Option<String> {
+    let mut buffered_reader = io::BufReader::new(reader);
+
+    let mut line = String::new();
+    match buffered_reader.read_line(&mut line) {
+        Err(_) => return None,
+        _ => (),
+    };
+
+    if !line.starts_with("#!") {
+        None
+    } else {
+        Some(line[2..].trim().to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -419,6 +444,42 @@ mod tests {
             Err(_) => (),
             Ok(_) => panic!("supposedly found a value when PY_PYTHON42 set to 'some bunk'"),
         }
+    }
+
+    #[test]
+    fn test_find_shebang() {
+        // Common case.
+        assert_eq!(
+            find_shebang("#! /usr/bin/cat\nprint('Hello!')\n".as_bytes()),
+            Some("/usr/bin/cat".to_string())
+        );
+
+        // No shebang.
+        assert_eq!(find_shebang("print('Hello!')".as_bytes()), None);
+
+        // No whitespace between `#!` and command.
+        assert_eq!(
+            find_shebang("#!/usr/bin/cat\nHello".as_bytes()),
+            Some("/usr/bin/cat".to_string())
+        );
+
+        // Command wtih arguments.
+        assert_eq!(
+            find_shebang("#! /usr/bin/env python -S".as_bytes()),
+            Some("/usr/bin/env python -S".to_string())
+        );
+
+        // Strip trailing whitespace.
+        assert_eq!(
+            find_shebang("#! /usr/bin/python \n# Hello".as_bytes()),
+            Some("/usr/bin/python".to_string())
+        );
+
+        // Nothing but a shebang.
+        assert_eq!(
+            find_shebang("#! /usr/bin/python".as_bytes()),
+            Some("/usr/bin/python".to_string())
+        );
     }
 
 }
