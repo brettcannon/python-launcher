@@ -219,20 +219,13 @@ pub fn check_major_env_var(major: VersionComponent) -> Result<RequestedVersion, 
 }
 
 // XXX Shebang:
-//      fn split_shebang(shebang: String) -> Option<(String, String)>:
-//          Look for magic paths ("/usr/bin/python", "/usr/local/bin/python", "/usr/bin/env python", and "python")
-//          Split out specified Python version (`python` defaults to 2?)
-//          Split out any arguments
-//
-//      pub find_python_in_shebang(impl io::Read) -> Option<(RequestedVersion, Vector<String>):
-//          shebang = find_shebang()
-//          version, args = split_shebang()
-//          return RequestedVersion(version), args.split()
-//
 //      In main():
 //          Prepend extra arguments to `argv`
 //          Continue search for an appropriate Python version
 
+/// Finds the shebang line from `reader`.
+///
+/// If a shebang line is found, then the `#!` is removed and the line is stripped of leading and trailing whitespace.
 fn find_shebang(reader: impl io::Read) -> Option<String> {
     let mut buffered_reader = io::BufReader::new(reader);
 
@@ -247,6 +240,53 @@ fn find_shebang(reader: impl io::Read) -> Option<String> {
     } else {
         Some(line[2..].trim().to_string())
     }
+}
+
+/// Split the shebang into the Python version specified and the arguments to pass to the executable.
+///
+/// `Some` is only returned if the specified executable is one of:
+/// - `/usr/bin/python`
+/// - `/usr/local/bin/python`
+/// - `/usr/bin/env python`
+/// - `python`
+fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<String>)> {
+    let accepted_paths = [
+        "/usr/bin/python",
+        "/usr/local/bin/python",
+        "/usr/bin/env python",
+        "python",
+    ];
+
+    for exec_path in accepted_paths.iter() {
+        if !shebang_line.starts_with(exec_path) {
+            continue;
+        }
+
+        let trimmed_shebang = shebang_line[exec_path.len()..].to_string();
+        let version_string: String = trimmed_shebang
+            .chars()
+            .take_while(|c| c.is_ascii_digit() || *c == '.')
+            .collect();
+        let specified_version = if version_string.len() == 0 {
+            Ok(RequestedVersion::Loose(2))
+        } else {
+            RequestedVersion::from_string(&version_string)
+        };
+        match specified_version {
+            Err(_) => return None,
+            Ok(version) => {
+                let args = trimmed_shebang[version_string.len()..].trim().to_string();
+                return Some((
+                    version,
+                    args.split_whitespace()
+                        .map(|s| s.to_string())
+                        .collect::<Vec<String>>(),
+                ));
+            }
+        }
+    }
+
+    None
 }
 
 #[cfg(test)]
@@ -495,4 +535,31 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_split_shebang() {
+        assert_eq!(split_shebang(&"/usr/bin/rustup".to_string()), None);
+        assert_eq!(
+            split_shebang(&"/usr/bin/rustup self update".to_string()),
+            None
+        );
+        assert_eq!(
+            split_shebang(&"/usr/bin/env python".to_string()),
+            Some((RequestedVersion::Loose(2), Vec::new()))
+        );
+        assert_eq!(
+            split_shebang(&"/usr/bin/python42.13".to_string()),
+            Some((RequestedVersion::Exact(42, 13), Vec::new()))
+        );
+        assert_eq!(
+            split_shebang(&"python -S -v".to_string()),
+            Some((
+                RequestedVersion::Loose(2),
+                vec!["-S".to_string(), "-v".to_string()]
+            ))
+        );
+        assert_eq!(
+            split_shebang(&"/usr/local/bin/python3.7 -S".to_string()),
+            Some((RequestedVersion::Exact(3, 7), vec!["-S".to_string()]))
+        );
+    }
 }
