@@ -82,6 +82,7 @@ pub enum VersionMatch {
 }
 
 impl Version {
+    /// Sees how well of a match this Python version is for `requested`.
     pub fn matches(&self, requested: &RequestedVersion) -> VersionMatch {
         match requested {
             RequestedVersion::Any => VersionMatch::Loosely,
@@ -185,6 +186,7 @@ pub fn filter_python_executables(
     return executables;
 }
 
+/// Finds the executable representing the latest Python version.
 pub fn choose_executable(
     version_paths: &collections::HashMap<Version, path::PathBuf>,
 ) -> Option<path::PathBuf> {
@@ -196,6 +198,7 @@ pub fn choose_executable(
     }
 }
 
+/// Checks the environment variable `env_var_name` for a Python version.
 fn check_env_var(env_var_name: &String) -> Result<RequestedVersion, String> {
     let env_var = match env::var(env_var_name) {
         Ok(e) => e,
@@ -205,10 +208,12 @@ fn check_env_var(env_var_name: &String) -> Result<RequestedVersion, String> {
     RequestedVersion::from_string(&env_var)
 }
 
+/// Checks the `PY_PYTHON` environment variable.
 pub fn check_default_env_var() -> Result<RequestedVersion, String> {
     check_env_var(&"PY_PYTHON".to_string())
 }
 
+/// Checks the `PY_PYTHON{major}` environment variable.
 pub fn check_major_env_var(major: VersionComponent) -> Result<RequestedVersion, String> {
     check_env_var(&format!("PY_PYTHON{}", major))
 }
