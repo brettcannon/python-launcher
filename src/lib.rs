@@ -226,7 +226,7 @@ pub fn check_major_env_var(major: VersionComponent) -> Result<RequestedVersion, 
 /// Finds the shebang line from `reader`.
 ///
 /// If a shebang line is found, then the `#!` is removed and the line is stripped of leading and trailing whitespace.
-fn find_shebang(reader: impl io::Read) -> Option<String> {
+pub fn find_shebang(reader: impl io::Read) -> Option<String> {
     let mut buffered_reader = io::BufReader::new(reader);
 
     let mut line = String::new();
@@ -249,7 +249,7 @@ fn find_shebang(reader: impl io::Read) -> Option<String> {
 /// - `/usr/local/bin/python`
 /// - `/usr/bin/env python`
 /// - `python`
-fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<String>)> {
+pub fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<String>)> {
     let accepted_paths = [
         "/usr/bin/python",
         "/usr/local/bin/python",
