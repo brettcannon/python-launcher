@@ -22,6 +22,11 @@ installed).
 1. Find the executable with largest `Y`
 
 ## `py`
+1. If first argument is a file path
+   1. Check for a shebang
+   1. If executable starts with `/usr/bin/python`, `/usr/local/bin/python`,
+      `/usr/bin/env python` or `python`, proceed based on the value found
+      (bare `python` is considered `python2` for backwards-compatibility)
 1. Use `${VIRTUAL_ENV}/bin/python` if set
 1. Use the `PY_PYTHON` environment variable if defined
    (e.g. `PY_PYTHON=3`); the search proceeds based on the value found
@@ -38,13 +43,6 @@ fashion are very much appreciated, though.)
 
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
-- [Shebang line parsing](https://www.python.org/dev/peps/pep-0397/#shebang-line-parsing)
-  - Only the [first argument if it's a file and doesn't start with `-`](https://www.python.org/dev/peps/pep-0397/#command-line-handling)
-  - Not necessary, but nice to have
-  - `#! interpreter [optional-arg]`
-  - Supports "/usr/bin/python", "/usr/local/bin/python", "/usr/bin/env python", and "python"
-  - Any other shebang is considered ready to be executed
-  - Default "python" to Python 2 for backwards-compatibility?
 - [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)
 - `py -0`
   - Output well-formatted JSON to start in order for it to be consumable?
