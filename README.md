@@ -3,35 +3,43 @@
 An implementation of the `py` command for UNIX-based platforms.
 
 The goal is to have `py` become the cross-platform command that all Python users
-use when executing a Python interpreter. Not only is it short and to the
-point, but it also provides a single command that documentation can use in
-examples which will work regardless of what operating system a user is on.
-Lastly, it side-steps the "what should the `python` command point to?" debate by
+use when executing a Python interpreter. By having a version-agnostic command
+it side-steps the "what should the `python` command point to?" debate by
 clearly specifying that upfront (i.e. the newest version of Python that is
-installed).
+installed). This also unifies the suggested command to document which needs to
+target both Windows as UNIX as `py` has existed as the preferred command on
+Windows for some time.
 
 # Search order
 
-## `py -3.6`
+Please note that at various points in searching for the most appropriate Python
+version that the version being searched for can become more specific. This leads
+to a switch in the search algorithm to one more appropriate to the specificity
+of the version.
+
+## `py -3.6` (specific version)
 1. Search `PATH` for `python3.6`
 
-## `py -3`
-1. Use the `PY_PYTHON3` environment variable if defined
-   (e.g. `PY_PYTHON3=3.6`); the search proceeds based on the value found
+## `py -3` (loose/major version)
+1. Use the version found in the `PY_PYTHON3` environment variable if defined
+   (e.g. `PY_PYTHON3=3.6`)
 1. Search `PATH` for all instances of `python3.Y`
 1. Find the executable with largest `Y`
 
-## `py`
+## `py` (any/unknown version)
 1. If first argument is a file path
    1. Check for a shebang
    1. If executable starts with `/usr/bin/python`, `/usr/local/bin/python`,
-      `/usr/bin/env python` or `python`, proceed based on the value found
+      `/usr/bin/env python` or `python`, proceed based on the version found
       (bare `python` is considered `python2` for backwards-compatibility)
-1. Use `${VIRTUAL_ENV}/bin/python` if set
-1. Use the `PY_PYTHON` environment variable if defined
-   (e.g. `PY_PYTHON=3`); the search proceeds based on the value found
+   1. A bare `python` is considered `python2` for backwards compatibility
+      (because of this the search will not continue as if no version details
+      were known)
+1. Use `${VIRTUAL_ENV}/bin/python` immediately if available
+1. Use the version found in the `PY_PYTHON` environment variable if defined
+   (e.g. `PY_PYTHON=3` or `PY_PYTHON=3.6`)
 1. Search `PATH` for all instances of `pythonX.Y`
-1. Find the executable with largest `X.Y` version
+1. Find the executable with largest `X.Y`
 
 # TODO
 
@@ -44,7 +52,7 @@ fashion are very much appreciated, though.)
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
 - [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)
-- `py -0`
+- `py -0`/`py --list`/`py -0p`/`py --list-paths`
   - Output well-formatted JSON to start in order for it to be consumable?
   - Output column format like `pip list`?
 - `py -h` emits its own help before continuing on to call `python`
