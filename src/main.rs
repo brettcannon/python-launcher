@@ -7,6 +7,7 @@ extern crate python_launcher;
 use std::collections;
 use std::env;
 use std::ffi;
+use std::fs;
 use std::os::unix::ffi::OsStrExt;
 use std::path;
 
@@ -25,8 +26,14 @@ fn main() {
                 requested_version = version;
                 args.remove(0);
             }
-        } else {
-            // XXX Try for a shebang.
+        } else if let Ok(open_file) = fs::File::open(path::Path::new(&args[0])) {
+            if let Some(shebang) = py::find_shebang(open_file) {
+                if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
+                    requested_version = shebang_version;
+                    extra_args.append(&mut args);
+                    args = extra_args;
+                }
+            }
         }
     }
 
@@ -36,6 +43,7 @@ fn main() {
             path.push(venv_root);
             path.push("bin");
             path.push("python");
+            // TODO: is_file() check?
             match run(&path, &args) {
                 Err(e) => println!("{:?}", e),
                 Ok(_) => (),
@@ -44,16 +52,16 @@ fn main() {
         }
     }
 
-    match requested_version {
+    requested_version = match requested_version {
         py::RequestedVersion::Any => match py::check_default_env_var() {
-            Ok(found_version) => requested_version = found_version,
-            _ => (),
+            Ok(found_version) => found_version,
+            _ => requested_version,
         },
         py::RequestedVersion::Loose(major) => match py::check_major_env_var(major) {
-            Ok(found_version) => requested_version = found_version,
-            _ => (),
+            Ok(found_version) => found_version,
+            _ => requested_version,
         },
-        py::RequestedVersion::Exact(_, _) => (),
+        py::RequestedVersion::Exact(_, _) => requested_version,
     };
 
     let mut found_versions = collections::HashMap::new();
