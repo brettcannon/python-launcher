@@ -2,13 +2,13 @@
 
 An implementation of the `py` command for UNIX-based platforms.
 
-The goal is to have `py` become the cross-platform command that all Python users
-use when executing a Python interpreter. By having a version-agnostic command
-it side-steps the "what should the `python` command point to?" debate by
-clearly specifying that upfront (i.e. the newest version of Python that is
-installed). This also unifies the suggested command to document which needs to
-target both Windows as UNIX as `py` has existed as the preferred command on
-Windows for some time.
+There are two key motivations behind this project:
+
+1. To make it easier to use the _latest_ version of Python installed and not
+   necessarily the most recently installed version or first version on a user's
+   `PATH` (which side-steps the whole debate of what `python` should point at)
+1. To have universal command across all platforms (e.g. to no longer have to say
+   "use `python3 -m venv .venv` on UNIX, but `py -3 -m venv .venv` on Windows")
 
 # Search order
 
