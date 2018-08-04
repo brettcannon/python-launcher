@@ -20,8 +20,8 @@ fn main() {
     args.remove(0); // Strip the path to this executable.
     let mut requested_version = py::RequestedVersion::Any;
 
-    if args.len() >= 1 {
-        if args[0].starts_with("-") {
+    if !args.is_empty() {
+        if args[0].starts_with('-') {
             if let Some(version) = py::version_from_flag(&args[0]) {
                 requested_version = version;
                 args.remove(0);
@@ -44,10 +44,9 @@ fn main() {
             path.push("bin");
             path.push("python");
             // TODO: is_file() check?
-            match run(&path, &args) {
-                Err(e) => println!("{:?}", e),
-                Ok(_) => (),
-            };
+            if let Err(e) = run(&path, &args) {
+                println!("{:?}", e);
+            }
             return;
         }
     }
@@ -86,13 +85,12 @@ fn main() {
     }
 
     let chosen_path = py::choose_executable(&found_versions).unwrap();
-    match run(&chosen_path, &args) {
-        Err(e) => println!("{:?}", e),
-        Ok(_) => (),
-    };
+    if let Err(e) = run(&chosen_path, &args) {
+        println!("{:?}", e);
+    }
 }
 
-fn run(executable: &path::PathBuf, args: &Vec<String>) -> nix::Result<()> {
+fn run(executable: &path::PathBuf, args: &[String]) -> nix::Result<()> {
     let executable_as_cstring = ffi::CString::new(executable.as_os_str().as_bytes()).unwrap();
     let mut argv = vec![executable_as_cstring.clone()];
     argv.extend(
