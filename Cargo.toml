@@ -13,9 +13,6 @@ categories = ["command-line-utilities"]
 travis-ci = { repository = "brettcannon/python-launcher" }
 maintenance = { status = "experimental" }
 
-[dependencies]
-nix = "0.10.0"
-
 [[bin]]
 name = "py"
 path = "src/main.rs"

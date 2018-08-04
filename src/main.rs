@@ -1,17 +1,14 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-extern crate nix;
 extern crate python_launcher;
 
-use std::collections::HashMap;
-use std::env;
-use std::ffi;
-use std::fs;
-use std::os::unix::ffi::OsStrExt;
-use std::path::{Path, PathBuf};
-
-use nix::unistd;
+use std::{
+    collections::HashMap,
+    env, fs,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 use python_launcher as py;
 
@@ -44,7 +41,7 @@ fn main() {
             path.push("bin");
             path.push("python");
             // TODO: is_file() check?
-            if let Err(e) = run(&path, &args) {
+            if let Err(e) = Command::new(path).args(args).status() {
                 println!("{:?}", e);
             }
             return;
@@ -85,22 +82,7 @@ fn main() {
     }
 
     let chosen_path = py::choose_executable(&found_versions).unwrap();
-    if let Err(e) = run(&chosen_path, &args) {
+    if let Err(e) = Command::new(chosen_path).args(args).status() {
         println!("{:?}", e);
-    }
-}
-
-fn run(executable: &PathBuf, args: &[String]) -> nix::Result<()> {
-    let executable_as_cstring = ffi::CString::new(executable.as_os_str().as_bytes()).unwrap();
-    let mut argv = vec![executable_as_cstring.clone()];
-    argv.extend(
-        args.iter()
-            .map(|arg| ffi::CString::new(arg.as_str()).unwrap()),
-    );
-
-    let result = unistd::execv(&executable_as_cstring, &argv);
-    match result {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e),
     }
 }

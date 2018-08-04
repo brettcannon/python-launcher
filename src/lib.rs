@@ -1,8 +1,10 @@
-use std::collections::{HashMap, HashSet};
-use std::env;
-use std::error::Error;
-use std::io::{self, BufRead};
-use std::path::{Path, PathBuf};
+use std::{
+    collections::{HashMap, HashSet},
+    env,
+    error::Error,
+    io::{self, BufRead},
+    path::{Path, PathBuf},
+};
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type VersionComponent = u16;
