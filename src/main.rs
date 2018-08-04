@@ -3,12 +3,7 @@
 
 extern crate python_launcher;
 
-use std::{
-    collections::HashMap,
-    env, fs,
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{collections::HashMap, env, fs::File, path::PathBuf, process::Command};
 
 use python_launcher as py;
 
@@ -23,7 +18,7 @@ fn main() {
                 requested_version = version;
                 args.remove(0);
             }
-        } else if let Ok(open_file) = fs::File::open(Path::new(&args[0])) {
+        } else if let Ok(open_file) = File::open(&args[0]) {
             if let Some(shebang) = py::find_shebang(open_file) {
                 if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
                     requested_version = shebang_version;
@@ -48,27 +43,24 @@ fn main() {
         }
     }
 
+    use py::RequestedVersion::*;
+
     requested_version = match requested_version {
-        py::RequestedVersion::Any => match py::check_default_env_var() {
-            Ok(found_version) => found_version,
-            _ => requested_version,
-        },
-        py::RequestedVersion::Loose(major) => match py::check_major_env_var(major) {
-            Ok(found_version) => found_version,
-            _ => requested_version,
-        },
-        py::RequestedVersion::Exact(_, _) => requested_version,
+        Any => py::check_default_env_var().unwrap_or(requested_version),
+        Loose(major) => py::check_major_env_var(major).unwrap_or(requested_version),
+        Exact(_, _) => requested_version,
     };
 
     let mut found_versions = HashMap::new();
     for path in py::path_entries() {
         let all_contents = py::directory_contents(&path);
+
         for (version, path) in py::filter_python_executables(all_contents) {
             match version.matches(&requested_version) {
                 py::VersionMatch::NotAtAll => continue,
                 py::VersionMatch::Loosely => {
-                    if !found_versions.contains_key(&version) && path.is_file() {
-                        found_versions.insert(version, path);
+                    if path.is_file() {
+                        found_versions.entry(version).or_insert(path);
                     }
                 }
                 py::VersionMatch::Exactly => {
