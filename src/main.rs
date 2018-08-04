@@ -4,12 +4,12 @@
 extern crate nix;
 extern crate python_launcher;
 
-use std::collections;
+use std::collections::HashMap;
 use std::env;
 use std::ffi;
 use std::fs;
 use std::os::unix::ffi::OsStrExt;
-use std::path;
+use std::path::{Path, PathBuf};
 
 use nix::unistd;
 
@@ -26,7 +26,7 @@ fn main() {
                 requested_version = version;
                 args.remove(0);
             }
-        } else if let Ok(open_file) = fs::File::open(path::Path::new(&args[0])) {
+        } else if let Ok(open_file) = fs::File::open(Path::new(&args[0])) {
             if let Some(shebang) = py::find_shebang(open_file) {
                 if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
                     requested_version = shebang_version;
@@ -39,7 +39,7 @@ fn main() {
 
     if requested_version == py::RequestedVersion::Any {
         if let Some(venv_root) = env::var_os("VIRTUAL_ENV") {
-            let mut path = path::PathBuf::new();
+            let mut path = PathBuf::new();
             path.push(venv_root);
             path.push("bin");
             path.push("python");
@@ -63,7 +63,7 @@ fn main() {
         py::RequestedVersion::Exact(_, _) => requested_version,
     };
 
-    let mut found_versions = collections::HashMap::new();
+    let mut found_versions = HashMap::new();
     for path in py::path_entries() {
         let all_contents = py::directory_contents(&path);
         for (version, path) in py::filter_python_executables(all_contents) {
@@ -90,7 +90,7 @@ fn main() {
     }
 }
 
-fn run(executable: &path::PathBuf, args: &[String]) -> nix::Result<()> {
+fn run(executable: &PathBuf, args: &[String]) -> nix::Result<()> {
     let executable_as_cstring = ffi::CString::new(executable.as_os_str().as_bytes()).unwrap();
     let mut argv = vec![executable_as_cstring.clone()];
     argv.extend(
