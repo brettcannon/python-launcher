@@ -6,16 +6,16 @@ The goal is to have `py` become the cross-platform command that all Python users
 use when executing a Python interpreter. By having a version-agnostic command
 it side-steps the "what should the `python` command point to?" debate by
 clearly specifying that upfront (i.e. the newest version of Python that is
-installed). This also unifies the suggested command to document which needs to
-target both Windows as UNIX as `py` has existed as the preferred [command on
-Windows](https://docs.python.org/3/using/windows.html#launcher) for some time.
+installed). This also unifies the suggested command to document for launching
+Python on both Windows as UNIX as `py` which has existed as the preferred
+[command on Windows](https://docs.python.org/3/using/windows.html#launcher) for
+some time.
 
 # Search order
 
-Please note that at various points in searching for the most appropriate Python
-version that the version being searched for can become more specific. This leads
-to a switch in the search algorithm to one more appropriate to the specificity
-of the version.
+Please note that while searching, the search for a Python version can become
+more specific. This leads to a switch in the search algorithm to the one most
+appropriate to the specificity of the version.
 
 ## `py -3.6` (specific version)
 1. Search `PATH` for `python3.6`
