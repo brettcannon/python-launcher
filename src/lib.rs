@@ -1,9 +1,11 @@
-use std::collections;
-use std::env;
-use std::error::Error;
-use std::io;
-use std::io::BufRead;
-use std::path;
+use std::{
+    collections::{HashMap, HashSet},
+    env,
+    error::Error,
+    io::{self, BufRead},
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type VersionComponent = u16;
@@ -16,12 +18,19 @@ pub enum RequestedVersion {
     Exact(VersionComponent, VersionComponent),
 }
 
-impl RequestedVersion {
+impl FromStr for RequestedVersion {
     /// Creates a new `RequestedVersion` from a version specifier string.
-    fn from_string(ver: &String) -> Result<Self, String> {
-        let mut char_iter = ver.chars();
-        let mut major_ver: Vec<char> = Vec::new();
+    type Err = String;
+
+    fn from_str(version_string: &str) -> Result<Self, Self::Err> {
+        if version_string.is_empty() {
+            return Err("version string is empty".to_string());
+        }
+
+        let mut char_iter = version_string.chars();
+        let mut major_ver = Vec::new();
         let mut dot = false;
+
         for c in char_iter.by_ref() {
             if c == '.' {
                 dot = true;
@@ -31,12 +40,12 @@ impl RequestedVersion {
             } else {
                 return Err(format!(
                     "{:?} contains a non-numeric and non-period character",
-                    ver
+                    version_string
                 ));
             }
         }
 
-        let mut minor_ver: Vec<char> = Vec::new();
+        let mut minor_ver = Vec::new();
         if dot {
             for c in char_iter.by_ref() {
                 if c.is_ascii_digit() {
@@ -44,24 +53,23 @@ impl RequestedVersion {
                 } else {
                     return Err(format!(
                         "{:?} contains a non-numeric character after a period",
-                        ver
+                        version_string
                     ));
                 }
             }
         }
 
-        if major_ver.len() == 0 {
-            Err(format!("version string is empty"))
+        let major = char_vec_to_int(&major_ver)?;
+        if !dot {
+            Ok(RequestedVersion::Loose(major))
+        } else if minor_ver.is_empty() {
+            Err(format!(
+                "{:?} is missing a minor version number",
+                version_string
+            ))
         } else {
-            let major = char_vec_to_int(&major_ver)?;
-            if !dot {
-                Ok(RequestedVersion::Loose(major))
-            } else if minor_ver.len() == 0 {
-                Err(format!("{:?} is missing a minor version number", ver))
-            } else {
-                let minor = char_vec_to_int(&minor_ver)?;
-                Ok(RequestedVersion::Exact(major, minor))
-            }
+            let minor = char_vec_to_int(&minor_ver)?;
+            Ok(RequestedVersion::Exact(major, minor))
         }
     }
 }
@@ -84,18 +92,21 @@ pub enum VersionMatch {
 impl Version {
     /// Sees how well of a match this Python version is for `requested`.
     pub fn matches(&self, requested: &RequestedVersion) -> VersionMatch {
+        use RequestedVersion::*;
+        use VersionMatch::*;
+
         match requested {
-            RequestedVersion::Any => VersionMatch::Loosely,
-            RequestedVersion::Loose(major) => if self.major == *major {
-                VersionMatch::Loosely
+            Any => Loosely,
+            Loose(major) => if self.major == *major {
+                Loosely
             } else {
-                VersionMatch::NotAtAll
+                NotAtAll
             },
-            RequestedVersion::Exact(major, minor) => {
+            Exact(major, minor) => {
                 if self.major == *major && self.minor == *minor {
-                    VersionMatch::Exactly
+                    Exactly
                 } else {
-                    VersionMatch::NotAtAll
+                    NotAtAll
                 }
             }
         }
@@ -103,43 +114,35 @@ impl Version {
 }
 
 /// Converts a `Vec<char>` to a `VersionComponent` integer.
-fn char_vec_to_int(char_vec: &Vec<char>) -> Result<VersionComponent, String> {
-    let joined_string = char_vec.into_iter().collect::<String>();
-    let parse_result = joined_string.parse::<VersionComponent>();
-    parse_result.or(Err(format!(
-        "error converting {:?} to a number",
-        joined_string
-    )))
+fn char_vec_to_int(char_vec: &[char]) -> Result<VersionComponent, String> {
+    let joined_string = char_vec.iter().collect::<String>();
+    let parse_result = joined_string.parse();
+    parse_result.map_err(|_| format!("error converting {:?} to a number", joined_string))
 }
 
 /// Attempts to find a version specifier from a CLI argument.
 ///
 /// It is assumed that the flag from the command-line is passed as-is
 /// (i.e. the flag starts with `-`).
-pub fn version_from_flag(arg: &String) -> Option<RequestedVersion> {
-    assert!(arg.starts_with("-"));
-    let mut version = arg.clone();
-    version.remove(0);
-    match RequestedVersion::from_string(&version) {
-        Ok(version) => Some(version),
-        Err(_) => None,
-    }
+pub fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
+    assert!(arg.starts_with('-'));
+    RequestedVersion::from_str(&arg[1..]).ok()
 }
 
 /// Returns the entries in `PATH`.
-pub fn path_entries() -> Vec<path::PathBuf> {
-    let path_val = match env::var_os("PATH") {
-        Some(val) => val,
-        None => return Vec::new(),
-    };
-    env::split_paths(&path_val).collect()
+pub fn path_entries() -> Vec<PathBuf> {
+    if let Some(path_val) = env::var_os("PATH") {
+        env::split_paths(&path_val).collect()
+    } else {
+        Vec::new()
+    }
 }
 
 /// Gets the contents of a directory.
 ///
 /// Exists primarily to unwrap and ignore any unencodeable names.
-pub fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBuf> {
-    let mut paths = collections::HashSet::new();
+pub fn directory_contents(path: &Path) -> HashSet<PathBuf> {
+    let mut paths = HashSet::new();
     if let Ok(contents) = path.read_dir() {
         for content in contents {
             if let Ok(found_content) = content {
@@ -152,10 +155,8 @@ pub fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::Pa
 }
 
 /// Filters the paths down to `pythonX.Y` paths.
-pub fn filter_python_executables(
-    paths: collections::HashSet<path::PathBuf>,
-) -> collections::HashMap<Version, path::PathBuf> {
-    let mut executables = collections::HashMap::new();
+pub fn filter_python_executables(paths: HashSet<PathBuf>) -> HashMap<Version, PathBuf> {
+    let mut executables = HashMap::new();
     for path in paths {
         let unencoded_file_name = match path.file_name() {
             Some(x) => x,
@@ -169,48 +170,39 @@ pub fn filter_python_executables(
             continue;
         }
         let version_part = &file_name["python".len()..];
-        if let Ok(found_version) = RequestedVersion::from_string(&version_part.to_string()) {
+        if let Ok(found_version) = RequestedVersion::from_str(version_part) {
             match found_version {
-                RequestedVersion::Exact(major, minor) => executables.insert(
-                    Version {
-                        major: major,
-                        minor: minor,
-                    },
-                    path.clone(),
-                ),
+                RequestedVersion::Exact(major, minor) => {
+                    executables.insert(Version { major, minor }, path.clone())
+                }
                 _ => continue,
             };
         }
     }
 
-    return executables;
+    executables
 }
 
 /// Finds the executable representing the latest Python version.
-pub fn choose_executable(
-    version_paths: &collections::HashMap<Version, path::PathBuf>,
-) -> Option<path::PathBuf> {
-    let mut pairs: Vec<(&Version, &path::PathBuf)> = version_paths.iter().collect();
+pub fn choose_executable(version_paths: &HashMap<Version, PathBuf>) -> Option<PathBuf> {
+    let mut pairs: Vec<(&Version, &PathBuf)> = version_paths.iter().collect();
     pairs.sort_unstable_by_key(|p| p.0);
-    match pairs.last() {
-        Some((_, path)) => Some(path.to_path_buf()),
-        None => None,
-    }
+    pairs.last().map(|(_, path)| path.to_path_buf())
 }
 
 /// Checks the environment variable `env_var_name` for a Python version.
-fn check_env_var(env_var_name: &String) -> Result<RequestedVersion, String> {
+fn check_env_var(env_var_name: &str) -> Result<RequestedVersion, String> {
     let env_var = match env::var(env_var_name) {
         Ok(e) => e,
         Err(e) => return Err(e.description().to_string()),
     };
 
-    RequestedVersion::from_string(&env_var)
+    RequestedVersion::from_str(&env_var)
 }
 
 /// Checks the `PY_PYTHON` environment variable.
 pub fn check_default_env_var() -> Result<RequestedVersion, String> {
-    check_env_var(&"PY_PYTHON".to_string())
+    check_env_var("PY_PYTHON")
 }
 
 /// Checks the `PY_PYTHON{major}` environment variable.
@@ -230,10 +222,7 @@ pub fn find_shebang(reader: impl io::Read) -> Option<String> {
     let mut buffered_reader = io::BufReader::new(reader);
 
     let mut line = String::new();
-    match buffered_reader.read_line(&mut line) {
-        Err(_) => return None,
-        _ => (),
-    };
+    buffered_reader.read_line(&mut line).ok()?;
 
     if !line.starts_with("#!") {
         None
@@ -249,7 +238,7 @@ pub fn find_shebang(reader: impl io::Read) -> Option<String> {
 /// - `/usr/local/bin/python`
 /// - `/usr/bin/env python`
 /// - `python`
-pub fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<String>)> {
+pub fn split_shebang(shebang_line: &str) -> Option<(RequestedVersion, Vec<String>)> {
     let accepted_paths = [
         "/usr/bin/python",
         "/usr/local/bin/python",
@@ -257,7 +246,7 @@ pub fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<Str
         "python",
     ];
 
-    for exec_path in accepted_paths.iter() {
+    for exec_path in &accepted_paths {
         if !shebang_line.starts_with(exec_path) {
             continue;
         }
@@ -267,23 +256,20 @@ pub fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<Str
             .chars()
             .take_while(|c| c.is_ascii_digit() || *c == '.')
             .collect();
-        let specified_version = if version_string.len() == 0 {
+        let specified_version = if version_string.is_empty() {
             Ok(RequestedVersion::Loose(2))
         } else {
-            RequestedVersion::from_string(&version_string)
+            RequestedVersion::from_str(&version_string)
         };
-        match specified_version {
-            Err(_) => return None,
-            Ok(version) => {
-                let args = trimmed_shebang[version_string.len()..].trim().to_string();
-                return Some((
+
+        return specified_version
+            .map(|version| {
+                let args = trimmed_shebang[version_string.len()..].trim();
+                (
                     version,
-                    args.split_whitespace()
-                        .map(|s| s.to_string())
-                        .collect::<Vec<String>>(),
-                ));
-            }
-        }
+                    args.split_whitespace().map(|s| s.to_string()).collect(),
+                )
+            }).ok();
     }
 
     None
@@ -295,25 +281,25 @@ mod tests {
 
     #[test]
     #[allow(non_snake_case)]
-    fn test_RequestedVersion_from_string() {
-        assert!(RequestedVersion::from_string(&".3".to_string()).is_err());
-        assert!(RequestedVersion::from_string(&"3.".to_string()).is_err());
-        assert!(RequestedVersion::from_string(&"h".to_string()).is_err());
-        assert!(RequestedVersion::from_string(&"3.b".to_string()).is_err());
-        assert!(RequestedVersion::from_string(&"a.7".to_string()).is_err());
+    fn test_RequestedVersion_from_str() {
+        assert!(RequestedVersion::from_str(&".3".to_string()).is_err());
+        assert!(RequestedVersion::from_str(&"3.".to_string()).is_err());
+        assert!(RequestedVersion::from_str(&"h".to_string()).is_err());
+        assert!(RequestedVersion::from_str(&"3.b".to_string()).is_err());
+        assert!(RequestedVersion::from_str(&"a.7".to_string()).is_err());
         assert_eq!(
-            RequestedVersion::from_string(&"3".to_string()),
+            RequestedVersion::from_str(&"3".to_string()),
             Ok(RequestedVersion::Loose(3))
         );
         assert_eq!(
-            RequestedVersion::from_string(&"3.8".to_string()),
+            RequestedVersion::from_str(&"3.8".to_string()),
             Ok(RequestedVersion::Exact(3, 8))
         );
         assert_eq!(
-            RequestedVersion::from_string(&"42.13".to_string()),
+            RequestedVersion::from_str(&"42.13".to_string()),
             Ok(RequestedVersion::Exact(42, 13))
         );
-        assert!(RequestedVersion::from_string(&"3.6.5".to_string()).is_err());
+        assert!(RequestedVersion::from_str(&"3.6.5".to_string()).is_err());
     }
 
     #[test]
@@ -343,10 +329,7 @@ mod tests {
             env::set_var("PATH", joined_paths);
             assert_eq!(
                 path_entries(),
-                paths
-                    .iter()
-                    .map(|p| path::PathBuf::from(p))
-                    .collect::<Vec<path::PathBuf>>()
+                paths.iter().map(PathBuf::from).collect::<Vec<PathBuf>>()
             );
             match original_paths {
                 Some(paths) => env::set_var("PATH", paths),
@@ -379,8 +362,8 @@ mod tests {
         ];
         let all_paths = paths
             .iter()
-            .map(|p| path::PathBuf::from(p))
-            .collect::<collections::HashSet<path::PathBuf>>();
+            .map(PathBuf::from)
+            .collect::<HashSet<PathBuf>>();
         let results = filter_python_executables(all_paths);
         let good_version1 = Version { major: 3, minor: 6 };
         let good_version2 = Version {
@@ -389,12 +372,12 @@ mod tests {
         };
         let mut expected = paths[5];
         match results.get(&good_version1) {
-            Some(path) => assert_eq!(*path, path::PathBuf::from(expected)),
+            Some(path) => assert_eq!(*path, PathBuf::from(expected)),
             None => panic!("{:?} not found", good_version1),
         };
         expected = paths[6];
         match results.get(&good_version2) {
-            Some(path) => assert_eq!(*path, path::PathBuf::from(expected)),
+            Some(path) => assert_eq!(*path, PathBuf::from(expected)),
             None => panic!("{:?} not found", good_version2),
         }
     }
@@ -439,15 +422,14 @@ mod tests {
             major: 42,
             minor: 13,
         };
-        let path_3_6 = path::PathBuf::from("/python3.6");
-        let path_42_0 = path::PathBuf::from("/python42.0");
-        let path_42_13 = path::PathBuf::from("/python42.13");
-        let mut mapping = collections::HashMap::new();
+        let path_3_6 = PathBuf::from("/python3.6");
+        let path_42_0 = PathBuf::from("/python42.0");
+        let path_42_13 = PathBuf::from("/python42.13");
+        let mut mapping = HashMap::new();
 
-        match choose_executable(&mapping) {
-            Some(_) => panic!("found a non-existent path"),
-            None => (),
-        };
+        if choose_executable(&mapping).is_some() {
+            panic!("found a non-existent path");
+        }
 
         mapping.insert(version_3_6, path_3_6.clone());
         match choose_executable(&mapping) {

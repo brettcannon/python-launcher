@@ -1,17 +1,9 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-extern crate nix;
 extern crate python_launcher;
 
-use std::collections;
-use std::env;
-use std::ffi;
-use std::fs;
-use std::os::unix::ffi::OsStrExt;
-use std::path;
-
-use nix::unistd;
+use std::{collections::HashMap, env, fs::File, path::PathBuf, process::Command};
 
 use python_launcher as py;
 
@@ -20,13 +12,13 @@ fn main() {
     args.remove(0); // Strip the path to this executable.
     let mut requested_version = py::RequestedVersion::Any;
 
-    if args.len() >= 1 {
-        if args[0].starts_with("-") {
+    if !args.is_empty() {
+        if args[0].starts_with('-') {
             if let Some(version) = py::version_from_flag(&args[0]) {
                 requested_version = version;
                 args.remove(0);
             }
-        } else if let Ok(open_file) = fs::File::open(path::Path::new(&args[0])) {
+        } else if let Ok(open_file) = File::open(&args[0]) {
             if let Some(shebang) = py::find_shebang(open_file) {
                 if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
                     requested_version = shebang_version;
@@ -39,40 +31,36 @@ fn main() {
 
     if requested_version == py::RequestedVersion::Any {
         if let Some(venv_root) = env::var_os("VIRTUAL_ENV") {
-            let mut path = path::PathBuf::new();
+            let mut path = PathBuf::new();
             path.push(venv_root);
             path.push("bin");
             path.push("python");
             // TODO: is_file() check?
-            match run(&path, &args) {
-                Err(e) => println!("{:?}", e),
-                Ok(_) => (),
-            };
+            if let Err(e) = Command::new(path).args(args).status() {
+                println!("{:?}", e);
+            }
             return;
         }
     }
 
+    use py::RequestedVersion::*;
+
     requested_version = match requested_version {
-        py::RequestedVersion::Any => match py::check_default_env_var() {
-            Ok(found_version) => found_version,
-            _ => requested_version,
-        },
-        py::RequestedVersion::Loose(major) => match py::check_major_env_var(major) {
-            Ok(found_version) => found_version,
-            _ => requested_version,
-        },
-        py::RequestedVersion::Exact(_, _) => requested_version,
+        Any => py::check_default_env_var().unwrap_or(requested_version),
+        Loose(major) => py::check_major_env_var(major).unwrap_or(requested_version),
+        Exact(_, _) => requested_version,
     };
 
-    let mut found_versions = collections::HashMap::new();
+    let mut found_versions = HashMap::new();
     for path in py::path_entries() {
         let all_contents = py::directory_contents(&path);
+
         for (version, path) in py::filter_python_executables(all_contents) {
             match version.matches(&requested_version) {
                 py::VersionMatch::NotAtAll => continue,
                 py::VersionMatch::Loosely => {
-                    if !found_versions.contains_key(&version) && path.is_file() {
-                        found_versions.insert(version, path);
+                    if path.is_file() {
+                        found_versions.entry(version).or_insert(path);
                     }
                 }
                 py::VersionMatch::Exactly => {
@@ -86,23 +74,7 @@ fn main() {
     }
 
     let chosen_path = py::choose_executable(&found_versions).unwrap();
-    match run(&chosen_path, &args) {
-        Err(e) => println!("{:?}", e),
-        Ok(_) => (),
-    };
-}
-
-fn run(executable: &path::PathBuf, args: &Vec<String>) -> nix::Result<()> {
-    let executable_as_cstring = ffi::CString::new(executable.as_os_str().as_bytes()).unwrap();
-    let mut argv = vec![executable_as_cstring.clone()];
-    argv.extend(
-        args.iter()
-            .map(|arg| ffi::CString::new(arg.as_str()).unwrap()),
-    );
-
-    let result = unistd::execv(&executable_as_cstring, &argv);
-    match result {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e),
+    if let Err(e) = Command::new(chosen_path).args(args).status() {
+        println!("{:?}", e);
     }
 }
