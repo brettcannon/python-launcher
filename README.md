@@ -2,13 +2,13 @@
 
 An implementation of the `py` command for UNIX-based platforms.
 
-There are two key motivations behind this project:
-
-1. To make it easier to use the _latest_ version of Python installed and not
-   necessarily the most recently installed version or first version on a user's
-   `PATH` (which side-steps the whole debate of what `python` should point at)
-1. To have universal command across all platforms (e.g. to no longer have to say
-   "use `python3 -m venv .venv` on UNIX, but `py -3 -m venv .venv` on Windows")
+The goal is to have `py` become the cross-platform command that all Python users
+use when executing a Python interpreter. By having a version-agnostic command
+it side-steps the "what should the `python` command point to?" debate by
+clearly specifying that upfront (i.e. the newest version of Python that is
+installed). This also unifies the suggested command to document which needs to
+target both Windows as UNIX as `py` has existed as the preferred [command on
+Windows](https://docs.python.org/3/using/windows.html#launcher) for some time.
 
 # Search order
 
@@ -27,19 +27,16 @@ of the version.
 1. Find the executable with largest `Y`
 
 ## `py` (any/unknown version)
-1. If first argument is a file path
+1. If the first argument is a file path ...
    1. Check for a shebang
    1. If executable starts with `/usr/bin/python`, `/usr/local/bin/python`,
       `/usr/bin/env python` or `python`, proceed based on the version found
       (bare `python` is considered `python2` for backwards-compatibility)
-   1. A bare `python` is considered `python2` for backwards compatibility
-      (because of this the search will not continue as if no version details
-      were known)
 1. Use `${VIRTUAL_ENV}/bin/python` immediately if available
 1. Use the version found in the `PY_PYTHON` environment variable if defined
    (e.g. `PY_PYTHON=3` or `PY_PYTHON=3.6`)
 1. Search `PATH` for all instances of `pythonX.Y`
-1. Find the executable with largest `X.Y`
+1. Find the executable with the largest `X.Y`
 
 # TODO
 
