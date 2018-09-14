@@ -47,14 +47,10 @@ fn main() {
     }
 
     requested_version = match requested_version {
-        py::RequestedVersion::Any => match py::check_default_env_var() {
-            Ok(found_version) => found_version,
-            _ => requested_version,
-        },
-        py::RequestedVersion::Loose(major) => match py::check_major_env_var(major) {
-            Ok(found_version) => found_version,
-            _ => requested_version,
-        },
+        py::RequestedVersion::Any => py::check_default_env_var().unwrap_or(requested_version),
+        py::RequestedVersion::Loose(major) => {
+            py::check_major_env_var(major).unwrap_or(requested_version)
+        }
         py::RequestedVersion::Exact(_, _) => requested_version,
     };
 
