@@ -18,7 +18,7 @@ pub enum RequestedVersion {
 
 impl RequestedVersion {
     /// Creates a new `RequestedVersion` from a version specifier string.
-    fn from_string(ver: &String) -> Result<Self, String> {
+    fn from_string(ver: &str) -> Result<Self, String> {
         let mut char_iter = ver.chars();
         let mut major_ver: Vec<char> = Vec::new();
         let mut dot = false;
@@ -50,13 +50,13 @@ impl RequestedVersion {
             }
         }
 
-        if major_ver.len() == 0 {
-            Err(format!("version string is empty"))
+        if major_ver.is_empty() {
+            Err("version string is empty".to_string())
         } else {
             let major = char_vec_to_int(&major_ver)?;
             if !dot {
                 Ok(RequestedVersion::Loose(major))
-            } else if minor_ver.len() == 0 {
+            } else if minor_ver.is_empty() {
                 Err(format!("{:?} is missing a minor version number", ver))
             } else {
                 let minor = char_vec_to_int(&minor_ver)?;
@@ -103,22 +103,19 @@ impl Version {
 }
 
 /// Converts a `Vec<char>` to a `VersionComponent` integer.
-fn char_vec_to_int(char_vec: &Vec<char>) -> Result<VersionComponent, String> {
+fn char_vec_to_int(char_vec: &[char]) -> Result<VersionComponent, String> {
     let joined_string = char_vec.into_iter().collect::<String>();
     let parse_result = joined_string.parse::<VersionComponent>();
-    parse_result.or(Err(format!(
-        "error converting {:?} to a number",
-        joined_string
-    )))
+    parse_result.or_else(|_| Err(format!("error converting {:?} to a number", joined_string)))
 }
 
 /// Attempts to find a version specifier from a CLI argument.
 ///
 /// It is assumed that the flag from the command-line is passed as-is
 /// (i.e. the flag starts with `-`).
-pub fn version_from_flag(arg: &String) -> Option<RequestedVersion> {
-    assert!(arg.starts_with("-"));
-    let mut version = arg.clone();
+pub fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
+    assert!(arg.starts_with('-'));
+    let mut version = arg.to_string();
     version.remove(0);
     match RequestedVersion::from_string(&version) {
         Ok(version) => Some(version),
@@ -138,7 +135,7 @@ pub fn path_entries() -> Vec<path::PathBuf> {
 /// Gets the contents of a directory.
 ///
 /// Exists primarily to unwrap and ignore any unencodeable names.
-pub fn directory_contents(path: &path::PathBuf) -> collections::HashSet<path::PathBuf> {
+pub fn directory_contents(path: &path::Path) -> collections::HashSet<path::PathBuf> {
     let mut paths = collections::HashSet::new();
     if let Ok(contents) = path.read_dir() {
         for content in contents {
@@ -171,19 +168,15 @@ pub fn filter_python_executables(
         let version_part = &file_name["python".len()..];
         if let Ok(found_version) = RequestedVersion::from_string(&version_part.to_string()) {
             match found_version {
-                RequestedVersion::Exact(major, minor) => executables.insert(
-                    Version {
-                        major: major,
-                        minor: minor,
-                    },
-                    path.clone(),
-                ),
+                RequestedVersion::Exact(major, minor) => {
+                    executables.insert(Version { major, minor }, path.clone())
+                }
                 _ => continue,
             };
         }
     }
 
-    return executables;
+    executables
 }
 
 /// Finds the executable representing the latest Python version.
@@ -199,7 +192,7 @@ pub fn choose_executable(
 }
 
 /// Checks the environment variable `env_var_name` for a Python version.
-fn check_env_var(env_var_name: &String) -> Result<RequestedVersion, String> {
+fn check_env_var(env_var_name: &str) -> Result<RequestedVersion, String> {
     let env_var = match env::var(env_var_name) {
         Ok(e) => e,
         Err(e) => return Err(e.description().to_string()),
@@ -230,9 +223,8 @@ pub fn find_shebang(reader: impl io::Read) -> Option<String> {
     let mut buffered_reader = io::BufReader::new(reader);
 
     let mut line = String::new();
-    match buffered_reader.read_line(&mut line) {
-        Err(_) => return None,
-        _ => (),
+    if buffered_reader.read_line(&mut line).is_err() {
+        return None;
     };
 
     if !line.starts_with("#!") {
@@ -249,7 +241,7 @@ pub fn find_shebang(reader: impl io::Read) -> Option<String> {
 /// - `/usr/local/bin/python`
 /// - `/usr/bin/env python`
 /// - `python`
-pub fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<String>)> {
+pub fn split_shebang(shebang_line: &str) -> Option<(RequestedVersion, Vec<String>)> {
     let accepted_paths = [
         "/usr/bin/python",
         "/usr/local/bin/python",
@@ -257,7 +249,7 @@ pub fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<Str
         "python",
     ];
 
-    for exec_path in accepted_paths.iter() {
+    for exec_path in &accepted_paths {
         if !shebang_line.starts_with(exec_path) {
             continue;
         }
@@ -267,7 +259,7 @@ pub fn split_shebang(shebang_line: &String) -> Option<(RequestedVersion, Vec<Str
             .chars()
             .take_while(|c| c.is_ascii_digit() || *c == '.')
             .collect();
-        let specified_version = if version_string.len() == 0 {
+        let specified_version = if version_string.is_empty() {
             Ok(RequestedVersion::Loose(2))
         } else {
             RequestedVersion::from_string(&version_string)
