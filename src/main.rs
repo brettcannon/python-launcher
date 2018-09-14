@@ -4,12 +4,7 @@
 extern crate nix;
 extern crate python_launcher;
 
-use std::collections;
-use std::env;
-use std::ffi;
-use std::fs;
-use std::os::unix::ffi::OsStrExt;
-use std::path;
+use std::{collections, env, ffi, fs, os::unix::ffi::OsStrExt, path};
 
 use nix::unistd;
 
@@ -26,7 +21,7 @@ fn main() {
                 requested_version = version;
                 args.remove(0);
             }
-        } else if let Ok(open_file) = fs::File::open(path::Path::new(&args[0])) {
+        } else if let Ok(open_file) = fs::File::open(&args[0]) {
             if let Some(shebang) = py::find_shebang(open_file) {
                 if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
                     requested_version = shebang_version;
@@ -70,6 +65,7 @@ fn main() {
             match version.matches(&requested_version) {
                 py::VersionMatch::NotAtAll => continue,
                 py::VersionMatch::Loosely => {
+                    // The order of this guard is on purpose to potentially skip a stat call.
                     if !found_versions.contains_key(&version) && path.is_file() {
                         found_versions.insert(version, path);
                     }

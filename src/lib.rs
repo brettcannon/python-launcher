@@ -1,9 +1,9 @@
-use std::collections;
-use std::env;
-use std::error::Error;
-use std::io;
-use std::io::BufRead;
-use std::path;
+use std::{
+    collections, env,
+    error::Error,
+    io::{self, BufRead},
+    path,
+};
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type VersionComponent = u16;
@@ -36,7 +36,7 @@ impl RequestedVersion {
             }
         }
 
-        let mut minor_ver: Vec<char> = Vec::new();
+        let mut minor_ver = Vec::new();
         if dot {
             for c in char_iter.by_ref() {
                 if c.is_ascii_digit() {
@@ -203,7 +203,7 @@ fn check_env_var(env_var_name: &str) -> Result<RequestedVersion, String> {
 
 /// Checks the `PY_PYTHON` environment variable.
 pub fn check_default_env_var() -> Result<RequestedVersion, String> {
-    check_env_var(&"PY_PYTHON".to_string())
+    check_env_var("PY_PYTHON")
 }
 
 /// Checks the `PY_PYTHON{major}` environment variable.
@@ -371,7 +371,7 @@ mod tests {
         ];
         let all_paths = paths
             .iter()
-            .map(|p| path::PathBuf::from(p))
+            .map(path::PathBuf::from)
             .collect::<collections::HashSet<path::PathBuf>>();
         let results = filter_python_executables(all_paths);
         let good_version1 = Version { major: 3, minor: 6 };
@@ -436,9 +436,8 @@ mod tests {
         let path_42_13 = path::PathBuf::from("/python42.13");
         let mut mapping = collections::HashMap::new();
 
-        match choose_executable(&mapping) {
-            Some(_) => panic!("found a non-existent path"),
-            None => (),
+        if choose_executable(&mapping).is_some() {
+            panic!("found a non-existent path");
         };
 
         mapping.insert(version_3_6, path_3_6.clone());
