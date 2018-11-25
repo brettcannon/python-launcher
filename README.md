@@ -11,6 +11,8 @@ Python on both Windows as UNIX as `py` which has existed as the preferred
 [command on Windows](https://docs.python.org/3/using/windows.html#launcher) for
 some time.
 
+See the top of `py --help` for instructions.
+
 # Search order
 
 Please note that while searching, the search for a Python version can become
@@ -48,11 +50,10 @@ fashion are very much appreciated, though.)
 
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
-- [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)
+- Provide an error message when no Python executable is found (and be helpful based on requested version)
 - `py -0`/`py --list`/`py -0p`/`py --list-paths`
   - Output well-formatted JSON to start in order for it to be consumable?
   - Output column format like `pip list`?
-- `py -h` emits its own help before continuing on to call `python`
 - [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)
   - Want a better format like TOML?
@@ -64,3 +65,4 @@ fashion are very much appreciated, though.)
   - How should config file search work?
     - Pre-defined locations?
     - Walk up from current directory?
+- [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?

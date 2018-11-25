@@ -12,10 +12,13 @@ use python_launcher as py;
 
 fn main() {
     let mut args = env::args().collect::<Vec<String>>();
-    args.remove(0); // Strip the path to this executable.
+    let launcher_path = args.remove(0); // Strip the path to this executable.
     let mut requested_version = py::RequestedVersion::Any;
+    // TODO: Refactor version detection code so this can happen as part of argument parsing
+    //       instead of as this early-on check and acts as state.
+    let help = args.len() == 1 && (args[0] == "-h" || args[0] == "--help");
 
-    if !args.is_empty() {
+    if !help && !args.is_empty() {
         if args[0].starts_with('-') {
             if let Some(version) = py::version_from_flag(&args[0]) {
                 requested_version = version;
@@ -38,7 +41,7 @@ fn main() {
             path.push(venv_root);
             path.push("bin");
             path.push("python");
-            // TODO: is_file() check?
+            // TODO: Do a is_file() check first?
             if let Err(e) = run(&path, &args) {
                 println!("{:?}", e);
             };
@@ -76,7 +79,26 @@ fn main() {
         }
     }
 
+    // XXX Print an error message when no installed Python is found.
     let chosen_path = py::choose_executable(&found_versions).unwrap();
+    if help {
+        let version = env!("CARGO_PKG_VERSION");
+        println!(
+            "Python Launcher for UNIX {}
+            \n\
+            usage:\n\
+            {} [launcher-args] [python-args] script [script-args]\n\
+            \n\
+            Launcher arguments:\n\
+            \n\
+            -X     : Launch the latest Python X version (e.g. `-3` for the latest Python 3)\n\
+            -X.Y   : Launch the specified Python version (e.g. `-3.6` for Python 3.6)\n\
+            \n\
+            The following help text is from Python:\n\
+            \n",
+            version, launcher_path
+        );
+    }
     if let Err(e) = run(&chosen_path, &args) {
         println!("{:?}", e);
     }
