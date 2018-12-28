@@ -92,11 +92,13 @@ impl Version {
     pub fn matches(&self, requested: &RequestedVersion) -> VersionMatch {
         match requested {
             RequestedVersion::Any => VersionMatch::Loosely,
-            RequestedVersion::Loose(major) => if self.major == *major {
-                VersionMatch::Loosely
-            } else {
-                VersionMatch::NotAtAll
-            },
+            RequestedVersion::Loose(major) => {
+                if self.major == *major {
+                    VersionMatch::Loosely
+                } else {
+                    VersionMatch::NotAtAll
+                }
+            }
             RequestedVersion::Exact(major, minor) => {
                 if self.major == *major && self.minor == *minor {
                     VersionMatch::Exactly
@@ -270,7 +272,8 @@ pub fn split_shebang(shebang_line: &str) -> Option<(RequestedVersion, Vec<String
                     version,
                     args.split_whitespace().map(|s| s.to_string()).collect(),
                 )
-            }).ok();
+            })
+            .ok();
     }
 
     None
