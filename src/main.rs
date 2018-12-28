@@ -1,9 +1,6 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-extern crate nix;
-extern crate python_launcher;
-
 use std::{collections, env, ffi, fs, os::unix::ffi::OsStrExt, path};
 
 use nix::unistd;
