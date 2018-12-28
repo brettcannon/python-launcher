@@ -8,6 +8,7 @@ readme = "README.md"
 license = "MIT"
 keywords = ["Python"]
 categories = ["command-line-utilities"]
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "brettcannon/python-launcher" }
