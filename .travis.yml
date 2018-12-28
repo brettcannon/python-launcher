@@ -9,11 +9,13 @@ matrix:
     - rust: nightly
   fast_finish: true
 
-script:
-  - cargo build --verbose --all
-  - cargo test --verbose --all
-  - cargo fmt -- --check
-
 notifications:
   on_success: never
   on_failure: always
+
+before_script:
+- rustup component add rustfmt
+script:
+- cargo fmt --all -- --check
+- cargo build
+- cargo test
