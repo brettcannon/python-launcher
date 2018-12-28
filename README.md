@@ -51,18 +51,19 @@ fashion are very much appreciated, though.)
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
 - Provide an error message when no Python executable is found (and be helpful based on requested version)
-- `py -0`/`py --list`/`py -0p`/`py --list-paths`
-  - Output well-formatted JSON to start in order for it to be consumable?
-  - Output column format like `pip list`?
+- `py --list`
+  - Output column format like `pip list` (based on a [Twitter poll](https://twitter.com/brettsky/status/1066795161236062208))
+  - Skipping `py -0`/`py -0p`/`py --list-paths` for simplicity
 - [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)
   - Want a better format like TOML?
-  - Want to use `Pipfile`/`Pipfile.lock` and its `python_version` field?
-  - `pyenv` and its `.python-version` or `PYENV_VERSION`?
-  - Probably want a way to override things, e.g. wanting a framework build on macOS somehow
-    - Aliasing? E.g. `2.7-framework=/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
-    - Just provide a way to specify a specific interpreter for a specific version? E.g. `2.7=/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
+  - Probably want a way to override/specify things, e.g. wanting a framework build on macOS somehow
+    - Aliasing? E.g. `2.7-framework` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
+    - Just provide a way to specify a specific interpreter for a specific version? E.g. `2.7` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
+    - What about implementations that don't install to e.g. `python3.7` like `pypy3`?
   - How should config file search work?
     - Pre-defined locations?
     - Walk up from current directory?
+    - [XDG base directory specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)?
 - [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
+- Look at [Rust CLIQuE](https://github.com/rust-clique) to east maintenance
