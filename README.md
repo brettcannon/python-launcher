@@ -71,6 +71,7 @@ fashion are very much appreciated, though.)
   - Read `../pyvenv.cfg` to resolve for `Any` version
     - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
     - Speeds up environment creation by not having to copy over entire Python installation (e.g. `.pyd` files)
+1. Provide a `pylauncher` package (it will make the pipenv developers happy 😃)
 
 ## Polish
 1. Provide an error message when no Python executable is found (and be helpful based on requested version)
@@ -79,10 +80,9 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Move code out of `main.rs` and into `lib.rs` to facilitate testing and any potential library usage
+1. Move code out of `main.rs` and into `lib.rs` to facilitate testing
    - Function to read `env::args()` and return an enum representing what to do
-   - Check for `VIRTUAL_ENV`
+   - Function to check for `VIRTUAL_ENV`
    - Function to find all compatible executables
 1. Consider dropping `nix` dependency for a straight [`libc`](https://crates.io/crates/libc) dependency
-1. Provide a `pylauncher` package (it will make the pipenv developers happy 😃)
 
