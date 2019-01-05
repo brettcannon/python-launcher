@@ -21,6 +21,8 @@ fn main() {
                 requested_version = version;
                 args.remove(0);
             }
+        // XXX: Check the *last* argument for a file and not the first,
+        //      else e.g. `python -v script.py` will not work appropriately.
         } else if let Ok(open_file) = fs::File::open(&args[0]) {
             if let Some(shebang) = py::find_shebang(open_file) {
                 if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
