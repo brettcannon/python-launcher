@@ -50,11 +50,11 @@ fashion are very much appreciated, though.)
 
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
-- Provide an error message when no Python executable is found (and be helpful based on requested version)
-- `py --list`
+## Functionality
+1. `py --list`
   - Output column format like `pip list` (based on a [Twitter poll](https://twitter.com/brettsky/status/1066795161236062208))
   - Skipping `py -0`/`py -0p`/`py --list-paths` for simplicity
-- [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
+1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)
   - Want a better format like TOML?
   - Probably want a way to override/specify things, e.g. wanting a framework build on macOS somehow
@@ -65,5 +65,24 @@ fashion are very much appreciated, though.)
     - Pre-defined locations?
     - Walk up from current directory?
     - [XDG base directory specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)?
-- [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
-- Look at [Rust CLIQuE](https://github.com/rust-clique) to east maintenance
+1. Windows support
+  - Registry
+  - `PATH`
+  - Read `../pyvenv.cfg` to resolve for `Any` version
+    - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
+    - Speeds up environment creation by not having to copy over entire Python installation (e.g. `.pyd` files)
+
+## Polish
+1. Provide an error message when no Python executable is found (and be helpful based on requested version)
+1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
+1. Man page?
+1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
+
+## Maintainability
+1. Move code out of `main.rs` and into `lib.rs` to facilitate testing and any potential library usage
+   - Function to read `env::args()` and return an enum representing what to do
+   - Check for `VIRTUAL_ENV`
+   - Function to find all compatible executables
+1. Consider dropping `nix` dependency for a straight [`libc`](https://crates.io/crates/libc) dependency
+1. Provide a `pylauncher` package (it will make the pipenv developers happy 😃)
+
