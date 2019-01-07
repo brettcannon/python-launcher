@@ -1,6 +1,7 @@
 use std::{
     collections, env,
     error::Error,
+    ffi::OsString,
     io::{self, BufRead},
     path,
     str::FromStr,
@@ -88,6 +89,7 @@ pub enum VersionMatch {
 }
 
 impl Version {
+    // XXX Make VersionMatch a part of Version.
     /// Sees how well of a match this Python version is for `requested`.
     pub fn matches(&self, requested: &RequestedVersion) -> VersionMatch {
         match requested {
@@ -110,6 +112,50 @@ impl Version {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum Action {
+    Help(path::PathBuf),
+    Execute {
+        launcher: path::PathBuf,
+        version: RequestedVersion,
+        args: Vec<OsString>,
+    },
+}
+
+/// Figure out what action is being requested based on the arguments to the executable.
+///
+/// # Examples
+/// Typically you will construct a `Vec<OsString>` from `env::args_os()`.
+/// ```
+/// use std::env;
+/// use std::ffi::OsString;
+/// use python_launcher as py;
+/// let args = env::args_os().collect::<Vec<OsString>>();
+/// let action = py::action_from_args(args);
+/// ```
+pub fn action_from_args(mut args: Vec<OsString>) -> Action {
+    let launcher_path = path::PathBuf::from(args.remove(0)); // Strip the path to this executable.
+    if !args.is_empty() {
+        let flag = args[0].to_string_lossy();
+
+        if flag == "-h" || flag == "--help" {
+            return Action::Help(launcher_path);
+        } else if let Some(version) = version_from_flag(&flag) {
+            args.remove(0);
+            return Action::Execute {
+                launcher: launcher_path,
+                version,
+                args,
+            };
+        }
+    }
+    Action::Execute {
+        launcher: launcher_path,
+        version: RequestedVersion::Any,
+        args,
+    }
+}
+
 /// Converts a `Vec<char>` to a `VersionComponent` integer.
 fn char_vec_to_int(char_vec: &[char]) -> Result<VersionComponent, String> {
     let joined_string = char_vec.iter().collect::<String>();
@@ -122,8 +168,11 @@ fn char_vec_to_int(char_vec: &[char]) -> Result<VersionComponent, String> {
 /// It is assumed that the flag from the command-line is passed as-is
 /// (i.e. the flag starts with `-`).
 pub fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
-    assert!(arg.starts_with('-'));
-    RequestedVersion::from_str(&arg[1..]).ok()
+    if !arg.starts_with('-') {
+        None
+    } else {
+        RequestedVersion::from_str(&arg[1..]).ok()
+    }
 }
 
 /// Returns the entries in `PATH`.
@@ -323,6 +372,80 @@ mod tests {
             Some(RequestedVersion::Exact(42, 13))
         );
         assert!(version_from_flag(&"-3.6.4".to_string()).is_none());
+    }
+
+    #[test]
+    fn test_action_from_args() {
+        let launcher_string = OsString::from("/py");
+        let launcher_path = path::PathBuf::from(&launcher_string);
+
+        assert_eq!(
+            action_from_args(vec![launcher_string.clone()]),
+            Action::Execute {
+                launcher: launcher_path.clone(),
+                version: RequestedVersion::Any,
+                args: Vec::new(),
+            }
+        );
+
+        assert_eq!(
+            action_from_args(vec![launcher_string.clone(), OsString::from("-h")]),
+            Action::Help(launcher_path.clone())
+        );
+
+        assert_eq!(
+            action_from_args(vec![launcher_string.clone(), OsString::from("--help")]),
+            Action::Help(launcher_path.clone())
+        );
+
+        assert_eq!(
+            action_from_args(vec![launcher_string.clone(), OsString::from("-V")]),
+            Action::Execute {
+                launcher: launcher_path.clone(),
+                version: RequestedVersion::Any,
+                args: vec![OsString::from("-V")],
+            }
+        );
+
+        assert_eq!(
+            action_from_args(vec![launcher_string.clone(), OsString::from("-3")]),
+            Action::Execute {
+                launcher: launcher_path.clone(),
+                version: RequestedVersion::Loose(3),
+                args: Vec::new(),
+            }
+        );
+
+        assert_eq!(
+            action_from_args(vec![launcher_string.clone(), OsString::from("-3.6")]),
+            Action::Execute {
+                launcher: launcher_path.clone(),
+                version: RequestedVersion::Exact(3, 6),
+                args: Vec::new(),
+            }
+        );
+
+        assert_eq!(
+            action_from_args(vec![
+                launcher_string.clone(),
+                OsString::from("-3.6"),
+                OsString::from("script.py"),
+            ]),
+            Action::Execute {
+                launcher: launcher_path.clone(),
+                version: RequestedVersion::Exact(3, 6),
+                args: vec![OsString::from("script.py")],
+            }
+        );
+
+        assert_eq!(
+            action_from_args(vec![launcher_string.clone(), OsString::from("script.py")]),
+            Action::Execute {
+                launcher: launcher_path.clone(),
+                version: RequestedVersion::Any,
+                args: vec![OsString::from("script.py")],
+            }
+        );
     }
 
     #[test]
