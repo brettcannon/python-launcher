@@ -26,6 +26,8 @@ fn main() {
         }
     }
 
+    // XXX Look for shebang; LKG: https://github.com/brettcannon/python-launcher/blob/d70069de26e1ce87eeaf44c1ebd8ea6bfe894053/src/main.rs#L26
+
     if chosen_path.is_none() {
         requested_version = match requested_version {
             py::RequestedVersion::Any => py::check_default_env_var().unwrap_or(requested_version),
@@ -57,9 +59,10 @@ fn main() {
             }
         }
 
-        // XXX Print an error message when no installed Python is found.
         chosen_path = py::choose_executable(&found_versions);
     }
+
+    // XXX Print an error message when no installed Python is found.
 
     match &action {
         py::Action::Help(launcher_path) => {
