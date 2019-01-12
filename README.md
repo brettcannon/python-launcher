@@ -81,7 +81,6 @@ fashion are very much appreciated, though.)
 
 ## Maintainability
 1. Move code out of `main.rs` and into `lib.rs` to facilitate testing
-   - Function to read `env::args()` and return an enum representing what to do
    - Function to check for `VIRTUAL_ENV`
    - Function to find all compatible executables
 1. Consider dropping `nix` dependency for a straight [`libc`](https://crates.io/crates/libc) dependency

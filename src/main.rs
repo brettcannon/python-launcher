@@ -1,37 +1,18 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-use std::{collections, env, ffi, fs, os::unix::ffi::OsStrExt, path};
+use std::{collections, env, ffi, os::unix::ffi::OsStrExt, path};
 
 use nix::unistd;
 
 use python_launcher as py;
 
 fn main() {
-    let mut args = env::args().collect::<Vec<String>>();
-    let launcher_path = args.remove(0); // Strip the path to this executable.
+    let action = py::action_from_args(env::args().collect::<Vec<String>>());
     let mut requested_version = py::RequestedVersion::Any;
-    // TODO: Refactor version detection code so this can happen as part of argument parsing
-    //       instead of as this early-on check and acts as state.
-    let help = args.len() == 1 && (args[0] == "-h" || args[0] == "--help");
-
-    if !help && !args.is_empty() {
-        if args[0].starts_with('-') {
-            if let Some(version) = py::version_from_flag(&args[0]) {
-                requested_version = version;
-                args.remove(0);
-            }
-        // XXX: Check the *last* argument for a file and not the first,
-        //      else e.g. `python -v script.py` will not work appropriately.
-        } else if let Ok(open_file) = fs::File::open(&args[0]) {
-            if let Some(shebang) = py::find_shebang(open_file) {
-                if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
-                    requested_version = shebang_version;
-                    extra_args.append(&mut args);
-                    args = extra_args;
-                }
-            }
-        }
+    let mut chosen_path: Option<path::PathBuf> = None;
+    if let py::Action::Execute {launcher: _, version, args: _} = action {
+        requested_version = version;
     }
 
     if requested_version == py::RequestedVersion::Any {
@@ -41,65 +22,68 @@ fn main() {
             path.push("bin");
             path.push("python");
             // TODO: Do a is_file() check first?
-            if let Err(e) = run(&path, &args) {
+            chosen_path = Some(path);
+        }
+    }
+
+    if chosen_path.is_none() {
+        requested_version = match requested_version {
+            py::RequestedVersion::Any => py::check_default_env_var().unwrap_or(requested_version),
+            py::RequestedVersion::Loose(major) => {
+                py::check_major_env_var(major).unwrap_or(requested_version)
+            }
+            py::RequestedVersion::Exact(_, _) => requested_version,
+        };
+
+        let mut found_versions = collections::HashMap::new();
+        for path in py::path_entries() {
+            let all_contents = py::directory_contents(&path);
+            for (version, path) in py::filter_python_executables(all_contents) {
+                match version.matches(&requested_version) {
+                    py::VersionMatch::NotAtAll => continue,
+                    py::VersionMatch::Loosely => {
+                        // The order of this guard is on purpose to potentially skip a stat call.
+                        if !found_versions.contains_key(&version) && path.is_file() {
+                            found_versions.insert(version, path);
+                        }
+                    }
+                    py::VersionMatch::Exactly => {
+                        if path.is_file() {
+                            found_versions.insert(version, path);
+                            break;
+                        }
+                    }
+                };
+            }
+        }
+
+        // XXX Print an error message when no installed Python is found.
+        chosen_path = py::choose_executable(&found_versions);
+    }
+
+    match &action {
+        py::Action::Help(launcher_path) => {
+            println!(
+                "Python Launcher for UNIX {}
+                \n\
+                usage:\n\
+                {} [launcher-args] [python-args] script [script-args]\n\
+                \n\
+                Launcher arguments:\n\
+                \n\
+                -X     : Launch the latest Python X version (e.g. `-3` for the latest Python 3)\n\
+                -X.Y   : Launch the specified Python version (e.g. `-3.6` for Python 3.6)\n\
+                \n\
+                The following help text is from {}:\n\
+                \n",
+                env!("CARGO_PKG_VERSION"), launcher_path.to_string_lossy(), chosen_path.unwrap().to_string_lossy()
+            );
+        }
+        py::Action::Execute {launcher: _, version: _, args} => {
+            if let Err(e) = run(&chosen_path.unwrap(), &args) {
                 println!("{:?}", e);
-            };
-            return;
+            }
         }
-    }
-
-    requested_version = match requested_version {
-        py::RequestedVersion::Any => py::check_default_env_var().unwrap_or(requested_version),
-        py::RequestedVersion::Loose(major) => {
-            py::check_major_env_var(major).unwrap_or(requested_version)
-        }
-        py::RequestedVersion::Exact(_, _) => requested_version,
-    };
-
-    let mut found_versions = collections::HashMap::new();
-    for path in py::path_entries() {
-        let all_contents = py::directory_contents(&path);
-        for (version, path) in py::filter_python_executables(all_contents) {
-            match version.matches(&requested_version) {
-                py::VersionMatch::NotAtAll => continue,
-                py::VersionMatch::Loosely => {
-                    // The order of this guard is on purpose to potentially skip a stat call.
-                    if !found_versions.contains_key(&version) && path.is_file() {
-                        found_versions.insert(version, path);
-                    }
-                }
-                py::VersionMatch::Exactly => {
-                    if path.is_file() {
-                        found_versions.insert(version, path);
-                        break;
-                    }
-                }
-            };
-        }
-    }
-
-    // XXX Print an error message when no installed Python is found.
-    let chosen_path = py::choose_executable(&found_versions).unwrap();
-    if help {
-        let version = env!("CARGO_PKG_VERSION");
-        println!(
-            "Python Launcher for UNIX {}
-            \n\
-            usage:\n\
-            {} [launcher-args] [python-args] script [script-args]\n\
-            \n\
-            Launcher arguments:\n\
-            \n\
-            -X     : Launch the latest Python X version (e.g. `-3` for the latest Python 3)\n\
-            -X.Y   : Launch the specified Python version (e.g. `-3.6` for Python 3.6)\n\
-            \n\
-            The following help text is from Python:\n\
-            \n",
-            version, launcher_path
-        );
-    }
-    if let Err(e) = run(&chosen_path, &args) {
-        println!("{:?}", e);
     }
 }
 
