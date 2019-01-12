@@ -12,12 +12,7 @@ fn main() {
     let mut requested_version = py::RequestedVersion::Any;
     let mut chosen_path: Option<path::PathBuf> = None;
 
-    if let py::Action::Execute {
-        launcher: _,
-        version,
-        args: _,
-    } = action
-    {
+    if let py::Action::Execute { version, .. } = action {
         requested_version = version;
     }
 
@@ -29,12 +24,7 @@ fn main() {
             path.push("python");
             // TODO: Do a is_file() check first?
             chosen_path = Some(path);
-        } else if let py::Action::Execute {
-            launcher,
-            version: _,
-            args,
-        } = action.clone()
-        {
+        } else if let py::Action::Execute { launcher, args, .. } = action.clone() {
             if let Ok(open_file) = fs::File::open(&args[0]) {
                 if let Some(shebang) = py::find_shebang(open_file) {
                     if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
@@ -106,11 +96,7 @@ fn main() {
                 chosen_path.unwrap().to_string_lossy()
             );
         }
-        py::Action::Execute {
-            launcher: _,
-            version: _,
-            args,
-        } => {
+        py::Action::Execute { args, .. } => {
             if let Err(e) = run(&chosen_path.unwrap(), &args) {
                 println!("{:?}", e);
             }
