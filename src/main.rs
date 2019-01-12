@@ -1,17 +1,23 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-use std::{collections, env, ffi, os::unix::ffi::OsStrExt, path};
+use std::{collections, env, ffi, fs, os::unix::ffi::OsStrExt, path};
 
 use nix::unistd;
 
 use python_launcher as py;
 
 fn main() {
-    let action = py::action_from_args(env::args().collect::<Vec<String>>());
+    let mut action = py::action_from_args(env::args().collect::<Vec<String>>());
     let mut requested_version = py::RequestedVersion::Any;
     let mut chosen_path: Option<path::PathBuf> = None;
-    if let py::Action::Execute {launcher: _, version, args: _} = action {
+
+    if let py::Action::Execute {
+        launcher: _,
+        version,
+        args: _,
+    } = action
+    {
         requested_version = version;
     }
 
@@ -23,10 +29,26 @@ fn main() {
             path.push("python");
             // TODO: Do a is_file() check first?
             chosen_path = Some(path);
+        } else if let py::Action::Execute {
+            launcher,
+            version: _,
+            args,
+        } = action.clone()
+        {
+            if let Ok(open_file) = fs::File::open(&args[0]) {
+                if let Some(shebang) = py::find_shebang(open_file) {
+                    if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
+                        extra_args.append(&mut args.clone());
+                        action = py::Action::Execute {
+                            launcher,
+                            version: shebang_version,
+                            args: extra_args,
+                        };
+                    }
+                }
+            }
         }
     }
-
-    // XXX Look for shebang; LKG: https://github.com/brettcannon/python-launcher/blob/d70069de26e1ce87eeaf44c1ebd8ea6bfe894053/src/main.rs#L26
 
     if chosen_path.is_none() {
         requested_version = match requested_version {
@@ -41,7 +63,7 @@ fn main() {
         for path in py::path_entries() {
             let all_contents = py::directory_contents(&path);
             for (version, path) in py::filter_python_executables(all_contents) {
-                match version.matches(&requested_version) {
+                match version.matches(requested_version) {
                     py::VersionMatch::NotAtAll => continue,
                     py::VersionMatch::Loosely => {
                         // The order of this guard is on purpose to potentially skip a stat call.
@@ -79,10 +101,16 @@ fn main() {
                 \n\
                 The following help text is from {}:\n\
                 \n",
-                env!("CARGO_PKG_VERSION"), launcher_path.to_string_lossy(), chosen_path.unwrap().to_string_lossy()
+                env!("CARGO_PKG_VERSION"),
+                launcher_path.to_string_lossy(),
+                chosen_path.unwrap().to_string_lossy()
             );
         }
-        py::Action::Execute {launcher: _, version: _, args} => {
+        py::Action::Execute {
+            launcher: _,
+            version: _,
+            args,
+        } => {
             if let Err(e) = run(&chosen_path.unwrap(), &args) {
                 println!("{:?}", e);
             }

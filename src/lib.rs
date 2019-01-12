@@ -90,18 +90,18 @@ pub enum VersionMatch {
 impl Version {
     // XXX Make VersionMatch a part of Version.
     /// Sees how well of a match this Python version is for `requested`.
-    pub fn matches(&self, requested: &RequestedVersion) -> VersionMatch {
+    pub fn matches(&self, requested: RequestedVersion) -> VersionMatch {
         match requested {
             RequestedVersion::Any => VersionMatch::Loosely,
             RequestedVersion::Loose(major) => {
-                if self.major == *major {
+                if self.major == major {
                     VersionMatch::Loosely
                 } else {
                     VersionMatch::NotAtAll
                 }
             }
             RequestedVersion::Exact(major, minor) => {
-                if self.major == *major && self.minor == *minor {
+                if self.major == major && self.minor == minor {
                     VersionMatch::Exactly
                 } else {
                     VersionMatch::NotAtAll
@@ -111,7 +111,7 @@ impl Version {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Action {
     Help(path::PathBuf),
     Execute {
@@ -526,17 +526,17 @@ mod tests {
             minor: 13,
         };
 
-        assert_eq!(version_3_6.matches(&any), VersionMatch::Loosely);
-        assert_eq!(version_3_6.matches(&loose_42), VersionMatch::NotAtAll);
-        assert_eq!(version_3_6.matches(&exact_42_13), VersionMatch::NotAtAll);
+        assert_eq!(version_3_6.matches(any), VersionMatch::Loosely);
+        assert_eq!(version_3_6.matches(loose_42), VersionMatch::NotAtAll);
+        assert_eq!(version_3_6.matches(exact_42_13), VersionMatch::NotAtAll);
 
-        assert_eq!(version_42_0.matches(&any), VersionMatch::Loosely);
-        assert_eq!(version_42_0.matches(&loose_42), VersionMatch::Loosely);
-        assert_eq!(version_42_0.matches(&exact_42_13), VersionMatch::NotAtAll);
+        assert_eq!(version_42_0.matches(any), VersionMatch::Loosely);
+        assert_eq!(version_42_0.matches(loose_42), VersionMatch::Loosely);
+        assert_eq!(version_42_0.matches(exact_42_13), VersionMatch::NotAtAll);
 
-        assert_eq!(version_42_13.matches(&any), VersionMatch::Loosely);
-        assert_eq!(version_42_13.matches(&loose_42), VersionMatch::Loosely);
-        assert_eq!(version_42_13.matches(&exact_42_13), VersionMatch::Exactly);
+        assert_eq!(version_42_13.matches(any), VersionMatch::Loosely);
+        assert_eq!(version_42_13.matches(loose_42), VersionMatch::Loosely);
+        assert_eq!(version_42_13.matches(exact_42_13), VersionMatch::Exactly);
     }
 
     #[test]
