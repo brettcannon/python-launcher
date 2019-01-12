@@ -29,12 +29,12 @@ appropriate to the specificity of the version.
 1. Find the executable with largest `Y`
 
 ## `py` (any/unknown version)
+1. Use `${VIRTUAL_ENV}/bin/python` immediately if available
 1. If the first argument is a file path ...
    1. Check for a shebang
    1. If executable starts with `/usr/bin/python`, `/usr/local/bin/python`,
       `/usr/bin/env python` or `python`, proceed based on the version found
       (bare `python` is considered `python2` for backwards-compatibility)
-1. Use `${VIRTUAL_ENV}/bin/python` immediately if available
 1. Use the version found in the `PY_PYTHON` environment variable if defined
    (e.g. `PY_PYTHON=3` or `PY_PYTHON=3.6`)
 1. Search `PATH` for all instances of `pythonX.Y`
