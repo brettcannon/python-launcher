@@ -23,9 +23,9 @@ fn main() {
             // Using the first argument because it's the simplest and sanest.
             // We can't use the last argument because that could actually be an argument to the
             // Python module being executed. This is the same reason we can't go searching for
-            // the file path we find.
-            // The only safe way to get the file path regardless of its position is to replicate
-            // Python's arg parsing and that's a **lot** of work.
+            // the first/last file path that we find. The only safe way to get the file path
+            // regardless of its position is to replicate Python's arg parsing and that's a
+            // **lot** of work for little gain.
             if let Ok(open_file) = fs::File::open(&args[0]) {
                 if let Some(shebang) = py::find_shebang(open_file) {
                     if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
