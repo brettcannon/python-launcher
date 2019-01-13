@@ -17,13 +17,8 @@ fn main() {
     }
 
     if requested_version == py::RequestedVersion::Any {
-        if let Some(venv_root) = env::var_os("VIRTUAL_ENV") {
-            let mut path = path::PathBuf::new();
-            path.push(venv_root);
-            path.push("bin");
-            path.push("python");
-            // TODO: Do a is_file() check first?
-            chosen_path = Some(path);
+        if let venv_executable @ Some(..) = py::virtual_env() {
+            chosen_path = venv_executable;
         } else if let py::Action::Execute { launcher, args, .. } = action.clone() {
             // Using the first argument because it's the simplest and sanest.
             // We can't use the last argument because that could actually be an argument to the

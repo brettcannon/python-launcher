@@ -173,6 +173,24 @@ pub fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
     }
 }
 
+/// Returns the path to the activated virtual environment.
+///
+/// A virtual environment is determined to be activated based on the existence of the `VIRTUAL_ENV`
+/// environment variable.
+pub fn virtual_env() -> Option<path::PathBuf> {
+    match env::var_os("VIRTUAL_ENV") {
+        None => None,
+        Some(venv_root) => {
+            let mut path = path::PathBuf::new();
+            path.push(venv_root);
+            path.push("bin");
+            path.push("python");
+            // TODO: Do a is_file() check first?
+            Some(path)
+        }
+    }
+}
+
 /// Returns the entries in `PATH`.
 pub fn path_entries() -> Vec<path::PathBuf> {
     if let Some(path_val) = env::var_os("PATH") {
@@ -444,6 +462,25 @@ mod tests {
                 args: vec![String::from("script.py")],
             }
         );
+    }
+
+    #[test]
+    fn test_virtual_env() {
+        let original_venv = env::var_os("VIRTUAL_ENV");
+
+        env::remove_var("VIRTUAL_ENV");
+        assert_eq!(virtual_env(), None);
+
+        env::set_var("VIRTUAL_ENV", "/some/path");
+        assert_eq!(
+            virtual_env(),
+            Some(path::PathBuf::from("/some/path/bin/python"))
+        );
+
+        match original_venv {
+            None => env::remove_var("VIRTUAL_ENV"),
+            Some(venv_value) => env::set_var("VIRTUAL_ENV", venv_value),
+        }
     }
 
     #[test]
