@@ -81,6 +81,9 @@ fashion are very much appreciated, though.)
 
 ## Maintainability
 1. Move code out of `main.rs` and into `lib.rs` to facilitate testing
-   - Function to find all compatible executables
+   - Function to check for the proper environment variable based on the requested version
+   - Function to find all compatible executables on PATH
+   - Change split_shebang() to return a Result (Python file shouldn't have a non-Python shebang)
+   - Change version_from_flag() to return a Result (shouldn't be parsing a flag w/o a `-`)
 1. Consider dropping `nix` dependency for a straight [`libc`](https://crates.io/crates/libc) dependency
 
