@@ -72,6 +72,10 @@ fashion are very much appreciated, though.)
     - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
     - Speeds up environment creation by not having to copy over entire Python installation (e.g. `.pyd` files)
 1. Provide a `pylauncher` package (it will make the pipenv developers happy 😃)
+1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
+   - Widest compatibility for people where they have undecodable paths
+     (which is hopefully a very small minority)
+   - Massive pain to make work (e.g. cannot easily convert to a `CString`)
 
 ## Polish
 1. Provide an error message when no Python executable is found (and be helpful based on requested version)
@@ -81,9 +85,14 @@ fashion are very much appreciated, though.)
 
 ## Maintainability
 1. Move code out of `main.rs` and into `lib.rs` to facilitate testing
-   - Function to check for the proper environment variable based on the requested version
-   - Function to find all compatible executables on `PATH`
-   - Change `split_shebang()` to return a `Result` (Python file shouldn't have a non-Python shebang)
-   - Change `version_from_flag()` to return a `Result` (shouldn't be parsing a flag w/o a `-`)
-1. Consider dropping `nix` dependency for a straight [`libc`](https://crates.io/crates/libc) dependency
+   - Function to map requested version to environment variable name
+1. Pare down public exposure of functions
+1. Consider having functions take arguments instead of querying environment
+   (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability)
+   - Can provide functions or constants to minimize typos in querying environment
+1. Go through functions to adjust for returning `Option` versus `Result`
+     (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`)
+1. Consider dropping [`nix`](https://crates.io/crates/nix) dependency for a straight
+   [`libc`](https://crates.io/crates/libc) dependency (to potentially make Debian
+   packaging easier)
 
