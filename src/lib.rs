@@ -191,7 +191,7 @@ pub fn virtual_env() -> Option<path::PathBuf> {
     }
 }
 
-/// Returns the entries in `PATH`.
+/// Convert `PATH` into a `Vec<path::PathBuf>`.
 pub fn path_entries() -> Vec<path::PathBuf> {
     if let Some(path_val) = env::var_os("PATH") {
         env::split_paths(&path_val).collect()
@@ -245,6 +245,35 @@ pub fn filter_python_executables(
     }
 
     executables
+}
+
+// XXX Write tests
+/// Find all available executables that are acceptable for the requested version as found on `PATH`.
+pub fn available_executables(
+    requested_version: RequestedVersion,
+) -> collections::HashMap<Version, path::PathBuf> {
+    let mut found_versions = collections::HashMap::new();
+    for path in path_entries() {
+        let all_contents = directory_contents(&path);
+        for (version, path) in filter_python_executables(all_contents) {
+            match version.matches(requested_version) {
+                VersionMatch::NotAtAll => continue,
+                VersionMatch::Loosely => {
+                    // The order of this guard is on purpose to potentially skip a stat call.
+                    if !found_versions.contains_key(&version) && path.is_file() {
+                        found_versions.insert(version, path);
+                    }
+                }
+                VersionMatch::Exactly => {
+                    if path.is_file() {
+                        found_versions.insert(version, path);
+                        break;
+                    }
+                }
+            };
+        }
+    }
+    found_versions
 }
 
 /// Finds the executable representing the latest Python version.

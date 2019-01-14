@@ -1,7 +1,7 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-use std::{collections, env, ffi, fs, os::unix::ffi::OsStrExt, path};
+use std::{env, ffi, fs, os::unix::ffi::OsStrExt, path};
 
 use nix::unistd;
 
@@ -50,27 +50,7 @@ fn main() {
             py::RequestedVersion::Exact(_, _) => requested_version,
         };
 
-        let mut found_versions = collections::HashMap::new();
-        for path in py::path_entries() {
-            let all_contents = py::directory_contents(&path);
-            for (version, path) in py::filter_python_executables(all_contents) {
-                match version.matches(requested_version) {
-                    py::VersionMatch::NotAtAll => continue,
-                    py::VersionMatch::Loosely => {
-                        // The order of this guard is on purpose to potentially skip a stat call.
-                        if !found_versions.contains_key(&version) && path.is_file() {
-                            found_versions.insert(version, path);
-                        }
-                    }
-                    py::VersionMatch::Exactly => {
-                        if path.is_file() {
-                            found_versions.insert(version, path);
-                            break;
-                        }
-                    }
-                };
-            }
-        }
+        let found_versions = py::available_executables(requested_version);
 
         chosen_path = py::choose_executable(&found_versions);
     }
