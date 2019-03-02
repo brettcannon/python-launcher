@@ -1,7 +1,7 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-use std::{env, ffi, fs, os::unix::ffi::OsStrExt, path};
+use std::{env, ffi, fs, os::unix::ffi::OsStrExt, path, str::FromStr};
 
 use nix::unistd;
 
@@ -45,13 +45,13 @@ fn main() {
     }
 
     if chosen_path.is_none() {
-        requested_version = match requested_version {
-            py::RequestedVersion::Any => py::check_default_env_var().unwrap_or(requested_version),
-            py::RequestedVersion::Loose(major) => {
-                py::check_major_env_var(major).unwrap_or(requested_version)
-            }
-            py::RequestedVersion::Exact(_, _) => requested_version,
-        };
+        if let Some(env_var) = requested_version.env_var() {
+            if let Ok(env_var_value) = env::var(env_var) {
+                if let Ok(env_requested_version) = py::RequestedVersion::from_str(&env_var_value) {
+                    requested_version = env_requested_version;
+                }
+            };
+        }
 
         let found_versions = py::available_executables(requested_version);
 

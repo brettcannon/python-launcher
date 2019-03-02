@@ -1,6 +1,5 @@
 use std::{
     collections, env,
-    error::Error,
     io::{self, BufRead},
     path,
     str::FromStr,
@@ -68,6 +67,17 @@ impl FromStr for RequestedVersion {
         } else {
             let minor = char_vec_to_int(&minor_ver)?;
             Ok(RequestedVersion::Exact(major, minor))
+        }
+    }
+}
+
+impl RequestedVersion {
+    /// Returns the string representing the environment variable for the requested version.
+    pub fn env_var(&self) -> Option<String> {
+        match self {
+            RequestedVersion::Any => Some("PY_PYTHON".to_string()),
+            RequestedVersion::Loose(major) => Some(format!("PY_PYTHON{}", major)),
+            _ => None,
         }
     }
 }
@@ -283,26 +293,6 @@ pub fn choose_executable(
     let mut pairs: Vec<(&Version, &path::PathBuf)> = version_paths.iter().collect();
     pairs.sort_unstable_by_key(|p| p.0);
     pairs.last().map(|(_, path)| path.to_path_buf())
-}
-
-/// Checks the environment variable `env_var_name` for a Python version.
-fn check_env_var(env_var_name: &str) -> Result<RequestedVersion, String> {
-    let env_var = match env::var(env_var_name) {
-        Ok(e) => e,
-        Err(e) => return Err(e.description().to_string()),
-    };
-
-    RequestedVersion::from_str(&env_var)
-}
-
-/// Checks the `PY_PYTHON` environment variable.
-pub fn check_default_env_var() -> Result<RequestedVersion, String> {
-    check_env_var("PY_PYTHON")
-}
-
-/// Checks the `PY_PYTHON{major}` environment variable.
-pub fn check_major_env_var(major: VersionComponent) -> Result<RequestedVersion, String> {
-    check_env_var(&format!("PY_PYTHON{}", major))
 }
 
 // XXX Shebang:
@@ -640,39 +630,20 @@ mod tests {
     }
 
     #[test]
-    fn test_check_default_env_var() {
-        env::remove_var("PY_PYTHON");
-        match check_default_env_var() {
-            Err(_) => (),
-            Ok(_) => panic!("supposedly a value was found when PY_PYTHON isn't set"),
-        };
-
-        env::set_var("PY_PYTHON", "42.13");
-        assert_eq!(check_default_env_var(), Ok(RequestedVersion::Exact(42, 13)));
-
-        env::set_var("PY_PYTHON", "some bunk");
-        match check_default_env_var() {
-            Err(_) => (),
-            Ok(_) => panic!("supposedly found a value when PY_PYTHON set to 'some bunk'"),
-        }
-    }
-
-    #[test]
-    fn test_check_major_env_var() {
-        env::remove_var("PY_PYTHON42");
-        match check_major_env_var(42) {
-            Err(_) => (),
-            Ok(_) => panic!("supposedly a value was found when PY_PYTHON42 isn't set"),
-        };
-
-        env::set_var("PY_PYTHON42", "42.13");
-        assert_eq!(check_major_env_var(42), Ok(RequestedVersion::Exact(42, 13)));
-
-        env::set_var("PY_PYTHON42", "some bunk");
-        match check_major_env_var(42) {
-            Err(_) => (),
-            Ok(_) => panic!("supposedly found a value when PY_PYTHON42 set to 'some bunk'"),
-        }
+    fn test_requested_version_env_var() {
+        assert_eq!(
+            RequestedVersion::Any.env_var(),
+            Some("PY_PYTHON".to_string())
+        );
+        assert_eq!(
+            RequestedVersion::Loose(3).env_var(),
+            Some("PY_PYTHON3".to_string())
+        );
+        assert_eq!(
+            RequestedVersion::Loose(42).env_var(),
+            Some("PY_PYTHON42".to_string())
+        );
+        assert!(RequestedVersion::Exact(3, 8).env_var().is_none());
     }
 
     #[test]
