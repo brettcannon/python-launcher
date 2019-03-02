@@ -55,7 +55,7 @@ fashion are very much appreciated, though.)
   - Output column format like `pip list` (based on a [Twitter poll](https://twitter.com/brettsky/status/1066795161236062208))
   - Skipping `py -0`/`py -0p`/`py --list-paths` for simplicity
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
-  - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)
+  - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)?
   - Want a better format like TOML?
   - Probably want a way to override/specify things, e.g. wanting a framework build on macOS somehow
     - Aliasing? E.g. `2.7-framework` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
@@ -78,14 +78,12 @@ fashion are very much appreciated, though.)
    - Massive pain to make work (e.g. cannot easily convert to a `CString`)
 
 ## Polish
-1. Provide an error message when no Python executable is found (and be helpful based on requested version)
+1. Provide a helpful error message based on requested version when no interpreter found
 1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
 1. Man page?
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Move code out of `main.rs` and into `lib.rs` to facilitate testing
-   - Function to map requested version to environment variable name
 1. Pare down public exposure of functions
 1. Consider having functions take arguments instead of querying environment
    (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability)
