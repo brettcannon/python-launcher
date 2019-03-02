@@ -20,21 +20,24 @@ fn main() {
         if let venv_executable @ Some(..) = py::virtual_env() {
             chosen_path = venv_executable;
         } else if let py::Action::Execute { launcher, args, .. } = action.clone() {
-            // Using the first argument because it's the simplest and sanest.
-            // We can't use the last argument because that could actually be an argument to the
-            // Python module being executed. This is the same reason we can't go searching for
-            // the first/last file path that we find. The only safe way to get the file path
-            // regardless of its position is to replicate Python's arg parsing and that's a
-            // **lot** of work for little gain.
-            if let Ok(open_file) = fs::File::open(&args[0]) {
-                if let Some(shebang) = py::find_shebang(open_file) {
-                    if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
-                        extra_args.append(&mut args.clone());
-                        action = py::Action::Execute {
-                            launcher,
-                            version: shebang_version,
-                            args: extra_args,
-                        };
+            if args.len() > 0 {
+                // Using the first argument because it's the simplest and sanest.
+                // We can't use the last argument because that could actually be an argument to the
+                // Python module being executed. This is the same reason we can't go searching for
+                // the first/last file path that we find. The only safe way to get the file path
+                // regardless of its position is to replicate Python's arg parsing and that's a
+                // **lot** of work for little gain.
+                if let Ok(open_file) = fs::File::open(&args[0]) {
+                    if let Some(shebang) = py::find_shebang(open_file) {
+                        if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang)
+                        {
+                            extra_args.append(&mut args.clone());
+                            action = py::Action::Execute {
+                                launcher,
+                                version: shebang_version,
+                                args: extra_args,
+                            };
+                        }
                     }
                 }
             }
