@@ -55,7 +55,10 @@ fn main() {
         chosen_path = py::choose_executable(&found_versions);
     }
 
-    // XXX Print an error message when no installed Python is found.
+    if chosen_path.is_none() {
+        println!("No suitable interpreter found for {:?}", requested_version);
+        return;
+    }
 
     match &action {
         py::Action::Help(launcher_path) => {
