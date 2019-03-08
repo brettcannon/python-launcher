@@ -26,7 +26,7 @@ appropriate to the specificity of the version.
 1. Use the version found in the `PY_PYTHON3` environment variable if defined
    (e.g. `PY_PYTHON3=3.6`)
 1. Search `PATH` for all instances of `python3.Y`
-1. Find the executable with largest `Y`
+1. Find the executable with largest `Y` that earliest on `PATH`
 
 ## `py` (any/unknown version)
 1. Use `${VIRTUAL_ENV}/bin/python` immediately if available
@@ -38,7 +38,7 @@ appropriate to the specificity of the version.
 1. Use the version found in the `PY_PYTHON` environment variable if defined
    (e.g. `PY_PYTHON=3` or `PY_PYTHON=3.6`)
 1. Search `PATH` for all instances of `pythonX.Y`
-1. Find the executable with the largest `X.Y`
+1. Find the executable with the largest `X.Y` earliest on `PATH`
 
 # TODO
 
