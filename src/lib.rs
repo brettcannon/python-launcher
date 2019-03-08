@@ -73,7 +73,7 @@ impl FromStr for RequestedVersion {
 
 impl RequestedVersion {
     /// Returns the string representing the environment variable for the requested version.
-    pub fn env_var(&self) -> Option<String> {
+    pub fn env_var(self) -> Option<String> {
         match self {
             RequestedVersion::Any => Some("PY_PYTHON".to_string()),
             RequestedVersion::Loose(major) => Some(format!("PY_PYTHON{}", major)),

@@ -20,7 +20,7 @@ fn main() {
         if let venv_executable @ Some(..) = py::virtual_env() {
             chosen_path = venv_executable;
         } else if let py::Action::Execute { launcher, args, .. } = action.clone() {
-            if args.len() > 0 {
+            if !args.is_empty() {
                 // Using the first argument because it's the simplest and sanest.
                 // We can't use the last argument because that could actually be an argument to the
                 // Python module being executed. This is the same reason we can't go searching for
