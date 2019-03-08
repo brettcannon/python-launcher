@@ -1,5 +1,6 @@
 use std::{
-    collections, env,
+    collections::{self, hash_map},
+    env,
     io::{self, BufRead},
     path,
     str::FromStr,
@@ -125,7 +126,7 @@ impl Version {
 pub enum Action {
     Help(path::PathBuf),
     Execute {
-        launcher: path::PathBuf,
+        launcher_path: path::PathBuf,
         version: RequestedVersion,
         args: Vec<String>,
     },
@@ -151,14 +152,14 @@ pub fn action_from_args(mut args: Vec<String>) -> Action {
         } else if let Some(version) = version_from_flag(&flag) {
             args.remove(0);
             return Action::Execute {
-                launcher: launcher_path,
+                launcher_path,
                 version,
                 args,
             };
         }
     }
     Action::Execute {
-        launcher: launcher_path,
+        launcher_path,
         version: RequestedVersion::Any,
         args,
     }
@@ -266,21 +267,22 @@ pub fn available_executables(
     for path in path_entries() {
         let all_contents = directory_contents(&path);
         for (version, path) in filter_python_executables(all_contents) {
-            match version.matches(requested_version) {
-                VersionMatch::NotAtAll => continue,
-                VersionMatch::Loosely => {
-                    // The order of this guard is on purpose to potentially skip a stat call.
-                    if !found_versions.contains_key(&version) && path.is_file() {
-                        found_versions.insert(version, path);
+            if let hash_map::Entry::Vacant(entry) = found_versions.entry(version) {
+                match entry.key().matches(requested_version) {
+                    VersionMatch::NotAtAll => continue,
+                    VersionMatch::Loosely => {
+                        if path.is_file() {
+                            entry.insert(path);
+                        }
+                    }
+                    VersionMatch::Exactly => {
+                        if path.is_file() {
+                            entry.insert(path);
+                            return found_versions;
+                        }
                     }
                 }
-                VersionMatch::Exactly => {
-                    if path.is_file() {
-                        found_versions.insert(version, path);
-                        break;
-                    }
-                }
-            };
+            }
         }
     }
     found_versions
@@ -417,7 +419,7 @@ mod tests {
         assert_eq!(
             action_from_args(vec![launcher_string.clone()]),
             Action::Execute {
-                launcher: launcher_path.clone(),
+                launcher_path: launcher_path.clone(),
                 version: RequestedVersion::Any,
                 args: Vec::new(),
             }
@@ -436,7 +438,7 @@ mod tests {
         assert_eq!(
             action_from_args(vec![launcher_string.clone(), String::from("-V")]),
             Action::Execute {
-                launcher: launcher_path.clone(),
+                launcher_path: launcher_path.clone(),
                 version: RequestedVersion::Any,
                 args: vec![String::from("-V")],
             }
@@ -445,7 +447,7 @@ mod tests {
         assert_eq!(
             action_from_args(vec![launcher_string.clone(), String::from("-3")]),
             Action::Execute {
-                launcher: launcher_path.clone(),
+                launcher_path: launcher_path.clone(),
                 version: RequestedVersion::Loose(3),
                 args: Vec::new(),
             }
@@ -454,7 +456,7 @@ mod tests {
         assert_eq!(
             action_from_args(vec![launcher_string.clone(), String::from("-3.6")]),
             Action::Execute {
-                launcher: launcher_path.clone(),
+                launcher_path: launcher_path.clone(),
                 version: RequestedVersion::Exact(3, 6),
                 args: Vec::new(),
             }
@@ -467,7 +469,7 @@ mod tests {
                 String::from("script.py"),
             ]),
             Action::Execute {
-                launcher: launcher_path.clone(),
+                launcher_path: launcher_path.clone(),
                 version: RequestedVersion::Exact(3, 6),
                 args: vec![String::from("script.py")],
             }
@@ -476,7 +478,7 @@ mod tests {
         assert_eq!(
             action_from_args(vec![launcher_string.clone(), String::from("script.py")]),
             Action::Execute {
-                launcher: launcher_path.clone(),
+                launcher_path: launcher_path.clone(),
                 version: RequestedVersion::Any,
                 args: vec![String::from("script.py")],
             }
