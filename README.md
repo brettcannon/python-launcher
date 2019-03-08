@@ -84,6 +84,8 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
+1. Refactor
+  - Move `match` for `Action` in `main.rs` to the top and have functions for each case
 1. Pare down public exposure of functions
 1. Consider having functions take arguments instead of querying environment
    (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability)
