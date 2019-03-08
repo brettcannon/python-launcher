@@ -18,12 +18,13 @@ fn main() {
     }
 }
 
-fn help(launcher_path: &path::Path) {
-    let mut chosen_path: Option<path::PathBuf> = None;
-    let mut requested_version = py::RequestedVersion::Any;
-    if let venv_executable @ Some(..) = py::virtual_env() {
-        chosen_path = venv_executable;
-    } else if let Some(env_var) = requested_version.env_var() {
+/// Find a Python executable on `PATH`.
+///
+/// Environment variables are checked to see if they specify a specific Python version.
+fn find_executable(version: py::RequestedVersion) -> Option<path::PathBuf> {
+    let mut requested_version = version;
+
+    if let Some(env_var) = requested_version.env_var() {
         if let Ok(env_var_value) = env::var(env_var) {
             if let Ok(env_requested_version) = py::RequestedVersion::from_str(&env_var_value) {
                 requested_version = env_requested_version;
@@ -31,15 +32,22 @@ fn help(launcher_path: &path::Path) {
         };
     }
 
-    if chosen_path.is_none() {
-        let found_versions = py::available_executables(requested_version);
+    let found_versions = py::available_executables(requested_version);
 
-        chosen_path = py::choose_executable(&found_versions);
-    }
+    py::choose_executable(&found_versions)
+}
 
-    if chosen_path.is_none() {
-        println!("No suitable interpreter found for {:?}", requested_version);
-        return;
+fn help(launcher_path: &path::Path) {
+    let mut chosen_path: Option<path::PathBuf>;
+
+    if let venv_executable @ Some(..) = py::virtual_env() {
+        chosen_path = venv_executable;
+    } else {
+        chosen_path = find_executable(py::RequestedVersion::Any);
+        if chosen_path.is_none() {
+            println!("No Python interpreter found");
+            return;
+        }
     }
 
     let found_path = chosen_path.unwrap();
@@ -95,22 +103,12 @@ fn execute(_launcher: &path::PathBuf, version: py::RequestedVersion, original_ar
     }
 
     if chosen_path.is_none() {
-        if let Some(env_var) = requested_version.env_var() {
-            if let Ok(env_var_value) = env::var(env_var) {
-                if let Ok(env_requested_version) = py::RequestedVersion::from_str(&env_var_value) {
-                    requested_version = env_requested_version;
-                }
-            };
+        chosen_path = find_executable(requested_version);
+
+        if chosen_path.is_none() {
+            println!("No suitable interpreter found for {:?}", requested_version);
+            return;
         }
-
-        let found_versions = py::available_executables(requested_version);
-
-        chosen_path = py::choose_executable(&found_versions);
-    }
-
-    if chosen_path.is_none() {
-        println!("No suitable interpreter found for {:?}", requested_version);
-        return;
     }
 
     if let Err(e) = run(&chosen_path.unwrap(), &args) {
