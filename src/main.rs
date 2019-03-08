@@ -64,25 +64,7 @@ fn main() {
     }
 
     match &action {
-        py::Action::Help(launcher_path) => {
-            println!(
-                "Python Launcher for UNIX {}
-                \n\
-                usage:\n\
-                {} [launcher-args] [python-args] script [script-args]\n\
-                \n\
-                Launcher arguments:\n\
-                \n\
-                -X     : Launch the latest Python X version (e.g. `-3` for the latest Python 3)\n\
-                -X.Y   : Launch the specified Python version (e.g. `-3.6` for Python 3.6)\n\
-                \n\
-                The following help text is from {}:\n\
-                \n",
-                env!("CARGO_PKG_VERSION"),
-                launcher_path.to_string_lossy(),
-                chosen_path.unwrap().to_string_lossy()
-            );
-        }
+        py::Action::Help(launcher_path) => help(&launcher_path),
         py::Action::Execute { args, .. } => {
             if let Err(e) = run(&chosen_path.unwrap(), &args) {
                 println!("{:?}", e);
@@ -90,6 +72,69 @@ fn main() {
         }
     }
 }
+
+fn help(launcher_path: &path::Path) {
+    // XXX Find best executable (virtual env, env var, PATH)
+    let mut chosen_path: Option<path::PathBuf> = None;
+    let mut requested_version = py::RequestedVersion::Any;
+    if let venv_executable @ Some(..) = py::virtual_env() {
+        chosen_path = venv_executable;
+    } else if let Some(env_var) = requested_version.env_var() {
+        if let Ok(env_var_value) = env::var(env_var) {
+            if let Ok(env_requested_version) = py::RequestedVersion::from_str(&env_var_value) {
+                requested_version = env_requested_version;
+            }
+        };
+    }
+
+    if chosen_path.is_none() {
+        let found_versions = py::available_executables(requested_version);
+
+        chosen_path = py::choose_executable(&found_versions);
+    }
+
+    if chosen_path.is_none() {
+        println!("No suitable interpreter found for {:?}", requested_version);
+        return;
+    }
+
+    let found_path = chosen_path.unwrap();
+
+    println!(
+        "Python Launcher for UNIX {}\n\
+        \n\
+        usage:\n\
+        {} [launcher-args] [python-args] script [script-args]\n\
+        \n\
+        Launcher arguments:\n\
+        \n\
+        -h/--help : This output\n\
+        -X        : Launch the latest Python X version (e.g. `-3` for the latest Python 3)\n\
+        -X.Y      : Launch the specified Python version (e.g. `-3.6` for Python 3.6)\n\
+        \n\
+        The following help text is from {}:\n",
+        env!("CARGO_PKG_VERSION"),
+        launcher_path.to_string_lossy(),
+        found_path.to_string_lossy()
+    );
+
+    if let Err(e) = run(&found_path, &["--help".to_string()]) {
+        println!("{:?}", e);
+    }
+}
+
+/*
+fn list() {
+    // XXX Find all executables. (What about virtual env?)
+    // XXX Sort the executables.
+    // XXX Print out table, best to worst.
+}
+
+fn execute(action: py::Action) {
+    // XXX Find best executable (virtual env, shebang, env var, PATH)
+    // XXX execute
+}
+*/
 
 fn run(executable: &path::Path, args: &[String]) -> nix::Result<()> {
     let executable_as_cstring = ffi::CString::new(executable.as_os_str().as_bytes()).unwrap();
