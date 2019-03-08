@@ -54,6 +54,9 @@ fashion are very much appreciated, though.)
 1. `py --list`
   - Output column format like `pip list` (based on a [Twitter poll](https://twitter.com/brettsky/status/1066795161236062208))
   - Skipping `py -0`/`py -0p`/`py --list-paths` for simplicity
+1. Keep environment variable naming?
+  - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
+  - The `PY_PYTHON` feels redundant
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)?
   - Want a better format like TOML?
@@ -71,7 +74,7 @@ fashion are very much appreciated, though.)
   - Read `../pyvenv.cfg` to resolve for `Any` version
     - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
     - Speeds up environment creation by not having to copy over entire Python installation (e.g. `.pyd` files)
-1. Provide a `pylauncher` package (it will make the pipenv developers happy 😃)
+1. Provide a `pylauncher` package (it will make the pipenv developers happy 😃; might change name to `pyfinder` for package)
 1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
    - Widest compatibility for people where they have undecodable paths
      (which is hopefully a very small minority)
