@@ -56,7 +56,7 @@ fashion are very much appreciated, though.)
   - Skipping `py -0`/`py -0p`/`py --list-paths` for simplicity
 1. Keep environment variable naming?
   - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
-  - The `PY_PYTHON` feels redundant
+  - The `PY_PYTHON` aspect feels redundant
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)?
   - Want a better format like TOML?
@@ -87,6 +87,7 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
+1. Split up `lib.rs` into separate files
 1. Pare down public exposure of functions
 1. Consider having functions take arguments instead of querying environment
    (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability)
