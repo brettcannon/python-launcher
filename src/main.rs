@@ -1,7 +1,9 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
-use std::{env, ffi, fs, os::unix::ffi::OsStrExt, path, str::FromStr};
+use std::{
+    cmp::max, env, ffi, fs, iter::FromIterator, os::unix::ffi::OsStrExt, path, str::FromStr,
+};
 
 use nix::unistd;
 
@@ -10,6 +12,7 @@ use python_launcher as py;
 fn main() {
     match py::action_from_args(env::args().collect::<Vec<String>>()) {
         py::Action::Help(launcher_path) => help(&launcher_path),
+        py::Action::List => list_available_executables(),
         py::Action::Execute {
             launcher_path,
             version,
@@ -72,6 +75,35 @@ fn help(launcher_path: &path::Path) {
 
     if let Err(e) = run(&found_path, &["--help".to_string()]) {
         println!("{:?}", e);
+    }
+}
+
+fn list_available_executables() {
+    let executables = py::available_executables(py::RequestedVersion::Any);
+    if executables.is_empty() {
+        println!("No Python executables found");
+        return;
+    }
+    let mut executable_pairs = Vec::from_iter(executables);
+    executable_pairs.sort_unstable();
+
+    let max_version_length = executable_pairs.iter().fold(0, |max_so_far, pair| {
+        max(max_so_far, pair.0.to_string().len())
+    });
+
+    // Including two spaces for readability padding.
+    let left_column_width = max(max_version_length, "Version".len());
+
+    println!("{:<1$}  Path", "Version", left_column_width);
+    println!("{:<1$}  ====", "=======", left_column_width);
+
+    for (version, path) in executable_pairs {
+        println!(
+            "{:<2$}  {}",
+            version.to_string(),
+            path.to_string_lossy(),
+            left_column_width
+        );
     }
 }
 

@@ -4,6 +4,7 @@ use std::{
     io::{self, BufRead},
     path,
     str::FromStr,
+    string,
 };
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
@@ -98,6 +99,13 @@ pub enum VersionMatch {
     Exactly,  // Matches a major.minor exactly.
 }
 
+// XXX Tests
+impl string::ToString for Version {
+    fn to_string(&self) -> String {
+        format!("{}.{}", self.major, self.minor)
+    }
+}
+
 impl Version {
     // XXX Make VersionMatch a part of Version.
     /// Sees how well of a match this Python version is for `requested`.
@@ -125,6 +133,7 @@ impl Version {
 #[derive(Clone, Debug, PartialEq)]
 pub enum Action {
     Help(path::PathBuf),
+    List,
     Execute {
         launcher_path: path::PathBuf,
         version: RequestedVersion,
@@ -149,6 +158,8 @@ pub fn action_from_args(mut args: Vec<String>) -> Action {
 
         if flag == "-h" || flag == "--help" {
             return Action::Help(launcher_path);
+        } else if flag == "--list" {
+            return Action::List;
         } else if let Some(version) = version_from_flag(&flag) {
             args.remove(0);
             return Action::Execute {
@@ -433,6 +444,11 @@ mod tests {
         assert_eq!(
             action_from_args(vec![launcher_string.clone(), String::from("--help")]),
             Action::Help(launcher_path.clone())
+        );
+
+        assert_eq!(
+            action_from_args(vec![launcher_string.clone(), String::from("--list")]),
+            Action::List
         );
 
         assert_eq!(

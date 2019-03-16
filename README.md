@@ -51,9 +51,6 @@ fashion are very much appreciated, though.)
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
 ## Functionality
-1. `py --list`
-  - Output column format like `pip list` (based on a [Twitter poll](https://twitter.com/brettsky/status/1066795161236062208))
-  - Skipping `py -0`/`py -0p`/`py --list-paths` for simplicity
 1. Keep environment variable naming?
   - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
   - The `PY_PYTHON` aspect feels redundant
