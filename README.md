@@ -78,6 +78,7 @@ fashion are very much appreciated, though.)
    - Massive pain to make work (e.g. cannot easily convert to a `CString`)
 
 ## Polish
+1. Have `--help` mention supported environment variables
 1. Provide a helpful error message based on requested version when no interpreter found
 1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
 1. Man page?
