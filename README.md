@@ -79,6 +79,10 @@ fashion are very much appreciated, though.)
 
 ## Polish
 1. Have `--help` mention supported environment variables
+1. Have `--list` somehow denote activated virtual environment?
+   * What does the Windows launcher do in this case?
+   * Slight pain as there's no way to no the version of Python w/o executing it to query
+     its version as virtual environments has no `major.minor`-named executable
 1. Provide a helpful error message based on requested version when no interpreter found
 1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
 1. Man page?
