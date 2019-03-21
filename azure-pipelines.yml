@@ -1,0 +1,63 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+name: python-launcher_$(Year:YYYY).$(Month).0.$(BuildID)
+
+# Will run on any merge to master
+trigger:
+- master
+
+# Will run on any PR request against the master or release branch.
+# - will skip rebuilding for README, .travis.yml. or git-related files.
+pr:
+  autoCancel: true
+  branches:
+    include:
+    - master
+    - release
+  paths:
+    exclude:
+    - README.md
+    - .travis.yml
+    - .gitignore
+    - .github/
+
+# Use the Ubuntu 1604 image which has Docker enabled (Windows 1803 also has this)
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+# Grab the latest official rust container to run things in.
+container: rust:latest
+
+
+steps:
+
+# Show off all environment variables avaialble in the container if system.debug = true (verbose mode)
+- script: |
+    printenv
+  displayName: 'Show all environment variables'
+  condition: eq(variables['system.debug'], 'true')
+
+# initialize the rust environment, add necessary components.
+- script: |
+    rustup component add rustfmt
+    rustup component add clippy
+  displayName: 'Init rust'
+
+# Perform the build, test, and linting.
+- script: |
+    cargo fmt --all -- --check
+    cargo build
+    cargo test --color always
+    cargo clippy
+  displayName: 'Rust build'
+
+# Publish the py executable to the Azure DevOps artifacts for this build.
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'executable'
+    targetPath: 'target/debug/py'
+  condition: succeeded()
+  displayName: 'Publish py executable'
+
