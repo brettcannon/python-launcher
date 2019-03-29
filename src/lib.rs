@@ -1,10 +1,11 @@
+use std::io::BufRead;
 use std::{
-    collections::{self, hash_map},
+    collections::{hash_map::Entry, HashMap, HashSet},
     env,
-    io::{self, BufRead},
-    path,
+    io::{BufReader, Read},
+    path::{Path, PathBuf},
     str::FromStr,
-    string,
+    string::ToString,
 };
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
@@ -100,7 +101,7 @@ pub enum VersionMatch {
 }
 
 // XXX Tests
-impl string::ToString for Version {
+impl ToString for Version {
     fn to_string(&self) -> String {
         format!("{}.{}", self.major, self.minor)
     }
@@ -132,10 +133,10 @@ impl Version {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Action {
-    Help(path::PathBuf),
+    Help(PathBuf),
     List,
     Execute {
-        launcher_path: path::PathBuf,
+        launcher_path: PathBuf,
         version: RequestedVersion,
         args: Vec<String>,
     },
@@ -152,7 +153,7 @@ pub enum Action {
 /// let action = py::action_from_args(args);
 /// ```
 pub fn action_from_args(mut args: Vec<String>) -> Action {
-    let launcher_path = path::PathBuf::from(args.remove(0)); // Strip the path to this executable.
+    let launcher_path = PathBuf::from(args.remove(0)); // Strip the path to this executable.
     if !args.is_empty() {
         let flag = &args[0];
 
@@ -199,11 +200,11 @@ pub fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
 ///
 /// A virtual environment is determined to be activated based on the existence of the `VIRTUAL_ENV`
 /// environment variable.
-pub fn virtual_env() -> Option<path::PathBuf> {
+pub fn virtual_env() -> Option<PathBuf> {
     match env::var_os("VIRTUAL_ENV") {
         None => None,
         Some(venv_root) => {
-            let mut path = path::PathBuf::new();
+            let mut path = PathBuf::new();
             path.push(venv_root);
             path.push("bin");
             path.push("python");
@@ -213,8 +214,8 @@ pub fn virtual_env() -> Option<path::PathBuf> {
     }
 }
 
-/// Convert `PATH` into a `Vec<path::PathBuf>`.
-pub fn path_entries() -> Vec<path::PathBuf> {
+/// Convert `PATH` into a `Vec<PathBuf>`.
+pub fn path_entries() -> Vec<PathBuf> {
     if let Some(path_val) = env::var_os("PATH") {
         env::split_paths(&path_val).collect()
     } else {
@@ -225,8 +226,8 @@ pub fn path_entries() -> Vec<path::PathBuf> {
 /// Gets the contents of a directory.
 ///
 /// Exists primarily to unwrap and ignore any unencodeable names.
-pub fn directory_contents(path: &path::Path) -> collections::HashSet<path::PathBuf> {
-    let mut paths = collections::HashSet::new();
+pub fn directory_contents(path: &Path) -> HashSet<PathBuf> {
+    let mut paths = HashSet::new();
     if let Ok(contents) = path.read_dir() {
         for content in contents {
             if let Ok(found_content) = content {
@@ -239,10 +240,8 @@ pub fn directory_contents(path: &path::Path) -> collections::HashSet<path::PathB
 }
 
 /// Filters the paths down to `pythonX.Y` paths.
-pub fn filter_python_executables(
-    paths: collections::HashSet<path::PathBuf>,
-) -> collections::HashMap<Version, path::PathBuf> {
-    let mut executables = collections::HashMap::new();
+pub fn filter_python_executables(paths: HashSet<PathBuf>) -> HashMap<Version, PathBuf> {
+    let mut executables = HashMap::new();
     for path in paths {
         let unencoded_file_name = match path.file_name() {
             Some(x) => x,
@@ -271,14 +270,12 @@ pub fn filter_python_executables(
 
 // XXX Write tests
 /// Find all available executables that are acceptable for the requested version as found on `PATH`.
-pub fn available_executables(
-    requested_version: RequestedVersion,
-) -> collections::HashMap<Version, path::PathBuf> {
-    let mut found_versions = collections::HashMap::new();
+pub fn available_executables(requested_version: RequestedVersion) -> HashMap<Version, PathBuf> {
+    let mut found_versions = HashMap::new();
     for path in path_entries() {
         let all_contents = directory_contents(&path);
         for (version, path) in filter_python_executables(all_contents) {
-            if let hash_map::Entry::Vacant(entry) = found_versions.entry(version) {
+            if let Entry::Vacant(entry) = found_versions.entry(version) {
                 match entry.key().matches(requested_version) {
                     VersionMatch::NotAtAll => continue,
                     VersionMatch::Loosely => {
@@ -300,10 +297,8 @@ pub fn available_executables(
 }
 
 /// Finds the executable representing the latest Python version.
-pub fn choose_executable(
-    version_paths: &collections::HashMap<Version, path::PathBuf>,
-) -> Option<path::PathBuf> {
-    let mut pairs: Vec<(&Version, &path::PathBuf)> = version_paths.iter().collect();
+pub fn choose_executable(version_paths: &HashMap<Version, PathBuf>) -> Option<PathBuf> {
+    let mut pairs: Vec<(&Version, &PathBuf)> = version_paths.iter().collect();
     pairs.sort_unstable_by_key(|p| p.0);
     pairs.last().map(|(_, path)| path.to_path_buf())
 }
@@ -316,8 +311,8 @@ pub fn choose_executable(
 /// Finds the shebang line from `reader`.
 ///
 /// If a shebang line is found, then the `#!` is removed and the line is stripped of leading and trailing whitespace.
-pub fn find_shebang(reader: impl io::Read) -> Option<String> {
-    let mut buffered_reader = io::BufReader::new(reader);
+pub fn find_shebang(reader: impl Read) -> Option<String> {
+    let mut buffered_reader = BufReader::new(reader);
 
     let mut line = String::new();
     if buffered_reader.read_line(&mut line).is_err() {
@@ -425,7 +420,7 @@ mod tests {
     #[test]
     fn test_action_from_args() {
         let launcher_string = String::from("/py");
-        let launcher_path = path::PathBuf::from(&launcher_string);
+        let launcher_path = PathBuf::from(&launcher_string);
 
         assert_eq!(
             action_from_args(vec![launcher_string.clone()]),
@@ -509,10 +504,7 @@ mod tests {
         assert_eq!(virtual_env(), None);
 
         env::set_var("VIRTUAL_ENV", "/some/path");
-        assert_eq!(
-            virtual_env(),
-            Some(path::PathBuf::from("/some/path/bin/python"))
-        );
+        assert_eq!(virtual_env(), Some(PathBuf::from("/some/path/bin/python")));
 
         match original_venv {
             None => env::remove_var("VIRTUAL_ENV"),
@@ -530,8 +522,8 @@ mod tests {
                 path_entries(),
                 paths
                     .iter()
-                    .map(|p| path::PathBuf::from(p))
-                    .collect::<Vec<path::PathBuf>>()
+                    .map(|p| PathBuf::from(p))
+                    .collect::<Vec<PathBuf>>()
             );
             match original_paths {
                 Some(paths) => env::set_var("PATH", paths),
@@ -564,8 +556,8 @@ mod tests {
         ];
         let all_paths = paths
             .iter()
-            .map(path::PathBuf::from)
-            .collect::<collections::HashSet<path::PathBuf>>();
+            .map(PathBuf::from)
+            .collect::<HashSet<PathBuf>>();
         let results = filter_python_executables(all_paths);
         let good_version1 = Version { major: 3, minor: 6 };
         let good_version2 = Version {
@@ -574,12 +566,12 @@ mod tests {
         };
         let mut expected = paths[5];
         match results.get(&good_version1) {
-            Some(path) => assert_eq!(*path, path::PathBuf::from(expected)),
+            Some(path) => assert_eq!(*path, PathBuf::from(expected)),
             None => panic!("{:?} not found", good_version1),
         };
         expected = paths[6];
         match results.get(&good_version2) {
-            Some(path) => assert_eq!(*path, path::PathBuf::from(expected)),
+            Some(path) => assert_eq!(*path, PathBuf::from(expected)),
             None => panic!("{:?} not found", good_version2),
         }
     }
@@ -624,10 +616,10 @@ mod tests {
             major: 42,
             minor: 13,
         };
-        let path_3_6 = path::PathBuf::from("/python3.6");
-        let path_42_0 = path::PathBuf::from("/python42.0");
-        let path_42_13 = path::PathBuf::from("/python42.13");
-        let mut mapping = collections::HashMap::new();
+        let path_3_6 = PathBuf::from("/python3.6");
+        let path_42_0 = PathBuf::from("/python42.0");
+        let path_42_13 = PathBuf::from("/python42.13");
+        let mut mapping = HashMap::new();
 
         if choose_executable(&mapping).is_some() {
             panic!("found a non-existent path");
