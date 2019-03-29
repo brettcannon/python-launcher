@@ -1,0 +1,19 @@
+Python Launcher for UNIX {}
+usage: {} [launcher-args] [python-args] script [script-args]
+
+Launcher arguments:
+-h/--help: This output
+--list   : List all known interpreters (except activated virtual environment).
+-[X]     : Launch the latest Python `X` version (e.g. `-3` for the latest
+           Python 3); PY_PYTHON[X] overrides what is considered the latest
+           (e.g. `PY_PYTHON3=3.6` will cause `-3` to search for Python 3.6).
+-[X.Y]   : Launch the specified Python version (e.g. `-3.6` for Python 3.6).
+
+Other environment variables:
+PY_PYTHON  : Specify the version of Python to search for when no Python version
+             is explicitly requested (e.g. `3.6` to use Python 3.6 by default).
+VIRTUAL_ENV: Path to a virtual enviroment to use when no Python version is
+             explicitly requested; typically set by activating a virtual
+             environment.
+
+The following help text is from {}:

@@ -56,19 +56,7 @@ fn help(launcher_path: &path::Path) {
     let found_path = chosen_path.unwrap();
 
     println!(
-        "Python Launcher for UNIX {}\n\
-         \n\
-         usage:\n\
-         {} [launcher-args] [python-args] script [script-args]\n\
-         \n\
-         Launcher arguments:\n\
-         \n\
-         -h/--help : This output\n\
-         --list    : List all known interpreters (except activated virtual environment)\n\
-         -X        : Launch the latest Python X version (e.g. `-3` for the latest Python 3)\n\
-         -X.Y      : Launch the specified Python version (e.g. `-3.6` for Python 3.6)\n\
-         \n\
-         The following help text is from {}:\n",
+        include_str!("HELP.txt"),
         env!("CARGO_PKG_VERSION"),
         launcher_path.to_string_lossy(),
         found_path.to_string_lossy()
