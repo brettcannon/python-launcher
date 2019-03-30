@@ -1,10 +1,12 @@
-use std::collections::{hash_map::Entry, HashMap, HashSet};
-use std::env;
-use std::hash::BuildHasher;
-use std::io::{BufRead, BufReader, Read};
-use std::path::{Path, PathBuf};
-use std::str::FromStr;
-use std::string::ToString;
+use std::{
+    collections::{hash_map::Entry, HashMap, HashSet},
+    env,
+    hash::BuildHasher,
+    io::{BufRead, BufReader, Read},
+    path::{Path, PathBuf},
+    str::FromStr,
+    string::ToString,
+};
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type VersionComponent = u16;
