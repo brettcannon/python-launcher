@@ -1,12 +1,10 @@
-use std::io::BufRead;
-use std::{
-    collections::{hash_map::Entry, HashMap, HashSet},
-    env,
-    io::{BufReader, Read},
-    path::{Path, PathBuf},
-    str::FromStr,
-    string::ToString,
-};
+use std::collections::{hash_map::Entry, HashMap, HashSet};
+use std::env;
+use std::hash::BuildHasher;
+use std::io::{BufRead, BufReader, Read};
+use std::path::{Path, PathBuf};
+use std::str::FromStr;
+use std::string::ToString;
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type VersionComponent = u16;
@@ -240,7 +238,9 @@ pub fn directory_contents(path: &Path) -> HashSet<PathBuf> {
 }
 
 /// Filters the paths down to `pythonX.Y` paths.
-pub fn filter_python_executables(paths: HashSet<PathBuf>) -> HashMap<Version, PathBuf> {
+pub fn filter_python_executables<S: BuildHasher>(
+    paths: HashSet<PathBuf, S>,
+) -> HashMap<Version, PathBuf> {
     let mut executables = HashMap::new();
     for path in paths {
         let unencoded_file_name = match path.file_name() {
@@ -297,7 +297,9 @@ pub fn available_executables(requested_version: RequestedVersion) -> HashMap<Ver
 }
 
 /// Finds the executable representing the latest Python version.
-pub fn choose_executable(version_paths: &HashMap<Version, PathBuf>) -> Option<PathBuf> {
+pub fn choose_executable<S: BuildHasher>(
+    version_paths: &HashMap<Version, PathBuf, S>,
+) -> Option<PathBuf> {
     let mut pairs: Vec<(&Version, &PathBuf)> = version_paths.iter().collect();
     pairs.sort_unstable_by_key(|p| p.0);
     pairs.last().map(|(_, path)| path.to_path_buf())
