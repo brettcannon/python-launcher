@@ -214,6 +214,7 @@ pub fn virtual_env() -> Option<PathBuf> {
     }
 }
 
+// XXX Convert all PATH traversal code into a lazy iterable
 /// Convert `PATH` into a `Vec<PathBuf>`.
 pub fn path_entries() -> Vec<PathBuf> {
     if let Some(path_val) = env::var_os("PATH") {
