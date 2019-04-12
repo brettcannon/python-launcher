@@ -54,6 +54,9 @@ fashion are very much appreciated, though.)
 1. Keep environment variable naming?
   - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
   - The `PY_PYTHON` aspect feels redundant
+1. Consider dropping assumption that `python` in shebangs represent `python2`?
+  - Linux distros are already starting to redefine `python` as `python3` in some spots
+  - It's looking more and more likely that PEP 394 will support letting distros choose what `python` represents
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)?
   - Want a better format like TOML?
