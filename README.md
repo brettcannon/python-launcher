@@ -52,26 +52,31 @@ fashion are very much appreciated, though.)
 
 ## Functionality
 1. Keep environment variable naming?
-  - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
-  - The `PY_PYTHON` aspect feels redundant
+   - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
+   - The `PY_PYTHON` aspect feels redundant
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
-  - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)?
-  - Want a better format like TOML?
-  - Probably want a way to override/specify things, e.g. wanting a framework build on macOS somehow
-    - Aliasing? E.g. `2.7-framework` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
-    - Just provide a way to specify a specific interpreter for a specific version? E.g. `2.7` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
-    - What about implementations that don't install to e.g. `python3.7` like `pypy3`?
-  - How should config file search work?
-    - Pre-defined locations?
-    - Walk up from current directory?
-    - [XDG base directory specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)?
+   (key thing to remember is should not get to the point that you're using this to alias
+   specific interpreters, just making it easier to specify constraints on what kind of
+   interpreter you need and then letting launcher pick for you)
+   - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)?
+   - Want a better format like TOML?
+   - Want a way to override/specify things, e.g. wanting a framework build on macOS?
+     - Aliasing? E.g. `2.7-framework` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
+     - Just provide a way to specify a specific interpreter for a specific version? E.g. `2.7` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
+     - What about implementations that don't install to e.g. `python3.7` like `pypy3`?
+       - Need more than just being able to alias name to Python version?
+   - How should config file search work?
+     - Pre-defined locations?
+     - Walk up from current directory?
+     - [XDG base directory specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)?
 1. Windows support
-  - Registry
-  - `PATH`
-  - Read `../pyvenv.cfg` to resolve for `Any` version
-    - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
-    - Speeds up environment creation by not having to copy over entire Python installation (e.g. `.pyd` files)
-1. Provide a `pylauncher` package (it will make the pipenv developers happy 😃; might change name to `pyfinder` for package)
+   - Registry
+   - `PATH`
+   - Windows Store (should be covered by `PATH` search, but need to make sure)
+1. Read `../pyvenv.cfg` to resolve for `Any` version
+   - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
+   - Speeds up environment creation by not having to copy over entire Python installation on Windows (e.g. `.pyd` files)
+1. Provide a `python_launcher` package (it will make the pipenv developers happy 😃; might need a rename to `pylauncher` or `pyfinder` to follow Python practices)
 1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
    - Widest compatibility for people where they have undecodable paths
      (which is hopefully a very small minority)
@@ -88,13 +93,14 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Split up `lib.rs` into separate files
 1. Pare down public exposure of functions
 1. Consider having functions take arguments instead of querying environment
    (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability)
    - Can provide functions or constants to minimize typos in querying environment
 1. Go through functions to adjust for returning `Option` versus `Result`
      (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`)
+1. Make sure everything is tested
+1. Flesh out documentation (and include examples as appropriate for even more testing)
 1. Consider dropping [`nix`](https://crates.io/crates/nix) dependency for a straight
    [`libc`](https://crates.io/crates/libc) dependency (to potentially make Debian
    packaging easier)

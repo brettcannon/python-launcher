@@ -13,10 +13,12 @@ use std::{
 
 use nix::unistd;
 
-use python_launcher::{self as py, Action, RequestedVersion};
+use python_launcher as py;
+use python_launcher::cli::Action;
+use python_launcher::version::RequestedVersion;
 
 fn main() {
-    match py::action_from_args(env::args().collect::<Vec<String>>()) {
+    match py::cli::action_from_args(env::args().collect::<Vec<String>>()) {
         Action::Help(launcher_path) => help(&launcher_path),
         Action::List => list_available_executables(),
         Action::Execute {
@@ -41,15 +43,15 @@ fn find_executable(version: RequestedVersion) -> Option<PathBuf> {
         };
     }
 
-    let found_versions = py::available_executables(requested_version);
+    let found_versions = py::path::available_executables(requested_version);
 
-    py::choose_executable(&found_versions)
+    py::path::choose_executable(&found_versions)
 }
 
 fn help(launcher_path: &Path) {
     let mut chosen_path: Option<PathBuf>;
 
-    if let venv_executable @ Some(..) = py::virtual_env() {
+    if let venv_executable @ Some(..) = py::cli::virtual_env() {
         chosen_path = venv_executable;
     } else {
         chosen_path = find_executable(RequestedVersion::Any);
@@ -74,7 +76,7 @@ fn help(launcher_path: &Path) {
 }
 
 fn list_available_executables() {
-    let executables = py::available_executables(py::RequestedVersion::Any);
+    let executables = py::path::available_executables(py::version::RequestedVersion::Any);
     if executables.is_empty() {
         println!("No Python executables found");
         return;
@@ -108,7 +110,7 @@ fn execute(_launcher: &PathBuf, version: RequestedVersion, original_args: &[Stri
     let mut args = original_args.to_owned();
 
     if requested_version == RequestedVersion::Any {
-        if let venv_executable @ Some(..) = py::virtual_env() {
+        if let venv_executable @ Some(..) = py::cli::virtual_env() {
             chosen_path = venv_executable;
         } else if !args.is_empty() {
             // Using the first argument because it's the simplest and sanest.
@@ -118,8 +120,8 @@ fn execute(_launcher: &PathBuf, version: RequestedVersion, original_args: &[Stri
             // regardless of its position is to replicate Python's arg parsing and that's a
             // **lot** of work for little gain.
             if let Ok(open_file) = File::open(&args[0]) {
-                if let Some(shebang) = py::find_shebang(open_file) {
-                    if let Some((shebang_version, mut extra_args)) = py::split_shebang(&shebang) {
+                if let Some(shebang) = py::cli::find_shebang(open_file) {
+                    if let Some((shebang_version, mut extra_args)) = py::cli::split_shebang(&shebang) {
                         requested_version = shebang_version;
                         extra_args.append(&mut args.clone());
                         args = extra_args;
