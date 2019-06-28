@@ -1,7 +1,9 @@
-use std::str::FromStr;
+use std::{convert::From, str::FromStr};
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type ComponentSize = u16;
+/// Failure to parse a string containing a specified Python version.
+type ParseVersionError = String;
 
 /// Represents the version of Python a user requsted.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -12,64 +14,41 @@ pub enum RequestedVersion {
 }
 
 impl FromStr for RequestedVersion {
-    type Err = String;
+    type Err = ParseVersionError;
 
-    // XXX Custom Result
     fn from_str(version_string: &str) -> Result<Self, Self::Err> {
         if version_string.is_empty() {
-            return Err("version string is empty".to_string());
+            return Ok(RequestedVersion::Any);
         }
 
-        // XXX Crate to help parse?
-        let mut char_iter = version_string.chars();
-        let mut major_ver = Vec::new();
-        let mut dot = false;
+        if let Some(dot_index) = version_string.find('.') {
+            if let Some(major_str) = version_string.get(..dot_index) {
+                let major = match major_str.parse::<ComponentSize>() {
+                    Ok(number) => number,
+                    Err(parse_error) => return Err(parse_error.to_string()),
+                };
 
-        for c in char_iter.by_ref() {
-            if c == '.' {
-                dot = true;
-                break;
-            } else if c.is_ascii_digit() {
-                major_ver.push(c);
-            } else {
-                return Err(format!(
-                    "{:?} contains a non-numeric and non-period character",
-                    version_string
-                ));
-            }
-        }
-
-        let mut minor_ver = Vec::new();
-        if dot {
-            for c in char_iter.by_ref() {
-                if c.is_ascii_digit() {
-                    minor_ver.push(c);
+                if let Some(minor_str) = version_string.get(dot_index + 1..) {
+                    match minor_str.parse::<ComponentSize>() {
+                        Ok(number) => Ok(RequestedVersion::Exact(major, number)),
+                        Err(parse_error) => Err(parse_error.to_string()),
+                    }
                 } else {
-                    return Err(format!(
-                        "{:?} contains a non-numeric character after a period",
-                        version_string
-                    ));
+                    return Err("no minor version after the '.' found".to_string());
                 }
+            } else {
+                return Err("no major version before the '.' found".to_string());
             }
-        }
-
-        let major = char_vec_to_int(&major_ver)?;
-        if !dot {
-            Ok(RequestedVersion::MajorOnly(major))
-        } else if minor_ver.is_empty() {
-            Err(format!(
-                "{:?} is missing a minor version number",
-                version_string
-            ))
         } else {
-            let minor = char_vec_to_int(&minor_ver)?;
-            Ok(RequestedVersion::Exact(major, minor))
+            match version_string.parse::<ComponentSize>() {
+                Ok(number) => Ok(RequestedVersion::MajorOnly(number)),
+                Err(parse_error) => Err(parse_error.to_string()),
+            }
         }
     }
 }
 
 impl RequestedVersion {
-    // XXX Tests
     /// Returns the string representing the environment variable for the requested version.
     pub fn env_var(self) -> Option<String> {
         match self {
@@ -87,6 +66,12 @@ pub struct ExactVersion {
     pub minor: ComponentSize,
 }
 
+impl From<ExactVersion> for RequestedVersion {
+    fn from(version: ExactVersion) -> Self {
+        RequestedVersion::Exact(version.major, version.minor)
+    }
+}
+
 /// Represents how tight of a match an `ExactVersion` is to a `RequestedVersion`.
 #[derive(Debug, PartialEq)]
 pub enum Match {
@@ -96,7 +81,6 @@ pub enum Match {
 }
 
 impl ToString for ExactVersion {
-    // XXX test
     fn to_string(&self) -> String {
         format!("{}.{}", self.major, self.minor)
     }
@@ -125,39 +109,76 @@ impl ExactVersion {
     }
 }
 
-// XXX Must be something better than this
-/// Converts a `Vec<char>` to a `ComponentSize` integer.
-fn char_vec_to_int(char_vec: &[char]) -> Result<ComponentSize, String> {
-    let joined_string = char_vec.iter().collect::<String>();
-    let parse_result = joined_string.parse();
-    parse_result.or_else(|_| Err(format!("error converting {:?} to a number", joined_string)))
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    #[allow(non_snake_case)]
-    fn test_RequestedVersion_from_str() {
-        assert!(RequestedVersion::from_str(&".3".to_string()).is_err());
-        assert!(RequestedVersion::from_str(&"3.".to_string()).is_err());
-        assert!(RequestedVersion::from_str(&"h".to_string()).is_err());
-        assert!(RequestedVersion::from_str(&"3.b".to_string()).is_err());
-        assert!(RequestedVersion::from_str(&"a.7".to_string()).is_err());
+    fn test_requestedversion_from_str() {
+        assert!(RequestedVersion::from_str(".3").is_err());
+        assert!(RequestedVersion::from_str("3.").is_err());
+        assert!(RequestedVersion::from_str("h").is_err());
+        assert!(RequestedVersion::from_str("3.b").is_err());
+        assert!(RequestedVersion::from_str("a.7").is_err());
+        assert_eq!(RequestedVersion::from_str(""), Ok(RequestedVersion::Any));
         assert_eq!(
-            RequestedVersion::from_str(&"3".to_string()),
+            RequestedVersion::from_str("3"),
             Ok(RequestedVersion::MajorOnly(3))
         );
         assert_eq!(
-            RequestedVersion::from_str(&"3.8".to_string()),
+            RequestedVersion::from_str("3.8"),
             Ok(RequestedVersion::Exact(3, 8))
         );
         assert_eq!(
-            RequestedVersion::from_str(&"42.13".to_string()),
+            RequestedVersion::from_str("42.13"),
             Ok(RequestedVersion::Exact(42, 13))
         );
-        assert!(RequestedVersion::from_str(&"3.6.5".to_string()).is_err());
+        assert!(RequestedVersion::from_str("3.6.5").is_err());
+    }
+
+    #[test]
+    fn test_requestedversion_from_exactversion() {
+        assert_eq!(
+            RequestedVersion::from(ExactVersion {
+                major: 42,
+                minor: 13
+            }),
+            RequestedVersion::Exact(42, 13)
+        );
+    }
+
+    #[test]
+    fn test_env_var() {
+        assert_eq!(
+            RequestedVersion::Any.env_var(),
+            Some("PY_PYTHON".to_string())
+        );
+        assert_eq!(
+            RequestedVersion::MajorOnly(3).env_var(),
+            Some("PY_PYTHON3".to_string())
+        );
+        assert_eq!(
+            RequestedVersion::MajorOnly(42).env_var(),
+            Some("PY_PYTHON42".to_string())
+        );
+        assert!(RequestedVersion::Exact(42, 13).env_var().is_none());
+    }
+
+    #[test]
+    fn test_exactversion_to_string() {
+        assert_eq!(
+            ExactVersion { major: 3, minor: 8 }.to_string(),
+            "3.8".to_string()
+        );
+        assert_eq!(
+            ExactVersion {
+                major: 42,
+                minor: 13
+            }
+            .to_string(),
+            "42.13".to_string()
+        );
     }
 
     #[test]
