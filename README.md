@@ -52,8 +52,11 @@ fashion are very much appreciated, though.)
 
 ## Functionality
 1. Keep environment variable naming?
-   - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
-   - The `PY_PYTHON` aspect feels redundant
+  - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
+  - The `PY_PYTHON` aspect feels redundant
+1. Consider dropping assumption that `python` in shebangs represent `python2`?
+  - Linux distros are already starting to redefine `python` as `python3` in some spots
+  - It's looking more and more likely that PEP 394 will support letting distros choose what `python` represents
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
    (key thing to remember is should not get to the point that you're using this to alias
    specific interpreters, just making it easier to specify constraints on what kind of
