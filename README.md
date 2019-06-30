@@ -90,21 +90,29 @@ fashion are very much appreciated, though.)
    * What does the Windows launcher do in this case?
    * Slight pain as there's no way to no the version of Python w/o executing it to query
      its version as virtual environments has no `major.minor`-named executable
+   * Maybe just denote that a virtual environment was detected?
 1. Provide a helpful error message based on requested version when no interpreter found
 1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
 1. Man page?
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Pare down public exposure of functions
+1. Rewrite some code to be more idiomatic:
+   1. Rewrite list_executables() in main.rs
+   1. Rewrite shebang code
+   1. Rewrite execute() in main.rs
+1. Pare down `main.rs` by moving code as appropriate over to `cli.rs` (based on testing needs)
+1. Pare down public exposure of functions based on rewrite results
 1. Consider having functions take arguments instead of querying environment
    (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability)
    - Can provide functions or constants to minimize typos in querying environment
 1. Go through functions to adjust for returning `Option` versus `Result`
-     (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`)
+     (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`; should
+      probably be based on whether an error message would help)
 1. Make sure everything is tested
+1. Get set up on AzDO
+1. Get code coverage working
 1. Flesh out documentation (and include examples as appropriate for even more testing)
 1. Consider dropping [`nix`](https://crates.io/crates/nix) dependency for a straight
    [`libc`](https://crates.io/crates/libc) dependency (to potentially make Debian
    packaging easier)
-
