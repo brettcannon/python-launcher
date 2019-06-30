@@ -20,7 +20,7 @@ use python_launcher::version::RequestedVersion;
 fn main() {
     match py::cli::action_from_args(env::args().collect::<Vec<String>>()) {
         Action::Help(launcher_path) => help(&launcher_path),
-        Action::List => list_available_executables(),
+        Action::List => list_executables(),
         Action::Execute {
             launcher_path,
             version,
@@ -51,7 +51,7 @@ fn find_executable(version: RequestedVersion) -> Option<PathBuf> {
 fn help(launcher_path: &Path) {
     let mut chosen_path: Option<PathBuf>;
 
-    if let venv_executable @ Some(..) = py::cli::virtual_env() {
+    if let venv_executable @ Some(..) = py::cli::activated_venv_executable() {
         chosen_path = venv_executable;
     } else {
         chosen_path = find_executable(RequestedVersion::Any);
@@ -75,7 +75,7 @@ fn help(launcher_path: &Path) {
     }
 }
 
-fn list_available_executables() {
+fn list_executables() {
     let executables = py::path::available_executables(py::version::RequestedVersion::Any);
     if executables.is_empty() {
         println!("No Python executables found");
@@ -110,7 +110,7 @@ fn execute(_launcher: &PathBuf, version: RequestedVersion, original_args: &[Stri
     let mut args = original_args.to_owned();
 
     if requested_version == RequestedVersion::Any {
-        if let venv_executable @ Some(..) = py::cli::virtual_env() {
+        if let venv_executable @ Some(..) = py::cli::activated_venv_executable() {
             chosen_path = venv_executable;
         } else if !args.is_empty() {
             // Using the first argument because it's the simplest and sanest.
@@ -121,7 +121,10 @@ fn execute(_launcher: &PathBuf, version: RequestedVersion, original_args: &[Stri
             // **lot** of work for little gain.
             if let Ok(open_file) = File::open(&args[0]) {
                 if let Some(shebang) = py::cli::find_shebang(open_file) {
-                    if let Some((shebang_version, mut extra_args)) = py::cli::split_shebang(&shebang) {
+                    // XXX Drop extra args as these won't be parsed appropriately by simply splitting on whitespace
+                    if let Some((shebang_version, mut extra_args)) =
+                        py::cli::split_shebang(&shebang)
+                    {
                         requested_version = shebang_version;
                         extra_args.append(&mut args.clone());
                         args = extra_args;

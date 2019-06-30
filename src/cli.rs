@@ -70,7 +70,7 @@ pub fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
 ///
 /// A virtual environment is determined to be activated based on the existence of the `VIRTUAL_ENV`
 /// environment variable.
-pub fn virtual_env() -> Option<PathBuf> {
+pub fn activated_venv_executable() -> Option<PathBuf> {
     match env::var_os("VIRTUAL_ENV") {
         None => None,
         Some(venv_root) => {
@@ -259,10 +259,13 @@ mod tests {
         let original_venv = env::var_os("VIRTUAL_ENV");
 
         env::remove_var("VIRTUAL_ENV");
-        assert_eq!(virtual_env(), None);
+        assert_eq!(activated_venv_executable(), None);
 
         env::set_var("VIRTUAL_ENV", "/some/path");
-        assert_eq!(virtual_env(), Some(PathBuf::from("/some/path/bin/python")));
+        assert_eq!(
+            activated_venv_executable(),
+            Some(PathBuf::from("/some/path/bin/python"))
+        );
 
         match original_venv {
             None => env::remove_var("VIRTUAL_ENV"),
