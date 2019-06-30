@@ -1,4 +1,4 @@
-use std::{convert::From, str::FromStr};
+use std::{convert::From, path::Path, str::FromStr};
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type ComponentSize = u16;
@@ -21,24 +21,9 @@ impl FromStr for RequestedVersion {
             return Ok(RequestedVersion::Any);
         }
 
-        if let Some(dot_index) = version_string.find('.') {
-            if let Some(major_str) = version_string.get(..dot_index) {
-                let major = match major_str.parse::<ComponentSize>() {
-                    Ok(number) => number,
-                    Err(parse_error) => return Err(parse_error.to_string()),
-                };
-
-                if let Some(minor_str) = version_string.get(dot_index + 1..) {
-                    match minor_str.parse::<ComponentSize>() {
-                        Ok(number) => Ok(RequestedVersion::Exact(major, number)),
-                        Err(parse_error) => Err(parse_error.to_string()),
-                    }
-                } else {
-                    return Err("no minor version after the '.' found".to_string());
-                }
-            } else {
-                return Err("no major version before the '.' found".to_string());
-            }
+        if version_string.contains('.') {
+            return ExactVersion::from_str(version_string)
+                .and_then(|v| Ok(RequestedVersion::Exact(v.major, v.minor)));
         } else {
             match version_string.parse::<ComponentSize>() {
                 Ok(number) => Ok(RequestedVersion::MajorOnly(number)),
@@ -86,6 +71,34 @@ impl ToString for ExactVersion {
     }
 }
 
+impl FromStr for ExactVersion {
+    type Err = ParseVersionError;
+
+    fn from_str(version_string: &str) -> Result<Self, Self::Err> {
+        if let Some(dot_index) = version_string.find('.') {
+            if let Some(major_str) = version_string.get(..dot_index) {
+                let major = match major_str.parse::<ComponentSize>() {
+                    Ok(number) => number,
+                    Err(parse_error) => return Err(parse_error.to_string()),
+                };
+
+                if let Some(minor_str) = version_string.get(dot_index + 1..) {
+                    return match minor_str.parse::<ComponentSize>() {
+                        Ok(minor) => Ok(ExactVersion { major, minor }),
+                        Err(parse_error) => Err(parse_error.to_string()),
+                    };
+                } else {
+                    return Err("no minor version after the '.' found".to_string());
+                }
+            } else {
+                return Err("no major version before the '.' found".to_string());
+            }
+        } else {
+            return Err("no '.' found".to_string());
+        }
+    }
+}
+
 impl ExactVersion {
     /// Sees how well of a match this Python version is for `requested`.
     pub fn matches(&self, requested: RequestedVersion) -> Match {
@@ -107,8 +120,36 @@ impl ExactVersion {
             }
         }
     }
-}
 
+    // XXX Tests
+    pub fn supports(&self, requested: RequestedVersion) -> bool {
+        match requested {
+            RequestedVersion::Any => true,
+            RequestedVersion::MajorOnly(major_version) => self.major == major_version,
+            RequestedVersion::Exact(major_version, minor_version) => {
+                self.major == major_version && self.minor == minor_version
+            }
+        }
+    }
+
+    // XXX Return Result? Would align more with e.g. from_str(), but also requires returning an error message.
+    pub fn from_path(path: &Path) -> Option<Self> {
+        if let Some(file_name) = path.file_name().and_then(|p| p.to_str()) {
+            if file_name.len() >= "python3.0".len() && file_name.starts_with("python") {
+                let version_part = &file_name["python".len()..];
+                if let Ok(found_version) = RequestedVersion::from_str(&version_part) {
+                    return match found_version {
+                        RequestedVersion::Exact(major, minor) => {
+                            Some(ExactVersion { major, minor })
+                        }
+                        _ => None,
+                    };
+                }
+            }
+        }
+        None
+    }
+}
 
 #[cfg(test)]
 mod tests {

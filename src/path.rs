@@ -8,7 +8,49 @@ use std::{
 
 use crate::version::{ExactVersion, Match, RequestedVersion};
 
-// XXX Convert all PATH traversal code into a lazy iterable
+// XXX Test
+pub fn find_executable(
+    requested: RequestedVersion,
+    directories: impl Iterator<Item = PathBuf>,
+) -> Option<PathBuf> {
+    // It would seem to make sense to call `.iter()` here, but the borrow checker says "no".
+    let found_executables = all_executables(directories);
+    return match requested {
+        RequestedVersion::Any => found_executables.iter().max(),
+        RequestedVersion::MajorOnly(_) => found_executables
+            .iter()
+            .filter(|pair| pair.0.supports(requested))
+            .max(),
+        RequestedVersion::Exact(_, _) => found_executables
+            .iter()
+            .find(|pair| pair.0.supports(requested)),
+    }
+    .map(|pair| pair.1.clone());
+}
+
+// XXX Test
+pub fn all_executables(
+    directories: impl Iterator<Item = PathBuf>,
+) -> HashMap<ExactVersion, PathBuf> {
+    let mut executables = HashMap::new();
+    for path in flatten_directories(directories) {
+        if let Some(version) = ExactVersion::from_path(&path) {
+            executables.entry(version).or_insert(path);
+        }
+    }
+    executables
+}
+
+fn flatten_directories(
+    directories: impl Iterator<Item = PathBuf>,
+) -> impl Iterator<Item = PathBuf> {
+    directories
+        .filter_map(|p| p.read_dir().ok()) // Filter to Ok(ReadDir).
+        .flatten() // Flatten out `for DirEntry in ReadDir`.
+        .filter_map(|e| e.ok()) // Filter to Ok(DirEntry).
+        .map(|e| e.path()) // Get the PathBuf from the DirEntry.
+}
+
 /// Convert `PATH` into a `Vec<PathBuf>`.
 pub fn path_entries() -> Vec<PathBuf> {
     if let Some(path_val) = env::var_os("PATH") {
