@@ -103,13 +103,18 @@ fashion are very much appreciated, though.)
    1. Rewrite execute() in main.rs
 1. Pare down `main.rs` by moving code as appropriate over to `cli.rs` (based on testing needs)
 1. Pare down public exposure of functions based on rewrite results
+   - Will probably include re-organizing code in files for private scoping needs
+   - Should also lead to having fewer files
 1. Consider having functions take arguments instead of querying environment
-   (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability)
+   (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability, but be reasonable
+    when code already requires querying the environment for other reasons)
    - Can provide functions or constants to minimize typos in querying environment
 1. Go through functions to adjust for returning `Option` versus `Result`
      (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`; should
       probably be based on whether an error message would help)
 1. Make sure everything is tested
+   1. Unit tests
+   1. Integration tests (ala simulating what `main.rs` does)
 1. Get set up on AzDO
 1. Get code coverage working
 1. Flesh out documentation (and include examples as appropriate for even more testing)
