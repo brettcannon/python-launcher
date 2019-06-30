@@ -15,7 +15,7 @@ travis-ci = { repository = "brettcannon/python-launcher" }
 maintenance = { status = "experimental" }
 
 [dependencies]
-nix = "^0.14.1"
+nix = "0.14.1"
 
 [[bin]]
 name = "py"
