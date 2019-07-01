@@ -123,10 +123,44 @@ pub fn activated_venv_executable() -> Option<PathBuf> {
     }
 }
 
-// XXX Shebang:
-//      In main():
-//          Prepend extra arguments to `argv`
-//          Continue search for an appropriate Python version
+// https://en.m.wikipedia.org/wiki/Shebang_(Unix)
+pub fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
+    let mut shebang_buffer = [0; 2];
+    if reader.read(&mut shebang_buffer).is_err() || shebang_buffer != [0x23, 0x21] {
+        // Doesn't start w/ `#!` in ASCII/UTF-8.
+        return None;
+    }
+
+    let mut buffered_reader = BufReader::new(reader);
+    let mut first_line = String::new();
+
+    if buffered_reader.read_line(&mut first_line).is_err() {
+        return None;
+    };
+
+    // Whitespace between `#!` and the path is allowed.
+    let line = first_line.trim();
+
+    let accepted_paths = [
+        "python",
+        "/usr/bin/python",
+        "/usr/local/bin/python",
+        "/usr/bin/env python",
+    ];
+
+    for acceptable_path in &accepted_paths {
+        if !line.starts_with(acceptable_path) {
+            continue;
+        }
+
+        return match RequestedVersion::from_str(&acceptable_path[acceptable_path.len()..]) {
+            Ok(version) => Some(version),
+            Err(_) => None,
+        };
+    }
+
+    None
+}
 
 /// Finds the shebang line from `reader`.
 ///

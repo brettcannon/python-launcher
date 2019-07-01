@@ -16,6 +16,7 @@ pub enum RequestedVersion {
 impl FromStr for RequestedVersion {
     type Err = ParseVersionError;
 
+    // XXX Require `python` as a prefix?
     fn from_str(version_string: &str) -> Result<Self, Self::Err> {
         if version_string.is_empty() {
             Ok(RequestedVersion::Any)

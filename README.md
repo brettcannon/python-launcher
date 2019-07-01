@@ -34,7 +34,8 @@ appropriate to the specificity of the version.
    1. Check for a shebang
    1. If executable starts with `/usr/bin/python`, `/usr/local/bin/python`,
       `/usr/bin/env python` or `python`, proceed based on the version found
-      (bare `python` is considered `python2` for backwards-compatibility)
+      (bare `python` is considered the equivalent of not specifying a specific
+      Python version)
 1. Use the version found in the `PY_PYTHON` environment variable if defined
    (e.g. `PY_PYTHON=3` or `PY_PYTHON=3.6`)
 1. Search `PATH` for all instances of `pythonX.Y`
@@ -51,35 +52,36 @@ fashion are very much appreciated, though.)
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
 
 ## Functionality
-1. Keep environment variable naming?
-  - No other Python env vars are prefixed with `PY_` (it's always `PYTHON`)
-  - The `PY_PYTHON` aspect feels redundant
-1. Consider dropping assumption that `python` in shebangs represent `python2`?
-  - Linux distros are already starting to redefine `python` as `python3` in some spots
-  - It's looking more and more likely that PEP 394 will support letting distros choose what `python` represents
+1. Provide a `python_launcher` extension module
+   - It will make the pipenv developers happy
+   - Might need a rename to `pylauncher` or `pyfinder` to follow Python practices if it
+     isn't too much trouble)
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
    (key thing to remember is should not get to the point that you're using this to alias
    specific interpreters, just making it easier to specify constraints on what kind of
-   interpreter you need and then letting launcher pick for you)
+   interpreter you need and then letting the launcher pick for you)
    - [Customized commands](https://www.python.org/dev/peps/pep-0397/#customized-commands)?
    - Want a better format like TOML?
    - Want a way to override/specify things, e.g. wanting a framework build on macOS?
-     - Aliasing? E.g. `2.7-framework` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
-     - Just provide a way to specify a specific interpreter for a specific version? E.g. `2.7` for `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
+     - Aliasing? E.g. `2.7-framework` for
+       `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`?
+     - Just provide a way to specify a specific interpreter for a specific version?
+       E.g. `2.7` for
+       `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
      - What about implementations that don't install to e.g. `python3.7` like `pypy3`?
        - Need more than just being able to alias name to Python version?
-   - How should config file search work?
+   - How should the config file search work?
      - Pre-defined locations?
      - Walk up from current directory?
      - [XDG base directory specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)?
 1. Windows support
-   - Registry
    - `PATH`
+   - Registry
    - Windows Store (should be covered by `PATH` search, but need to make sure)
-1. Read `../pyvenv.cfg` to resolve for `Any` version
+1. Replacement for `.venv/bin/python` (while keeping the `python` name)
+   - Read `../pyvenv.cfg` to resolve for `Any` version
    - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
-   - Speeds up environment creation by not having to copy over entire Python installation on Windows (e.g. `.pyd` files)
-1. Provide a `python_launcher` package (it will make the pipenv developers happy 😃; might need a rename to `pylauncher` or `pyfinder` to follow Python practices)
+   - Speeds up environment creation by not having to copy over entire Python installation on     Windows (e.g. `.pyd` files)
 1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
    - Widest compatibility for people where they have undecodable paths
      (which is hopefully a very small minority)
@@ -91,6 +93,7 @@ fashion are very much appreciated, though.)
    * Slight pain as there's no way to no the version of Python w/o executing it to query
      its version as virtual environments has no `major.minor`-named executable
    * Maybe just denote that a virtual environment was detected?
+1. Read https://rust-lang-nursery.github.io/cli-wg/
 1. Provide a helpful error message based on requested version when no interpreter found
 1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
 1. Make sure all error cases have appropriate error codes and human-readable results
@@ -99,22 +102,24 @@ fashion are very much appreciated, though.)
 
 ## Maintainability
 1. Rewrite some code to be more idiomatic:
-   1. Rewrite shebang code
    1. Rewrite execute() in main.rs
-1. Pare down `main.rs` by moving code as appropriate over to `cli.rs` (based on testing needs)
+1. Pare down `main.rs` by moving code as appropriate over to `cli.rs`
+   (based on testing needs; maybe `cli::main()` -> `Action`, but where `Action`
+    contains everything `main.rs` needs, e.g. `Help(message)` and `List(output)`)
 1. Pare down public exposure of functions based on rewrite results
-   - Will probably include re-organizing code in files for private scoping needs
-   - Should also lead to having fewer files
-1. Consider having functions take arguments instead of querying environment
+   - Remove `pub` from everything and see what is still used
+   - Re-organize info files as appropriate (will probably lead to only having `lib.rs` and `cli.rs`)
+   - Thoughtfully add back in `pub` for things expected to be needed by library users
+1. Consider having functions take arguments instead of querying environment directly
    (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability, but be reasonable
     when code already requires querying the environment for other reasons)
    - Can provide functions or constants to minimize typos in querying environment
 1. Go through functions to adjust for returning `Option` versus `Result`
-     (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`; should
-      probably be based on whether an error message would help)
+     (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`
+   - Should probably be based on whether an error message would help)
 1. Make sure everything is tested
    1. Unit tests
-   1. Integration tests (ala simulating what `main.rs` does)
+   1. Integration tests (running `main.rs` via `pytest`)
 1. Get set up on AzDO
 1. Get code coverage working
 1. Flesh out documentation (and include examples as appropriate for even more testing)

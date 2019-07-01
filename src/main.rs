@@ -15,6 +15,7 @@ use nix::unistd;
 use python_launcher as py;
 use python_launcher::cli;
 use python_launcher::cli::Action;
+use python_launcher::path;
 use python_launcher::version::RequestedVersion;
 
 fn main() {
@@ -76,10 +77,9 @@ fn help(launcher_path: &Path) {
     }
 }
 
-fn execute(_launcher: &PathBuf, version: RequestedVersion, original_args: &[String]) {
+fn execute(_launcher: &PathBuf, version: RequestedVersion, args: &[String]) {
     let mut requested_version = version;
     let mut chosen_path: Option<PathBuf> = None;
-    let mut args = original_args.to_owned();
 
     if requested_version == RequestedVersion::Any {
         if let venv_executable @ Some(..) = py::cli::activated_venv_executable() {
@@ -90,28 +90,25 @@ fn execute(_launcher: &PathBuf, version: RequestedVersion, original_args: &[Stri
             // Python module being executed. This is the same reason we can't go searching for
             // the first/last file path that we find. The only safe way to get the file path
             // regardless of its position is to replicate Python's arg parsing and that's a
-            // **lot** of work for little gain.
-            if let Ok(open_file) = File::open(&args[0]) {
-                if let Some(shebang) = py::cli::find_shebang(open_file) {
-                    // XXX Drop extra args as these won't be parsed appropriately by simply splitting on whitespace
-                    if let Some((shebang_version, mut extra_args)) =
-                        py::cli::split_shebang(&shebang)
-                    {
-                        requested_version = shebang_version;
-                        extra_args.append(&mut args.clone());
-                        args = extra_args;
-                    }
+            // **lot** of work for little gain. Hence we only care about the first argument.
+            if let Ok(mut open_file) = File::open(&args[0]) {
+                if let Some(shebang_version) = py::cli::parse_python_shebang(&mut open_file) {
+                    requested_version = shebang_version;
                 }
             }
         }
     }
 
+    // XXX Check `PY_PYTHON`
     if chosen_path.is_none() {
-        chosen_path = find_executable(requested_version);
-
-        if chosen_path.is_none() {
-            println!("No suitable interpreter found for {:?}", requested_version);
-            return;
+        let directories = path::path_entries();
+        match path::find_executable(requested_version, directories.into_iter()) {
+            executable_path @ Some(..) => chosen_path = executable_path,
+            None => {
+                println!("No suitable interpreter found for {:?}", requested_version);
+                // XXX Exit code
+                return;
+            }
         }
     }
 
