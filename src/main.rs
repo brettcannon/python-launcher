@@ -2,10 +2,9 @@
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
 use std::{
-    cmp, env,
+    env,
     ffi::CString,
     fs::File,
-    iter::FromIterator,
     os::unix::ffi::OsStrExt,
     path::{Path, PathBuf},
     str::FromStr,
@@ -14,13 +13,15 @@ use std::{
 use nix::unistd;
 
 use python_launcher as py;
+use python_launcher::cli;
 use python_launcher::cli::Action;
 use python_launcher::version::RequestedVersion;
 
 fn main() {
     match py::cli::action_from_args(env::args().collect::<Vec<String>>()) {
         Action::Help(launcher_path) => help(&launcher_path),
-        Action::List => list_executables(),
+        // XXX Error out if failed: https://rust-lang-nursery.github.io/cli-wg/in-depth/exit-code.html.
+        Action::List => println!("{}", cli::list_executables().unwrap()),
         Action::Execute {
             launcher_path,
             version,
@@ -72,35 +73,6 @@ fn help(launcher_path: &Path) {
 
     if let Err(e) = run(&found_path, &["--help".to_string()]) {
         println!("{:?}", e);
-    }
-}
-
-fn list_executables() {
-    let executables = py::path::available_executables(py::version::RequestedVersion::Any);
-    if executables.is_empty() {
-        println!("No Python executables found");
-        return;
-    }
-    let mut executable_pairs = Vec::from_iter(executables);
-    executable_pairs.sort_unstable();
-
-    let max_version_length = executable_pairs.iter().fold(0, |max_so_far, pair| {
-        cmp::max(max_so_far, pair.0.to_string().len())
-    });
-
-    // Including two spaces for readability padding.
-    let left_column_width = cmp::max(max_version_length, "Version".len());
-
-    println!("{:<1$}  Path", "Version", left_column_width);
-    println!("{:<1$}  ====", "=======", left_column_width);
-
-    for (version, path) in executable_pairs {
-        println!(
-            "{:<2$}  {}",
-            version.to_string(),
-            path.to_string_lossy(),
-            left_column_width
-        );
     }
 }
 

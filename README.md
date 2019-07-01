@@ -93,12 +93,12 @@ fashion are very much appreciated, though.)
    * Maybe just denote that a virtual environment was detected?
 1. Provide a helpful error message based on requested version when no interpreter found
 1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
+1. Make sure all error cases have appropriate error codes and human-readable results
 1. Man page?
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
 1. Rewrite some code to be more idiomatic:
-   1. Rewrite list_executables() in main.rs
    1. Rewrite shebang code
    1. Rewrite execute() in main.rs
 1. Pare down `main.rs` by moving code as appropriate over to `cli.rs` (based on testing needs)

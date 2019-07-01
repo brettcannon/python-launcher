@@ -1,11 +1,14 @@
 use std::{
-    env,
+    cmp, env,
+    fmt::Write,
     io::{BufRead, BufReader, Read},
+    iter::FromIterator,
     path::PathBuf,
     str::FromStr,
     string::ToString,
 };
 
+use crate::path;
 use crate::version::RequestedVersion;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -64,6 +67,42 @@ pub fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
     } else {
         RequestedVersion::from_str(&arg[1..]).ok()
     }
+}
+
+
+pub fn list_executables() -> Result<String, String> {
+    let paths = path::path_entries();
+    let executables = path::all_executables(paths.into_iter());
+
+    if executables.is_empty() {
+        return Err("No Python executable found".to_string());
+    }
+
+    let mut executable_pairs = Vec::from_iter(executables);
+    executable_pairs.sort_unstable();
+
+    let max_version_length = executable_pairs.iter().fold(0, |max_so_far, pair| {
+        cmp::max(max_so_far, pair.0.to_string().len())
+    });
+
+    let left_column_width = cmp::max(max_version_length, "Version".len());
+    let mut help_string = String::new();
+    // Including two spaces between columns for readability.
+    writeln!(help_string, "{:<1$}  Path", "Version", left_column_width).unwrap();
+    writeln!(help_string, "{:<1$}  ====", "=======", left_column_width).unwrap();
+
+    for (version, path) in executable_pairs {
+        writeln!(
+            help_string,
+            "{:<2$}  {}",
+            version.to_string(),
+            path.to_string_lossy(),
+            left_column_width
+        )
+        .unwrap();
+    }
+
+    Ok(help_string)
 }
 
 /// Returns the path to the activated virtual environment.
