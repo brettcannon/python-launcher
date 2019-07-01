@@ -18,12 +18,10 @@ impl FromStr for RequestedVersion {
 
     fn from_str(version_string: &str) -> Result<Self, Self::Err> {
         if version_string.is_empty() {
-            return Ok(RequestedVersion::Any);
-        }
-
-        if version_string.contains('.') {
-            return ExactVersion::from_str(version_string)
-                .and_then(|v| Ok(RequestedVersion::Exact(v.major, v.minor)));
+            Ok(RequestedVersion::Any)
+        } else if version_string.contains('.') {
+            ExactVersion::from_str(version_string)
+                .and_then(|v| Ok(RequestedVersion::Exact(v.major, v.minor)))
         } else {
             match version_string.parse::<ComponentSize>() {
                 Ok(number) => Ok(RequestedVersion::MajorOnly(number)),

@@ -15,7 +15,7 @@ pub fn find_executable(
 ) -> Option<PathBuf> {
     // It would seem to make sense to call `.iter()` here, but the borrow checker says "no".
     let found_executables = all_executables(directories);
-    return match requested {
+    match requested {
         RequestedVersion::Any => found_executables.iter().max(),
         RequestedVersion::MajorOnly(_) => found_executables
             .iter()
@@ -25,7 +25,7 @@ pub fn find_executable(
             .iter()
             .find(|pair| pair.0.supports(requested)),
     }
-    .map(|pair| pair.1.clone());
+    .map(|pair| pair.1.clone())
 }
 
 // XXX Test
