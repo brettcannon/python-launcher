@@ -99,8 +99,8 @@ fn execute(_launcher: &PathBuf, version: RequestedVersion, args: &[String]) {
         }
     }
 
-    // XXX Check `PY_PYTHON`
     if chosen_path.is_none() {
+        // XXX Check `PY_PYTHON`
         let directories = path::path_entries();
         match path::find_executable(requested_version, directories.into_iter()) {
             executable_path @ Some(..) => chosen_path = executable_path,
