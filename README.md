@@ -101,9 +101,6 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Pare down `main.rs` by moving code as appropriate over to `cli.rs`
-   (based on testing needs; maybe `cli::main()` -> `Action`, but where `Action`
-    contains everything `main.rs` needs, e.g. `Help(message)` and `List(output)`)
 1. Pare down public exposure of functions based on rewrite results
    - Remove `pub` from everything and see what is still used
    - Re-organize info files as appropriate (will probably lead to only having `lib.rs` and `cli.rs`)
