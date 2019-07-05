@@ -24,7 +24,7 @@ appropriate to the specificity of the version.
 
 ## `py -3` (loose/major version)
 1. Use the version found in the `PY_PYTHON3` environment variable if defined
-   (e.g. `PY_PYTHON3=3.6`)
+   and not the empty string (e.g. `PY_PYTHON3=3.6`)
 1. Search `PATH` for all instances of `python3.Y`
 1. Find the executable with largest `Y` that earliest on `PATH`
 
@@ -101,8 +101,6 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Rewrite some code to be more idiomatic:
-   1. Rewrite execute() in main.rs
 1. Pare down `main.rs` by moving code as appropriate over to `cli.rs`
    (based on testing needs; maybe `cli::main()` -> `Action`, but where `Action`
     contains everything `main.rs` needs, e.g. `Help(message)` and `List(output)`)
