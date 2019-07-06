@@ -101,10 +101,6 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Pare down public exposure of functions based on rewrite results
-   - Remove `pub` from everything and see what is still used
-   - Re-organize info files as appropriate (will probably lead to only having `lib.rs` and `cli.rs`)
-   - Thoughtfully add back in `pub` for things expected to be needed by library users
 1. Consider having functions take arguments instead of querying environment directly
    (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability, but be reasonable
     when code already requires querying the environment for other reasons)
