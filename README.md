@@ -106,6 +106,11 @@ fashion are very much appreciated, though.)
    1. Unit tests
    1. Integration tests (running `main.rs` via `pytest`)
 1. Get set up on AzDO
+   1. Unit tests
+   1. `cargo fmt`
+   1. `cargo clippy`
+   1. Integration tests
+   1. crates.io deployment?
 1. Get code coverage working
 1. Flesh out documentation (and include examples as appropriate for even more testing)
 1. Consider dropping [`nix`](https://crates.io/crates/nix) dependency for a straight
