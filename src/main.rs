@@ -7,6 +7,8 @@ use nix::unistd;
 
 use python_launcher::cli;
 
+// XXX Proper exit codes.
+// XXX Write errors out to stderr.
 fn main() {
     match cli::Action::from_main(&env::args().collect::<Vec<String>>()) {
         Ok(action) => match action {
