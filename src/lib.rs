@@ -10,8 +10,6 @@ use std::{
 
 /// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
 type ComponentSize = u16;
-/// Failure to parse a string containing a specified Python version.
-type ParseVersionError = String;
 
 /// Represents the version of Python a user requsted.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -22,9 +20,10 @@ pub enum RequestedVersion {
 }
 
 impl FromStr for RequestedVersion {
-    type Err = ParseVersionError;
+    type Err = String;
 
     // XXX Require `python` as a prefix?
+    // VersionResult?
     fn from_str(version_string: &str) -> Result<Self, Self::Err> {
         if version_string.is_empty() {
             Ok(RequestedVersion::Any)
@@ -70,7 +69,7 @@ impl ToString for ExactVersion {
 }
 
 impl FromStr for ExactVersion {
-    type Err = ParseVersionError;
+    type Err = String;
 
     fn from_str(version_string: &str) -> Result<Self, Self::Err> {
         if let Some(dot_index) = version_string.find('.') {
@@ -160,6 +159,7 @@ pub fn all_executables(
     executables
 }
 
+// XXX Inline path_entries() -> rename to `flatten_env_path()`.
 fn flatten_directories(
     directories: impl Iterator<Item = PathBuf>,
 ) -> impl Iterator<Item = PathBuf> {
@@ -170,6 +170,7 @@ fn flatten_directories(
         .map(|e| e.path()) // Get the PathBuf from the DirEntry.
 }
 
+// XXX drop after `all_executables()` no longer takes an argument.
 /// Convert `PATH` into a `Vec<PathBuf>`.
 fn path_entries() -> Vec<PathBuf> {
     if let Some(path_val) = env::var_os("PATH") {

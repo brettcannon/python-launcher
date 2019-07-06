@@ -7,7 +7,6 @@ use std::{
     string::ToString,
 };
 
-
 use crate::RequestedVersion;
 
 pub enum Action {
@@ -58,6 +57,7 @@ impl Action {
     }
 }
 
+// XXX Factor out calling find_executable() for ease of testing.
 fn help(launcher_path: &Path) -> Result<(String, PathBuf), String> {
     let mut message = String::new();
     let directories = crate::path_entries();
@@ -90,6 +90,7 @@ fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
     }
 }
 
+// XXX Factor out `all_executables()` to ease testing.
 fn list_executables() -> Result<String, String> {
     let paths = crate::path_entries();
     let executables = crate::all_executables(paths.into_iter());
