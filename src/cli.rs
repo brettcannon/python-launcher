@@ -1,6 +1,8 @@
 use std::{
-    cmp,
+    cmp, env,
     fmt::Write,
+    fs::File,
+    io::{BufRead, BufReader, Read},
     iter::FromIterator,
     path::{Path, PathBuf},
     str::FromStr,
@@ -44,15 +46,13 @@ impl Action {
             }
         }
 
-        let directories = crate::path_entries();
-
-        match crate::find_executable(requested_version, directories.into_iter()) {
-            Some(executable) => Ok(Action::Execute {
+        match find_executable(requested_version, &args) {
+            Ok(executable) => Ok(Action::Execute {
                 launcher_path,
                 executable,
                 args,
             }),
-            None => Err("no Python executable found".to_string()),
+            Err(message) => Err(message),
         }
     }
 }
@@ -124,6 +124,117 @@ fn list_executables() -> Result<String, String> {
     }
 
     Ok(help_string)
+}
+
+// XXX Expose publicly?
+// XXX Factor out `VIRTUAL_ENV` call.
+/// Returns the path to the activated virtual environment's executable.
+///
+/// A virtual environment is determined to be activated based on the existence of the `VIRTUAL_ENV`
+/// environment variable.
+fn venv_executable() -> Option<PathBuf> {
+    match env::var_os("VIRTUAL_ENV") {
+        None => None,
+        Some(venv_root) => {
+            let mut path = PathBuf::new();
+            path.push(venv_root);
+            path.push("bin");
+            path.push("python");
+            // TODO: Do a is_file() check first?
+            Some(path)
+        }
+    }
+}
+
+// XXX Expose publicly?
+// https://en.m.wikipedia.org/wiki/Shebang_(Unix)
+fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
+    let mut shebang_buffer = [0; 2];
+    if reader.read(&mut shebang_buffer).is_err() || shebang_buffer != [0x23, 0x21] {
+        // Doesn't start w/ `#!` in ASCII/UTF-8.
+        return None;
+    }
+
+    let mut buffered_reader = BufReader::new(reader);
+    let mut first_line = String::new();
+
+    if buffered_reader.read_line(&mut first_line).is_err() {
+        return None;
+    };
+
+    // Whitespace between `#!` and the path is allowed.
+    let line = first_line.trim();
+
+    let accepted_paths = [
+        "python",
+        "/usr/bin/python",
+        "/usr/local/bin/python",
+        "/usr/bin/env python",
+    ];
+
+    for acceptable_path in &accepted_paths {
+        if !line.starts_with(acceptable_path) {
+            continue;
+        }
+
+        return match RequestedVersion::from_str(&acceptable_path[acceptable_path.len()..]) {
+            Ok(version) => Some(version),
+            Err(_) => None,
+        };
+    }
+
+    None
+}
+
+// XXX Expose publicly?
+fn find_executable(version: RequestedVersion, args: &[String]) -> Result<PathBuf, String> {
+    let mut requested_version = version;
+    let mut chosen_path: Option<PathBuf> = None;
+
+    if requested_version == RequestedVersion::Any {
+        if let venv_executable @ Some(..) = venv_executable() {
+            chosen_path = venv_executable;
+        } else if !args.is_empty() {
+            // Using the first argument because it's the simplest and sanest.
+            // We can't use the last argument because that could actually be an argument to the
+            // Python module being executed. This is the same reason we can't go searching for
+            // the first/last file path that we find. The only safe way to get the file path
+            // regardless of its position is to replicate Python's arg parsing and that's a
+            // **lot** of work for little gain. Hence we only care about the first argument.
+            if let Ok(mut open_file) = File::open(&args[0]) {
+                if let Some(shebang_version) = parse_python_shebang(&mut open_file) {
+                    requested_version = shebang_version;
+                }
+            }
+        }
+    }
+
+    if chosen_path.is_none() {
+        if let Some(env_var) = requested_version.env_var() {
+            if let Ok(env_var_value) = env::var(env_var) {
+                if !env_var_value.is_empty() {
+                    if let Ok(env_requested_version) = RequestedVersion::from_str(&env_var_value) {
+                        requested_version = env_requested_version;
+                    }
+                }
+            };
+        }
+
+        let directories = crate::path_entries();
+        if let Some(executable_path) =
+            crate::find_executable(requested_version, directories.into_iter())
+        {
+            chosen_path = Some(executable_path);
+        }
+    }
+
+    match chosen_path {
+        Some(path) => Ok(path),
+        None => Err(format!(
+            "No suitable interpreter found for {:?}",
+            requested_version
+        )),
+    }
 }
 
 #[cfg(test)]
