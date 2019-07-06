@@ -187,6 +187,7 @@ fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
 }
 
 // XXX Expose publicly?
+// XXX Errors: no executable found
 fn find_executable(version: RequestedVersion, args: &[String]) -> Result<PathBuf, String> {
     let mut requested_version = version;
     let mut chosen_path: Option<PathBuf> = None;

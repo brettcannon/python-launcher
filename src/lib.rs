@@ -8,7 +8,14 @@ use std::{
     str::FromStr,
 };
 
-/// An integer part of a version specifier (e.g. the `X or `Y of `X.Y`).
+// XXX All errors: no executable found (requested version), int parsing, no '.' in parsing,
+//     no number before/after '.' in parsing,
+//     (maybe: no file name, path to str, missing `python`)
+//     https://doc.rust-lang.org/std/error/trait.Error.html (implement Display and source() if appropriate)
+//     https://docs.rs/nix/0.14.1/src/nix/lib.rs.html#91
+//     pub type Result<T> = result::Result<T, Error>;
+
+/// An integral part of a version specifier (e.g. the `X` or `Y` of `X.Y`).
 type ComponentSize = u16;
 
 /// Represents the version of Python a user requsted.
@@ -23,7 +30,7 @@ impl FromStr for RequestedVersion {
     type Err = String;
 
     // XXX Require `python` as a prefix?
-    // VersionResult?
+    // Errors: int parse error
     fn from_str(version_string: &str) -> Result<Self, Self::Err> {
         if version_string.is_empty() {
             Ok(RequestedVersion::Any)
@@ -71,6 +78,7 @@ impl ToString for ExactVersion {
 impl FromStr for ExactVersion {
     type Err = String;
 
+    // Errors: int parse, missing int before/after '.', missing '.'
     fn from_str(version_string: &str) -> Result<Self, Self::Err> {
         if let Some(dot_index) = version_string.find('.') {
             if let Some(major_str) = version_string.get(..dot_index) {

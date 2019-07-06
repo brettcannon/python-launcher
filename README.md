@@ -102,8 +102,10 @@ fashion are very much appreciated, though.)
 
 ## Maintainability
 1. Go through functions to adjust for returning `Option` versus `Result`
-     (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`
-   - Should probably be based on whether an error message would help)
+   - Create custom `Error` type
+   - Create custom `Result` type
+   - Change `ExactVersion.from_path()`
+   - Update all uses of `Result` appropriately
 1. Use references as appropriate
 1. Make sure everything is tested
    1. Unit tests
