@@ -22,7 +22,7 @@ pub enum Action {
 }
 
 impl Action {
-    pub fn from_main(argv: &[String]) -> Result<Self, String> {
+    pub fn from_main(argv: &[String]) -> crate::Result<Self> {
         let mut args = argv.to_owned();
         let mut requested_version = RequestedVersion::Any;
         let launcher_path = PathBuf::from(args.remove(0)); // Strip the path to this executable.
@@ -58,7 +58,7 @@ impl Action {
 }
 
 // XXX Factor out calling find_executable() for ease of testing.
-fn help(launcher_path: &Path) -> Result<(String, PathBuf), String> {
+fn help(launcher_path: &Path) -> crate::Result<(String, PathBuf)> {
     let mut message = String::new();
     let directories = crate::path_entries();
 
@@ -74,7 +74,7 @@ fn help(launcher_path: &Path) -> Result<(String, PathBuf), String> {
         .unwrap();
         return Ok((message, found_path));
     } else {
-        return Err("no Python executable found".to_string());
+        return Err(crate::Error::NoExecutableFound(RequestedVersion::Any));
     }
 }
 
@@ -91,12 +91,12 @@ fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
 }
 
 // XXX Factor out `all_executables()` to ease testing.
-fn list_executables() -> Result<String, String> {
+fn list_executables() -> crate::Result<String> {
     let paths = crate::path_entries();
     let executables = crate::all_executables(paths.into_iter());
 
     if executables.is_empty() {
-        return Err("No Python executable found".to_string());
+        return Err(crate::Error::NoExecutableFound(RequestedVersion::Any));
     }
 
     let mut executable_pairs = Vec::from_iter(executables);
@@ -188,7 +188,7 @@ fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
 
 // XXX Expose publicly?
 // XXX Errors: no executable found
-fn find_executable(version: RequestedVersion, args: &[String]) -> Result<PathBuf, String> {
+fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<PathBuf> {
     let mut requested_version = version;
     let mut chosen_path: Option<PathBuf> = None;
 
@@ -231,10 +231,7 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> Result<PathBuf
 
     match chosen_path {
         Some(path) => Ok(path),
-        None => Err(format!(
-            "No suitable interpreter found for {:?}",
-            requested_version
-        )),
+        None => Err(crate::Error::NoExecutableFound(requested_version)),
     }
 }
 

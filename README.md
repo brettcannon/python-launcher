@@ -101,11 +101,6 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Go through functions to adjust for returning `Option` versus `Result`
-   - Create custom `Error` type
-   - Create custom `Result` type
-   - Change `ExactVersion.from_path()`
-   - Update all uses of `Result` appropriately
 1. Use references as appropriate
 1. Make sure everything is tested
    1. Unit tests

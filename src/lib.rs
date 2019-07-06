@@ -3,17 +3,59 @@ pub mod cli;
 use std::{
     collections::HashMap,
     convert::From,
-    env,
+    env, fmt,
+    num::ParseIntError,
     path::{Path, PathBuf},
     str::FromStr,
 };
 
-// XXX All errors: no executable found (requested version), int parsing, no '.' in parsing,
-//     no number before/after '.' in parsing,
-//     (maybe: no file name, path to str, missing `python`)
-//     https://doc.rust-lang.org/std/error/trait.Error.html (implement Display and source() if appropriate)
-//     https://docs.rs/nix/0.14.1/src/nix/lib.rs.html#91
-//     pub type Result<T> = result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
+
+#[derive(Debug, PartialEq)]
+pub enum Error {
+    ParseVersionComponentError(ParseIntError),
+    DotMissing,
+    MajorVersionMissing,
+    MinorVersionMissing,
+    FileNameMissing,
+    FileNameToStrError,
+    PathFileNameError,
+    NoExecutableFound(RequestedVersion),
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Error::ParseVersionComponentError(int_error) => {
+                write!(f, "Error parsing a version component: {}", int_error)
+            }
+            Error::DotMissing => write!(f, "'.' missing from the version"),
+            Error::MajorVersionMissing => {
+                write!(f, "No major version component found before the `.`")
+            }
+            Error::MinorVersionMissing => {
+                write!(f, "No minor version component found after the `.`")
+            }
+            Error::FileNameMissing => write!(f, "Path lacks a file name"),
+            Error::FileNameToStrError => write!(f, "Failed to convert file name to `str`"),
+            Error::PathFileNameError => write!(f, "File name not of the format `pythonX.Y`"),
+            Error::NoExecutableFound(requested_version) => write!(
+                f,
+                "No executable found for {}",
+                requested_version.to_string()
+            ),
+        }
+    }
+}
+
+impl std::error::Error for Error {
+    fn cause(&self) -> Option<&dyn std::error::Error> {
+        match self {
+            Error::ParseVersionComponentError(int_error) => Some(int_error),
+            _ => None,
+        }
+    }
+}
 
 /// An integral part of a version specifier (e.g. the `X` or `Y` of `X.Y`).
 type ComponentSize = u16;
@@ -26,21 +68,33 @@ pub enum RequestedVersion {
     Exact(ComponentSize, ComponentSize),
 }
 
+impl ToString for RequestedVersion {
+    fn to_string(&self) -> String {
+        match self {
+            RequestedVersion::Any => "Python".to_string(),
+            RequestedVersion::MajorOnly(major) => format!("Python {}", major),
+            RequestedVersion::Exact(major, minor) => format!("Python {}.{}", major, minor),
+        }
+    }
+}
+
 impl FromStr for RequestedVersion {
-    type Err = String;
+    type Err = Error;
 
     // XXX Require `python` as a prefix?
-    // Errors: int parse error
-    fn from_str(version_string: &str) -> Result<Self, Self::Err> {
+    fn from_str(version_string: &str) -> Result<Self> {
         if version_string.is_empty() {
             Ok(RequestedVersion::Any)
         } else if version_string.contains('.') {
-            ExactVersion::from_str(version_string)
-                .and_then(|v| Ok(RequestedVersion::Exact(v.major, v.minor)))
+            let exact_version = ExactVersion::from_str(version_string)?;
+            Ok(RequestedVersion::Exact(
+                exact_version.major,
+                exact_version.minor,
+            ))
         } else {
             match version_string.parse::<ComponentSize>() {
                 Ok(number) => Ok(RequestedVersion::MajorOnly(number)),
-                Err(parse_error) => Err(parse_error.to_string()),
+                Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
             }
         }
     }
@@ -76,30 +130,30 @@ impl ToString for ExactVersion {
 }
 
 impl FromStr for ExactVersion {
-    type Err = String;
+    type Err = Error;
 
     // Errors: int parse, missing int before/after '.', missing '.'
-    fn from_str(version_string: &str) -> Result<Self, Self::Err> {
+    fn from_str(version_string: &str) -> Result<Self> {
         if let Some(dot_index) = version_string.find('.') {
             if let Some(major_str) = version_string.get(..dot_index) {
                 let major = match major_str.parse::<ComponentSize>() {
                     Ok(number) => number,
-                    Err(parse_error) => return Err(parse_error.to_string()),
+                    Err(parse_error) => return Err(Error::ParseVersionComponentError(parse_error)),
                 };
 
                 if let Some(minor_str) = version_string.get(dot_index + 1..) {
                     return match minor_str.parse::<ComponentSize>() {
                         Ok(minor) => Ok(ExactVersion { major, minor }),
-                        Err(parse_error) => Err(parse_error.to_string()),
+                        Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
                     };
                 } else {
-                    return Err("no minor version after the '.' found".to_string());
+                    return Err(Error::MinorVersionMissing);
                 }
             } else {
-                return Err("no major version before the '.' found".to_string());
+                return Err(Error::MajorVersionMissing);
             }
         } else {
-            return Err("no '.' found".to_string());
+            return Err(Error::DotMissing);
         }
     }
 }
@@ -115,23 +169,27 @@ impl ExactVersion {
         }
     }
 
-    // XXX Return Result? Would align more with e.g. from_str(), but also requires returning an error message.
-    pub fn from_path(path: &Path) -> Option<Self> {
-        if let Some(file_name) = path.file_name().and_then(|p| p.to_str()) {
-            if file_name.len() >= "python3.0".len() && file_name.starts_with("python") {
-                let version_part = &file_name["python".len()..];
-                if let Ok(found_version) = RequestedVersion::from_str(&version_part) {
-                    return match found_version {
-                        RequestedVersion::Exact(major, minor) => {
-                            Some(ExactVersion { major, minor })
-                        }
-                        _ => None,
-                    };
+    pub fn from_path(path: &Path) -> Result<Self> {
+        if let Some(raw_file_name) = path.file_name() {
+            if let Some(file_name) = raw_file_name.to_str() {
+                if file_name.len() >= "python3.0".len() && file_name.starts_with("python") {
+                    let version_part = &file_name["python".len()..];
+                    if let RequestedVersion::Exact(major, minor) =
+                        RequestedVersion::from_str(&version_part)?
+                    {
+                        return Ok(ExactVersion { major, minor });
+                    }
                 }
+                return Err(Error::PathFileNameError);
+            } else {
+                Err(Error::FileNameToStrError)
             }
+        } else {
+            Err(Error::FileNameMissing)
         }
-        None
     }
+
+    // XXX from_shebang()?
 }
 
 // XXX Drop `directories` parameter.
@@ -160,7 +218,7 @@ pub fn all_executables(
 ) -> HashMap<ExactVersion, PathBuf> {
     let mut executables = HashMap::new();
     for path in flatten_directories(directories) {
-        if let Some(version) = ExactVersion::from_path(&path) {
+        if let Ok(version) = ExactVersion::from_path(&path) {
             executables.entry(version).or_insert(path);
         }
     }
