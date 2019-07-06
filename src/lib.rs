@@ -13,13 +13,17 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, PartialEq)]
 pub enum Error {
+    // {RequestedVersion, ExactVersion}::from_str
     ParseVersionComponentError(ParseIntError),
+    // RequestedVersion::from_str
     DotMissing,
     MajorVersionMissing,
     MinorVersionMissing,
+    // ExactVersion::from_path
     FileNameMissing,
     FileNameToStrError,
     PathFileNameError,
+    // cli::{list_executables, find_executable, help}
     NoExecutableFound(RequestedVersion),
 }
 
