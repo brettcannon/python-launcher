@@ -34,9 +34,5 @@ fn run(executable: &Path, args: &[String]) -> nix::Result<()> {
     let mut argv = vec![executable_as_cstring.clone()];
     argv.extend(args.iter().map(|arg| CString::new(arg.as_str()).unwrap()));
 
-    let result = unistd::execv(&executable_as_cstring, &argv);
-    match result {
-        Ok(_) => Ok(()),
-        Err(e) => Err(e),
-    }
+    unistd::execv(&executable_as_cstring, &argv).map(|_| ())
 }
