@@ -136,7 +136,6 @@ impl ToString for ExactVersion {
 impl FromStr for ExactVersion {
     type Err = Error;
 
-    // Errors: int parse, missing int before/after '.', missing '.'
     fn from_str(version_string: &str) -> Result<Self> {
         if let Some(dot_index) = version_string.find('.') {
             if let Some(major_str) = version_string.get(..dot_index) {
