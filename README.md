@@ -101,10 +101,6 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Consider having functions take arguments instead of querying environment directly
-   (i.e. don't directly query `PATH`, `VIRTUAL_ENV` to ease testability, but be reasonable
-    when code already requires querying the environment for other reasons)
-   - Can provide functions or constants to minimize typos in querying environment
 1. Go through functions to adjust for returning `Option` versus `Result`
      (e.g. `split_shebang(),`version_from_flag()`, `choose_executable()`
    - Should probably be based on whether an error message would help)
