@@ -195,13 +195,9 @@ impl ExactVersion {
     // XXX from_shebang()?
 }
 
-// XXX Drop `directories` parameter.
-pub fn find_executable(
-    requested: RequestedVersion,
-    directories: impl Iterator<Item = PathBuf>,
-) -> Option<PathBuf> {
-    // It would seem to make sense to call `.iter()` here, but the borrow checker says "no".
-    let found_executables = all_executables(directories);
+// XXX Refactor so everything after all_executables() can be tested in isolation.
+pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
+    let found_executables = all_executables();
     match requested {
         RequestedVersion::Any => found_executables.iter().max(),
         RequestedVersion::MajorOnly(_) => found_executables
@@ -215,8 +211,11 @@ pub fn find_executable(
     .map(|pair| pair.1.clone())
 }
 
-// XXX Drop `directories` parameter.
-pub fn all_executables(
+pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
+    all_executables_in_directories(env_path().into_iter())
+}
+
+fn all_executables_in_directories(
     directories: impl Iterator<Item = PathBuf>,
 ) -> HashMap<ExactVersion, PathBuf> {
     let mut executables = HashMap::new();
@@ -228,7 +227,6 @@ pub fn all_executables(
     executables
 }
 
-// XXX Inline path_entries() -> rename to `flatten_env_path()`.
 fn flatten_directories(
     directories: impl Iterator<Item = PathBuf>,
 ) -> impl Iterator<Item = PathBuf> {
@@ -239,13 +237,13 @@ fn flatten_directories(
         .map(|e| e.path()) // Get the PathBuf from the DirEntry.
 }
 
-// XXX drop after `all_executables()` no longer takes an argument.
-/// Convert `PATH` into a `Vec<PathBuf>`.
-fn path_entries() -> Vec<PathBuf> {
-    if let Some(path_val) = env::var_os("PATH") {
-        env::split_paths(&path_val).collect()
-    } else {
-        Vec::new()
+fn env_path() -> Vec<PathBuf> {
+    // Would love to have a return type of `impl Iterator<Item = PathBuf>
+    // and return just SplitPaths and iter::empty(), but Rust
+    // complains about differing return types.
+    match env::var_os("PATH") {
+        Some(path_val) => env::split_paths(&path_val).collect(),
+        None => Vec::new(),
     }
 }
 
@@ -321,13 +319,13 @@ mod tests {
     }
 
     #[test]
-    fn unit_test_path_entries() {
+    fn unit_test_env_path() {
         let paths = vec!["/a", "/b", "/c"];
         if let Ok(joined_paths) = env::join_paths(&paths) {
             let original_paths = env::var_os("PATH");
             env::set_var("PATH", joined_paths);
             assert_eq!(
-                path_entries(),
+                env_path(),
                 paths
                     .iter()
                     .map(|p| PathBuf::from(p))
@@ -341,9 +339,9 @@ mod tests {
     }
 
     #[test]
-    fn system_test_path_entries() {
+    fn system_test_env_path() {
         if let Some(paths) = env::var_os("PATH") {
-            let found_paths = path_entries();
+            let found_paths = env_path();
             assert_eq!(found_paths.len(), env::split_paths(&paths).count());
             for (index, path) in env::split_paths(&paths).enumerate() {
                 assert_eq!(found_paths[index], path);

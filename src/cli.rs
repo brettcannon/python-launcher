@@ -60,9 +60,8 @@ impl Action {
 // XXX Factor out calling find_executable() for ease of testing.
 fn help(launcher_path: &Path) -> crate::Result<(String, PathBuf)> {
     let mut message = String::new();
-    let directories = crate::path_entries();
 
-    if let Some(found_path) = crate::find_executable(RequestedVersion::Any, directories.into_iter())
+    if let Some(found_path) = crate::find_executable(RequestedVersion::Any)
     {
         writeln!(
             message,
@@ -92,8 +91,7 @@ fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
 
 // XXX Factor out `all_executables()` to ease testing.
 fn list_executables() -> crate::Result<String> {
-    let paths = crate::path_entries();
-    let executables = crate::all_executables(paths.into_iter());
+    let executables = crate::all_executables();
 
     if executables.is_empty() {
         return Err(crate::Error::NoExecutableFound(RequestedVersion::Any));
@@ -221,9 +219,8 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
             };
         }
 
-        let directories = crate::path_entries();
         if let Some(executable_path) =
-            crate::find_executable(requested_version, directories.into_iter())
+            crate::find_executable(requested_version)
         {
             chosen_path = Some(executable_path);
         }
