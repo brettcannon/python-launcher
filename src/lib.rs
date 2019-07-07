@@ -56,7 +56,13 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Error::ParseVersionComponentError(int_error) => Some(int_error),
-            _ => None,
+            Error::DotMissing => None,
+            Error::MajorVersionMissing => None,
+            Error::MinorVersionMissing => None,
+            Error::FileNameMissing => None,
+            Error::FileNameToStrError => None,
+            Error::PathFileNameError => None,
+            Error::NoExecutableFound(_) => None,
         }
     }
 }
