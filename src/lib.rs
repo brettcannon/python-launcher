@@ -201,24 +201,24 @@ impl ExactVersion {
     // XXX from_shebang()?
 }
 
-// XXX Refactor so everything after all_executables() can be tested in isolation.
-pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
-    let found_executables = all_executables();
-    match requested {
-        RequestedVersion::Any => found_executables.iter().max(),
-        RequestedVersion::MajorOnly(_) => found_executables
-            .iter()
-            .filter(|pair| pair.0.supports(requested))
-            .max(),
-        RequestedVersion::Exact(_, _) => found_executables
-            .iter()
-            .find(|pair| pair.0.supports(requested)),
+fn env_path() -> Vec<PathBuf> {
+    // Would love to have a return type of `impl Iterator<Item = PathBuf>
+    // and return just SplitPaths and iter::empty(), but Rust
+    // complains about differing return types.
+    match env::var_os("PATH") {
+        Some(path_val) => env::split_paths(&path_val).collect(),
+        None => Vec::new(),
     }
-    .map(|pair| pair.1.clone())
 }
 
-pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
-    all_executables_in_directories(env_path().into_iter())
+fn flatten_directories(
+    directories: impl Iterator<Item = PathBuf>,
+) -> impl Iterator<Item = PathBuf> {
+    directories
+        .filter_map(|p| p.read_dir().ok()) // Filter to Ok(ReadDir).
+        .flatten() // Flatten out `for DirEntry in ReadDir`.
+        .filter_map(|e| e.ok()) // Filter to Ok(DirEntry).
+        .map(|e| e.path()) // Get the PathBuf from the DirEntry.
 }
 
 fn all_executables_in_directories(
@@ -233,24 +233,24 @@ fn all_executables_in_directories(
     executables
 }
 
-fn flatten_directories(
-    directories: impl Iterator<Item = PathBuf>,
-) -> impl Iterator<Item = PathBuf> {
-    directories
-        .filter_map(|p| p.read_dir().ok()) // Filter to Ok(ReadDir).
-        .flatten() // Flatten out `for DirEntry in ReadDir`.
-        .filter_map(|e| e.ok()) // Filter to Ok(DirEntry).
-        .map(|e| e.path()) // Get the PathBuf from the DirEntry.
+pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
+    all_executables_in_directories(env_path().into_iter())
 }
 
-fn env_path() -> Vec<PathBuf> {
-    // Would love to have a return type of `impl Iterator<Item = PathBuf>
-    // and return just SplitPaths and iter::empty(), but Rust
-    // complains about differing return types.
-    match env::var_os("PATH") {
-        Some(path_val) => env::split_paths(&path_val).collect(),
-        None => Vec::new(),
+// XXX Refactor so everything after all_executables() can be tested in isolation.
+pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
+    let found_executables = all_executables();
+    match requested {
+        RequestedVersion::Any => found_executables.iter().max(),
+        RequestedVersion::MajorOnly(_) => found_executables
+            .iter()
+            .filter(|pair| pair.0.supports(requested))
+            .max(),
+        RequestedVersion::Exact(_, _) => found_executables
+            .iter()
+            .find(|pair| pair.0.supports(requested)),
     }
+    .map(|pair| pair.1.clone())
 }
 
 #[cfg(test)]
