@@ -258,6 +258,13 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_requestedversion_to_string() {
+        assert_eq!(RequestedVersion::Any.to_string(), "Python");
+        assert_eq!(RequestedVersion::MajorOnly(3).to_string(), "Python 3");
+        assert_eq!(RequestedVersion::Exact(3, 8).to_string(), "Python 3.8");
+    }
+
+    #[test]
     fn test_requestedversion_from_str() {
         assert!(RequestedVersion::from_str(".3").is_err());
         assert!(RequestedVersion::from_str("3.").is_err());
