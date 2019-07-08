@@ -168,16 +168,6 @@ impl FromStr for ExactVersion {
 }
 
 impl ExactVersion {
-    pub fn supports(&self, requested: RequestedVersion) -> bool {
-        match requested {
-            RequestedVersion::Any => true,
-            RequestedVersion::MajorOnly(major_version) => self.major == major_version,
-            RequestedVersion::Exact(major_version, minor_version) => {
-                self.major == major_version && self.minor == minor_version
-            }
-        }
-    }
-
     pub fn from_path(path: &Path) -> Result<Self> {
         if let Some(raw_file_name) = path.file_name() {
             if let Some(file_name) = raw_file_name.to_str() {
@@ -199,6 +189,16 @@ impl ExactVersion {
     }
 
     // XXX from_shebang()?
+
+    pub fn supports(&self, requested: RequestedVersion) -> bool {
+        match requested {
+            RequestedVersion::Any => true,
+            RequestedVersion::MajorOnly(major_version) => self.major == major_version,
+            RequestedVersion::Exact(major_version, minor_version) => {
+                self.major == major_version && self.minor == minor_version
+            }
+        }
+    }
 }
 
 fn env_path() -> Vec<PathBuf> {
@@ -281,18 +281,7 @@ mod tests {
     }
 
     #[test]
-    fn test_requestedversion_from_exactversion() {
-        assert_eq!(
-            RequestedVersion::from(ExactVersion {
-                major: 42,
-                minor: 13
-            }),
-            RequestedVersion::Exact(42, 13)
-        );
-    }
-
-    #[test]
-    fn test_env_var() {
+    fn test_requstedversion_env_var() {
         assert_eq!(
             RequestedVersion::Any.env_var(),
             Some("PY_PYTHON".to_string())
@@ -306,6 +295,17 @@ mod tests {
             Some("PY_PYTHON42".to_string())
         );
         assert!(RequestedVersion::Exact(42, 13).env_var().is_none());
+    }
+
+    #[test]
+    fn test_requestedversion_from_exactversion() {
+        assert_eq!(
+            RequestedVersion::from(ExactVersion {
+                major: 42,
+                minor: 13
+            }),
+            RequestedVersion::Exact(42, 13)
+        );
     }
 
     #[test]
