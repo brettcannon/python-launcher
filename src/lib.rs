@@ -134,13 +134,13 @@ impl FromStr for ExactVersion {
 
     fn from_str(version_string: &str) -> Result<Self> {
         if let Some(dot_index) = version_string.find('.') {
-            let major_str = version_string.get(..dot_index).unwrap();
+            let major_str = &version_string[..dot_index];
             let major = match major_str.parse::<ComponentSize>() {
                 Ok(number) => number,
                 Err(parse_error) => return Err(Error::ParseVersionComponentError(parse_error)),
             };
 
-            let minor_str = version_string.get(dot_index + 1..).unwrap();
+            let minor_str = &version_string[dot_index + 1..];
             return match minor_str.parse::<ComponentSize>() {
                 Ok(minor) => Ok(ExactVersion { major, minor }),
                 Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
