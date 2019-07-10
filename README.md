@@ -101,6 +101,7 @@ fashion are very much appreciated, though.)
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
+1. Set up a [VS Code dev container definition](https://code.visualstudio.com/docs/remote/containers) ([example](https://github.com/microsoft/vscode-dev-containers/tree/master/containers/rust))
 1. Make sure everything is tested
    1. Unit tests
    1. Integration tests (running `main.rs` via `pytest`)
