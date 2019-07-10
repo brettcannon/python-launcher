@@ -17,8 +17,6 @@ pub enum Error {
     ParseVersionComponentError(ParseIntError),
     // RequestedVersion::from_str
     DotMissing,
-    MajorVersionMissing,
-    MinorVersionMissing,
     // ExactVersion::from_path
     FileNameMissing,
     FileNameToStrError,
@@ -34,12 +32,6 @@ impl fmt::Display for Error {
                 write!(f, "Error parsing a version component: {}", int_error)
             }
             Error::DotMissing => write!(f, "'.' missing from the version"),
-            Error::MajorVersionMissing => {
-                write!(f, "No major version component found before the `.`")
-            }
-            Error::MinorVersionMissing => {
-                write!(f, "No minor version component found after the `.`")
-            }
             Error::FileNameMissing => write!(f, "Path lacks a file name"),
             Error::FileNameToStrError => write!(f, "Failed to convert file name to `str`"),
             Error::PathFileNameError => write!(f, "File name not of the format `pythonX.Y`"),
@@ -57,8 +49,6 @@ impl std::error::Error for Error {
         match self {
             Error::ParseVersionComponentError(int_error) => Some(int_error),
             Error::DotMissing => None,
-            Error::MajorVersionMissing => None,
-            Error::MinorVersionMissing => None,
             Error::FileNameMissing => None,
             Error::FileNameToStrError => None,
             Error::PathFileNameError => None,
@@ -144,23 +134,17 @@ impl FromStr for ExactVersion {
 
     fn from_str(version_string: &str) -> Result<Self> {
         if let Some(dot_index) = version_string.find('.') {
-            if let Some(major_str) = version_string.get(..dot_index) {
-                let major = match major_str.parse::<ComponentSize>() {
-                    Ok(number) => number,
-                    Err(parse_error) => return Err(Error::ParseVersionComponentError(parse_error)),
-                };
+            let major_str = version_string.get(..dot_index).unwrap();
+            let major = match major_str.parse::<ComponentSize>() {
+                Ok(number) => number,
+                Err(parse_error) => return Err(Error::ParseVersionComponentError(parse_error)),
+            };
 
-                if let Some(minor_str) = version_string.get(dot_index + 1..) {
-                    return match minor_str.parse::<ComponentSize>() {
-                        Ok(minor) => Ok(ExactVersion { major, minor }),
-                        Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
-                    };
-                } else {
-                    return Err(Error::MinorVersionMissing);
-                }
-            } else {
-                return Err(Error::MajorVersionMissing);
-            }
+            let minor_str = version_string.get(dot_index + 1..).unwrap();
+            return match minor_str.parse::<ComponentSize>() {
+                Ok(minor) => Ok(ExactVersion { major, minor }),
+                Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
+            };
         } else {
             return Err(Error::DotMissing);
         }
@@ -332,6 +316,47 @@ mod tests {
     }
 
     #[test]
+    fn test_exactversion_from_str() {
+        assert_eq!(ExactVersion::from_str(""), Err(Error::DotMissing));
+        assert_eq!(ExactVersion::from_str("3"), Err(Error::DotMissing));
+        assert_eq!(
+            ExactVersion::from_str(".7"),
+            Err(Error::ParseVersionComponentError(
+                "".parse::<ComponentSize>().unwrap_err()
+            ))
+        );
+        assert_eq!(
+            ExactVersion::from_str("3."),
+            Err(Error::ParseVersionComponentError(
+                "".parse::<ComponentSize>().unwrap_err()
+            ))
+        );
+        assert_eq!(
+            ExactVersion::from_str("3.Y"),
+            Err(Error::ParseVersionComponentError(
+                "Y".parse::<ComponentSize>().unwrap_err()
+            ))
+        );
+        assert_eq!(
+            ExactVersion::from_str("X.7"),
+            Err(Error::ParseVersionComponentError(
+                "X".parse::<ComponentSize>().unwrap_err()
+            ))
+        );
+        assert_eq!(
+            ExactVersion::from_str("42.13"),
+            Ok(ExactVersion {
+                major: 42,
+                minor: 13
+            })
+        );
+    }
+
+    // XXX Test ExactVersion::from_path()
+
+    // XXX Test ExactVersion::supports()
+
+    #[test]
     fn unit_test_env_path() {
         let paths = vec!["/a", "/b", "/c"];
         if let Ok(joined_paths) = env::join_paths(&paths) {
@@ -361,4 +386,10 @@ mod tests {
             }
         }
     }
+
+    // XXX flatten_directories()
+
+    // XXX Test find_executable() (and parts)
+
+    // XXX Test all_executables() (and parts)
 }
