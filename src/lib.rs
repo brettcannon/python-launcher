@@ -348,7 +348,35 @@ mod tests {
         );
     }
 
-    // XXX Test ExactVersion::from_path()
+    #[test]
+    fn test_exactversion_from_path() {
+        assert_eq!(
+            ExactVersion::from_path(&PathBuf::from("/")),
+            Err(Error::FileNameMissing)
+        );
+        // TODO: test file name cannot be converted to str
+        assert_eq!(
+            ExactVersion::from_path(&PathBuf::from("/notpython")),
+            Err(Error::PathFileNameError)
+        );
+        assert_eq!(
+            ExactVersion::from_path(&PathBuf::from("/python3")),
+            Err(Error::PathFileNameError)
+        );
+        assert_eq!(
+            ExactVersion::from_path(&PathBuf::from("/pythonX.Y")),
+            Err(Error::ParseVersionComponentError(
+                "X".parse::<ComponentSize>().unwrap_err()
+            ))
+        );
+        assert_eq!(
+            ExactVersion::from_path(&PathBuf::from("/python42.13")),
+            Ok(ExactVersion {
+                major: 42,
+                minor: 13
+            })
+        );
+    }
 
     // XXX Test ExactVersion::supports()
 
