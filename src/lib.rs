@@ -378,7 +378,19 @@ mod tests {
         );
     }
 
-    // XXX Test ExactVersion::supports()
+    #[test]
+    fn test_exactversion_supports() {
+        let example = ExactVersion { major: 3, minor: 7 };
+
+        assert!(example.supports(RequestedVersion::Any));
+
+        assert!(!example.supports(RequestedVersion::MajorOnly(2)));
+        assert!(example.supports(RequestedVersion::MajorOnly(3)));
+
+        assert!(!example.supports(RequestedVersion::Exact(2, 7)));
+        assert!(!example.supports(RequestedVersion::Exact(3, 6)));
+        assert!(example.supports(RequestedVersion::Exact(3, 7)));
+    }
 
     #[test]
     fn unit_test_env_path() {
