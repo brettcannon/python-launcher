@@ -217,22 +217,24 @@ pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
     all_executables_in_directories(env_path().into_iter())
 }
 
-// XXX Refactor so everything after all_executables() can be tested in isolation.
-pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
-    let found_executables = all_executables();
+fn find_executable_in_map(
+    requested: RequestedVersion,
+    found_executables: &HashMap<ExactVersion, PathBuf>,
+) -> Option<PathBuf> {
+    let mut iter = found_executables.iter();
+
     match requested {
-        RequestedVersion::Any => found_executables.iter().max(),
-        RequestedVersion::MajorOnly(_) => found_executables
-            .iter()
-            .filter(|pair| pair.0.supports(requested))
-            .max(),
-        RequestedVersion::Exact(_, _) => found_executables
-            .iter()
-            .find(|pair| pair.0.supports(requested)),
+        RequestedVersion::Any => iter.max(),
+        RequestedVersion::MajorOnly(_) => iter.filter(|pair| pair.0.supports(requested)).max(),
+        RequestedVersion::Exact(_, _) => iter.find(|pair| pair.0.supports(requested)),
     }
     .map(|pair| pair.1.clone())
 }
 
+pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
+    let found_executables = all_executables();
+    find_executable_in_map(requested, &found_executables)
+}
 #[cfg(test)]
 mod tests {
     use super::*;
