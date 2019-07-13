@@ -202,11 +202,11 @@ fn flatten_directories(
         .map(|e| e.path()) // Get the PathBuf from the DirEntry.
 }
 
-fn all_executables_in_directories(
-    directories: impl IntoIterator<Item = PathBuf>,
+fn all_executables_in_paths(
+    paths: impl IntoIterator<Item = PathBuf>,
 ) -> HashMap<ExactVersion, PathBuf> {
     let mut executables = HashMap::new();
-    for path in flatten_directories(directories) {
+    for path in paths {
         if let Ok(version) = ExactVersion::from_path(&path) {
             executables.entry(version).or_insert(path);
         }
@@ -215,15 +215,15 @@ fn all_executables_in_directories(
 }
 
 pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
-    all_executables_in_directories(env_path().into_iter())
+    let paths = flatten_directories(env_path());
+    all_executables_in_paths(paths)
 }
 
-fn find_executable_in_map(
+fn find_executable_in_hashmap(
     requested: RequestedVersion,
     found_executables: &HashMap<ExactVersion, PathBuf>,
 ) -> Option<PathBuf> {
     let mut iter = found_executables.iter();
-
     match requested {
         RequestedVersion::Any => iter.max(),
         RequestedVersion::MajorOnly(_) => iter.filter(|pair| pair.0.supports(requested)).max(),
@@ -234,7 +234,7 @@ fn find_executable_in_map(
 
 pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
     let found_executables = all_executables();
-    find_executable_in_map(requested, &found_executables)
+    find_executable_in_hashmap(requested, &found_executables)
 }
 
 #[cfg(test)]
@@ -428,8 +428,12 @@ mod tests {
     }
 
     // XXX flatten_directories()
+    // Construct a series of directories containing single files each -> iteration order is preserved
+    // Construct a series of directories with multiple files each -> Iterates through entire directory contents (but intra-directory order isn't guaranteed)
 
-    // XXX Test find_executable() (and parts)
+    // XXX Test all_executables_in_paths()
+    // XXX Test all_executables()
 
-    // XXX Test all_executables() (and parts)
+    // XXX Test find_executable_in_hashmap()
+    // XXX Test find_executable()
 }
