@@ -157,7 +157,7 @@ impl ExactVersion {
             if let Some(file_name) = raw_file_name.to_str() {
                 if file_name.len() >= "python3.0".len() && file_name.starts_with("python") {
                     let version_part = &file_name["python".len()..];
-                    return ExactVersion::from_str(version_part)
+                    return ExactVersion::from_str(version_part);
                     }
                 return Err(Error::PathFileNameError);
             } else {
