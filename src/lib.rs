@@ -158,7 +158,7 @@ impl ExactVersion {
                 if file_name.len() >= "python3.0".len() && file_name.starts_with("python") {
                     let version_part = &file_name["python".len()..];
                     return ExactVersion::from_str(version_part);
-                    }
+                }
                 return Err(Error::PathFileNameError);
             } else {
                 Err(Error::FileNameToStrError)
@@ -192,9 +192,10 @@ fn env_path() -> Vec<PathBuf> {
 }
 
 fn flatten_directories(
-    directories: impl Iterator<Item = PathBuf>,
+    directories: impl IntoIterator<Item = PathBuf>,
 ) -> impl Iterator<Item = PathBuf> {
     directories
+        .into_iter()
         .filter_map(|p| p.read_dir().ok()) // Filter to Ok(ReadDir).
         .flatten() // Flatten out `for DirEntry in ReadDir`.
         .filter_map(|e| e.ok()) // Filter to Ok(DirEntry).
@@ -202,7 +203,7 @@ fn flatten_directories(
 }
 
 fn all_executables_in_directories(
-    directories: impl Iterator<Item = PathBuf>,
+    directories: impl IntoIterator<Item = PathBuf>,
 ) -> HashMap<ExactVersion, PathBuf> {
     let mut executables = HashMap::new();
     for path in flatten_directories(directories) {
