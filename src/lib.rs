@@ -235,6 +235,7 @@ pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
     let found_executables = all_executables();
     find_executable_in_map(requested, &found_executables)
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
