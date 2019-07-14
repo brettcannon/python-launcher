@@ -17,6 +17,9 @@ maintenance = { status = "experimental" }
 [dependencies]
 nix = "0.14.1"
 
+[dev-dependencies]
+tempfile = "3.1.0"
+
 [[bin]]
 name = "py"
 path = "src/main.rs"

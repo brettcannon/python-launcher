@@ -239,6 +239,10 @@ pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
 
 #[cfg(test)]
 mod tests {
+    use std::fs::File;
+
+    use tempfile::TempDir;
+
     use super::*;
 
     #[test]
@@ -427,9 +431,45 @@ mod tests {
         }
     }
 
-    // XXX flatten_directories()
-    // Construct a series of directories containing single files each -> iteration order is preserved
-    // Construct a series of directories with multiple files each -> Iterates through entire directory contents (but intra-directory order isn't guaranteed)
+    #[test]
+    fn test_flatten_directories() {
+        let dir1 = TempDir::new().unwrap();
+        let dir2 = TempDir::new().unwrap();
+        // Couldn't make it work using an array due to flatten_directory()'s argument type.
+        let dirs = vec![dir1.path().to_path_buf(), dir2.path().to_path_buf()];
+
+        let dir1_file1_path = dir1.path().join("dir1_file1");
+        let dir1_file2 = File::create(dir1_file1_path.to_owned()).unwrap();
+        dir1_file2.sync_all().unwrap();
+
+        let dir2_file1_path = dir2.path().join("dir2_file1");
+        let dir2_file1 = File::create(dir2_file1_path.to_owned()).unwrap();
+        dir2_file1.sync_all().unwrap();
+
+        let found_files: Vec<PathBuf> = flatten_directories(dirs.clone()).collect();
+        assert_eq!(found_files[0], dir1_file1_path);
+        assert_eq!(found_files[1], dir2_file1_path);
+
+        let dir1_file2_path = dir2_file1_path.with_file_name("dir1_file2");
+        let dir1_file2 = File::create(dir1_file2_path.to_owned()).unwrap();
+        dir1_file2.sync_all().unwrap();
+
+        let dir2_file2_path = dir2_file1_path.with_file_name("dir2_file2");
+        let dir2_file2 = File::create(dir2_file2_path.to_owned()).unwrap();
+        dir2_file2.sync_all().unwrap();
+
+        let found_all_files: Vec<PathBuf> = flatten_directories(dirs).collect();
+        for path in [
+            dir1_file1_path,
+            dir1_file2_path,
+            dir2_file1_path,
+            dir2_file2_path,
+        ]
+        .iter()
+        {
+            assert_eq!(found_all_files.iter().find(|p| p == &path), Some(path));
+        }
+    }
 
     // XXX Test all_executables_in_paths()
     // XXX Test all_executables()
