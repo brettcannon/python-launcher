@@ -61,8 +61,7 @@ impl Action {
 fn help(launcher_path: &Path) -> crate::Result<(String, PathBuf)> {
     let mut message = String::new();
 
-    if let Some(found_path) = crate::find_executable(RequestedVersion::Any)
-    {
+    if let Some(found_path) = crate::find_executable(RequestedVersion::Any) {
         writeln!(
             message,
             include_str!("HELP.txt"),
@@ -219,9 +218,7 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
             };
         }
 
-        if let Some(executable_path) =
-            crate::find_executable(requested_version)
-        {
+        if let Some(executable_path) = crate::find_executable(requested_version) {
             chosen_path = Some(executable_path);
         }
     }
@@ -254,4 +251,16 @@ mod tests {
         );
         assert!(version_from_flag(&"-3.6.4".to_string()).is_none());
     }
+
+    // XXX Test help()
+
+    // XXX Test list_executables()
+
+    // XXX Test venv_executable()
+
+    // XXX Test parse_python_shebang()
+
+    // XXX Test find_executable()
+
+    // XXX Test Action::from_main()
 }
