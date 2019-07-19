@@ -20,7 +20,7 @@ RUN apt-get update \
     #
     # Install Rust components
     && rustup update \
-    && rustup component add rls rust-analysis rust-src \
+    && rustup component add rls rust-analysis rust-src rustfmt clippy \
     #
     # Clean up
     && apt-get autoremove -y \

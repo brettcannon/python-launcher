@@ -11,7 +11,7 @@
 	// "appPort": [],
 
 	// Uncomment the next line to run commands after the container is created.
-	// "postCreateCommand": "rustc --version"
+	"postCreateCommand": "cargo fetch",
 
 	"extensions": [
 		"rust-lang.rust",
