@@ -467,8 +467,38 @@ mod tests {
         }
     }
 
-    // XXX Test all_executables_in_paths()
-    // XXX Test all_executables()
+    #[test]
+    fn test_all_executables_in_paths() {
+        let python27_path = PathBuf::from("/dir1/python2.7");
+        let python36_dir1_path = PathBuf::from("/dir1/python3.6");
+        let python36_dir2_path = PathBuf::from("/dir2/python3.6");
+        let python37_path = PathBuf::from("/dir2/python3.7");
+        let files = vec![
+            python27_path.to_owned(),
+            python36_dir1_path.to_owned(),
+            python36_dir2_path.to_owned(),
+            python37_path.to_owned(),
+        ];
+
+        let executables = all_executables_in_paths(files.into_iter());
+        assert_eq!(executables.len(), 3);
+
+        let python27_version = ExactVersion { major: 2, minor: 7 };
+        assert!(executables.contains_key(&python27_version));
+        assert_eq!(executables.get(&python27_version), Some(&python27_path));
+
+        let python36_version = ExactVersion { major: 3, minor: 6 };
+        assert!(executables.contains_key(&python27_version));
+        assert_eq!(
+            executables.get(&python36_version),
+            Some(&python36_dir1_path)
+        );
+
+        let python37_version = ExactVersion { major: 3, minor: 7 };
+        assert!(executables.contains_key(&python37_version));
+        assert_eq!(executables.get(&python37_version), Some(&python37_path));
+    }
+
 
     // XXX Test find_executable_in_hashmap()
     // XXX Test find_executable()
