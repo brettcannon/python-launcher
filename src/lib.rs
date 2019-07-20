@@ -239,11 +239,37 @@ pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
 
 #[cfg(test)]
 mod tests {
+    use std::ffi::{OsStr, OsString};
     use std::fs::File;
 
     use tempfile::TempDir;
 
     use super::*;
+
+    struct TempEnvVar {
+        key: OsString,
+        value: Option<OsString>,
+    }
+
+    impl Drop for TempEnvVar {
+        fn drop(&mut self) {
+            match &self.value {
+                Some(original_value) => env::set_var(&self.key, original_value),
+                None => env::remove_var(&self.key),
+            }
+        }
+    }
+
+    impl TempEnvVar {
+        fn new(key: &OsStr, value: &OsStr) -> Self {
+            let env_var = TempEnvVar {
+                key: key.to_os_string(),
+                value: env::var_os(key),
+            };
+            env::set_var(key, value);
+            env_var
+        }
+    }
 
     fn touch_file(path: PathBuf) -> PathBuf {
         let file = File::create(&path).unwrap();
@@ -499,6 +525,37 @@ mod tests {
         assert_eq!(executables.get(&python37_version), Some(&python37_path));
     }
 
+    #[test]
+    fn test_all_executables() {
+        let dir1 = TempDir::new().unwrap();
+        let dir2 = TempDir::new().unwrap();
+
+        let python27_path = touch_file(dir1.path().join("python2.7"));
+        let python36_dir1_path = touch_file(dir1.path().join("python3.6"));
+        touch_file(dir2.path().join("python3.6"));
+        let python37_path = touch_file(dir2.path().join("python3.7"));
+
+        let new_path = env::join_paths([dir1.path(), dir2.path()].iter()).unwrap();
+        let _temp_path = TempEnvVar::new(OsStr::new("PATH"), &new_path);
+        let executables = all_executables();
+
+        assert_eq!(executables.len(), 3);
+
+        let python27_version = ExactVersion { major: 2, minor: 7 };
+        assert!(executables.contains_key(&python27_version));
+        assert_eq!(executables.get(&python27_version), Some(&python27_path));
+
+        let python36_version = ExactVersion { major: 3, minor: 6 };
+        assert!(executables.contains_key(&python27_version));
+        assert_eq!(
+            executables.get(&python36_version),
+            Some(&python36_dir1_path)
+        );
+
+        let python37_version = ExactVersion { major: 3, minor: 7 };
+        assert!(executables.contains_key(&python37_version));
+        assert_eq!(executables.get(&python37_version), Some(&python37_path));
+    }
 
     // XXX Test find_executable_in_hashmap()
     // XXX Test find_executable()
