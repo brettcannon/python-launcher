@@ -69,19 +69,22 @@ fashion are very much appreciated, though.)
        E.g. `2.7` for
        `/System/Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python`
      - What about implementations that don't install to e.g. `python3.7` like `pypy3`?
-       - Need more than just being able to alias name to Python version?
+       - Need more than just being able to alias `pypy3` to its Python version?
    - How should the config file search work?
      - Pre-defined locations?
      - Walk up from current directory?
      - [XDG base directory specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)?
 1. Windows support
    - `PATH`
-   - Registry
    - Windows Store (should be covered by `PATH` search, but need to make sure)
+   - Registry
 1. Replacement for `.venv/bin/python` (while keeping the `python` name)
-   - Read `../pyvenv.cfg` to resolve for `Any` version
+  - Might need switch off CLI additions -- i.e. `-h`, `--list`, and version specifier support -- in this situation to make this work
+   - Read `../pyvenv.cfg` and its [`home` key](https://docs.python.org/3/library/venv.html#creating-virtual-environments) to determine where to look for the Python executable
+     - What if `home` has multiple Python executables installed? Might need to add an `executable` key to give full path to the creating interpreter.
    - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
    - Speeds up environment creation by not having to copy over entire Python installation on     Windows (e.g. `.pyd` files)
+   - [See/edit the `site` module](https://github.com/python/cpython/blob/master/Lib/site.py#L456) to gain ability to specify virtual environment location (while maintaining the invariant on how to detect virtual environments as outlined in the [`venv` module docs](https://docs.python.org/3/library/venv.html#module-venv))
 1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
    - Widest compatibility for people where they have undecodable paths
      (which is hopefully a very small minority)
@@ -90,13 +93,10 @@ fashion are very much appreciated, though.)
 ## Polish
 1. Have `--list` somehow denote activated virtual environment?
    * What does the Windows launcher do in this case?
-   * Slight pain as there's no way to no the version of Python w/o executing it to query
-     its version as virtual environments has no `major.minor`-named executable
-   * Maybe just denote that a virtual environment was detected?
 1. Read https://rust-lang-nursery.github.io/cli-wg/
 1. Provide a helpful error message based on requested version when no interpreter found
 1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
-1. Make sure all error cases have appropriate error codes and human-readable results
+1. Make sure all error cases have appropriate exit codes and human-readable results
 1. Man page?
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
@@ -105,12 +105,13 @@ fashion are very much appreciated, though.)
    1. Unit tests for `cli.rs`
    1. Functional tests (in one spot to share testing code)
    1. Integration tests for `main.rs` (via `pytest`)
-1. Get set up on AzDO (in order of execution)
+1. Get CI set up (in order of execution)
    1. Unit tests (also covers compilation)
    1. Integration tests
-   1. `cargo clippy`
-   1. `cargo fmt`
-   1. crates.io deployment?
+   1. Code quality (can be executed in parallel)
+      1. `cargo clippy`
+      1. `cargo fmt`
+   1. https://crates.io deployment?
 1. Get code coverage working
 1. Flesh out documentation (and include examples as appropriate for even more testing)
 1. Consider dropping [`nix`](https://crates.io/crates/nix) dependency for a straight
