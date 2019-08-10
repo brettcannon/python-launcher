@@ -595,5 +595,32 @@ mod tests {
         );
     }
 
-    // XXX Test find_executable()
+    #[test]
+    fn test_find_executable() {
+        let dir1 = TempDir::new().unwrap();
+        let dir2 = TempDir::new().unwrap();
+
+        let python27_path = touch_file(dir1.path().join("python2.7"));
+        let python36_path = touch_file(dir1.path().join("python3.6"));
+        touch_file(dir2.path().join("python3.6"));
+        let python37_path = touch_file(dir2.path().join("python3.7"));
+
+        let new_path = env::join_paths([dir1.path(), dir2.path()].iter()).unwrap();
+        let _temp_path = TempEnvVar::new(OsStr::new("PATH"), &new_path);
+
+        assert_eq!(
+            find_executable(RequestedVersion::Any),
+            Some(python37_path.clone())
+        );
+
+        assert_eq!(
+            find_executable(RequestedVersion::MajorOnly(2)),
+            Some(python27_path)
+        );
+
+        assert_eq!(
+            find_executable(RequestedVersion::Exact(3, 6)),
+            Some(python36_path)
+        );
+    }
 }
