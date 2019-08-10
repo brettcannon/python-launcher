@@ -31,10 +31,14 @@ impl Action {
             let flag = &args[0];
 
             if flag == "-h" || flag == "--help" {
-                return match help(&launcher_path) {
-                    Ok((message, executable_path)) => Ok(Action::Help(message, executable_path)),
-                    Err(message) => Err(message),
-                };
+                if let Some(executable_path) = crate::find_executable(RequestedVersion::Any) {
+                    return Ok(Action::Help(
+                        help_message(&launcher_path, &executable_path),
+                        executable_path,
+                    ));
+                } else {
+                    return Err(crate::Error::NoExecutableFound(RequestedVersion::Any));
+                }
             } else if flag == "--list" {
                 return match list_executables() {
                     Ok(list) => Ok(Action::List(list)),
@@ -57,23 +61,17 @@ impl Action {
     }
 }
 
-// XXX Factor out calling find_executable() for ease of testing.
-fn help(launcher_path: &Path) -> crate::Result<(String, PathBuf)> {
+fn help_message(launcher_path: &Path, executable_path: &Path) -> String {
     let mut message = String::new();
-
-    if let Some(found_path) = crate::find_executable(RequestedVersion::Any) {
-        writeln!(
-            message,
-            include_str!("HELP.txt"),
-            env!("CARGO_PKG_VERSION"),
-            launcher_path.to_string_lossy(),
-            found_path.to_string_lossy()
-        )
-        .unwrap();
-        return Ok((message, found_path));
-    } else {
-        return Err(crate::Error::NoExecutableFound(RequestedVersion::Any));
-    }
+    writeln!(
+        message,
+        include_str!("HELP.txt"),
+        env!("CARGO_PKG_VERSION"),
+        launcher_path.to_string_lossy(),
+        executable_path.to_string_lossy()
+    )
+    .unwrap();
+    message
 }
 
 /// Attempts to find a version specifier from a CLI argument.
@@ -251,7 +249,7 @@ mod tests {
         assert!(version_from_flag(&"-3.6.4".to_string()).is_none());
     }
 
-    // XXX Test help()
+    // XXX Test help_message()
 
     // XXX Test list_executables()
 
