@@ -557,6 +557,43 @@ mod tests {
         assert_eq!(executables.get(&python37_version), Some(&python37_path));
     }
 
-    // XXX Test find_executable_in_hashmap()
+    #[test]
+    fn test_find_executable_in_hashmap() {
+        let mut executables = HashMap::new();
+        assert_eq!(
+            find_executable_in_hashmap(RequestedVersion::Any, &executables),
+            None
+        );
+
+        let python36_path = PathBuf::from("/python3.6");
+        executables.insert(ExactVersion { major: 3, minor: 6 }, python36_path.clone());
+
+        let python37_path = PathBuf::from("/python3.7");
+        executables.insert(ExactVersion { major: 3, minor: 7 }, python37_path.clone());
+
+        assert_eq!(
+            find_executable_in_hashmap(RequestedVersion::Any, &executables),
+            Some(python37_path.clone())
+        );
+
+        assert_eq!(
+            find_executable_in_hashmap(RequestedVersion::MajorOnly(42), &executables),
+            None
+        );
+        assert_eq!(
+            find_executable_in_hashmap(RequestedVersion::MajorOnly(3), &executables),
+            Some(python37_path)
+        );
+
+        assert_eq!(
+            find_executable_in_hashmap(RequestedVersion::Exact(3, 8), &executables),
+            None
+        );
+        assert_eq!(
+            find_executable_in_hashmap(RequestedVersion::Exact(3, 6), &executables),
+            Some(python36_path)
+        );
+    }
+
     // XXX Test find_executable()
 }
