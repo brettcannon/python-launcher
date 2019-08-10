@@ -109,7 +109,6 @@ fashion are very much appreciated, though.)
    1. Unit tests (also covers compilation)
    1. Integration tests
    1. `cargo clippy`
-
    1. `cargo fmt`
    1. crates.io deployment?
 1. Get code coverage working
