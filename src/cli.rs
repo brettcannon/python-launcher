@@ -249,7 +249,16 @@ mod tests {
         assert!(version_from_flag(&"-3.6.4".to_string()).is_none());
     }
 
-    // XXX Test help_message()
+    #[test]
+    fn test_help_message() {
+        let launcher_path = "/some/path/to/launcher";
+        let python_path = "/a/path/to/python";
+
+        let help = help_message(&PathBuf::from(launcher_path), &PathBuf::from(python_path));
+        assert!(help.contains(env!("CARGO_PKG_VERSION")));
+        assert!(help.contains(launcher_path));
+        assert!(help.contains(python_path));
+    }
 
     // XXX Test list_executables()
 
