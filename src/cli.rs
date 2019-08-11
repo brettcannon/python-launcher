@@ -1,5 +1,7 @@
 use std::{
-    cmp, env,
+    cmp,
+    collections::HashMap,
+    env,
     fmt::Write,
     fs::File,
     io::{BufRead, BufReader, Read},
@@ -9,7 +11,7 @@ use std::{
     string::ToString,
 };
 
-use crate::RequestedVersion;
+use crate::{ExactVersion, RequestedVersion};
 
 pub enum Action {
     Help(String, PathBuf),
@@ -40,7 +42,8 @@ impl Action {
                     return Err(crate::Error::NoExecutableFound(RequestedVersion::Any));
                 }
             } else if flag == "--list" {
-                return match list_executables() {
+                let executables = crate::all_executables();
+                return match list_executables(&executables) {
                     Ok(list) => Ok(Action::List(list)),
                     Err(message) => Err(message),
                 };
@@ -86,10 +89,7 @@ fn version_from_flag(arg: &str) -> Option<RequestedVersion> {
     }
 }
 
-// XXX Factor out `all_executables()` to ease testing.
-fn list_executables() -> crate::Result<String> {
-    let executables = crate::all_executables();
-
+fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Result<String> {
     if executables.is_empty() {
         return Err(crate::Error::NoExecutableFound(RequestedVersion::Any));
     }
@@ -260,7 +260,55 @@ mod tests {
         assert!(help.contains(python_path));
     }
 
-    // XXX Test list_executables()
+    #[test]
+    fn test_list_executables() {
+        let mut executables: HashMap<ExactVersion, PathBuf> = HashMap::new();
+
+        assert_eq!(
+            list_executables(&executables),
+            Err(crate::Error::NoExecutableFound(RequestedVersion::Any))
+        );
+
+        let python27_path = "/path/to/2/7/python";
+        executables.insert(
+            ExactVersion { major: 2, minor: 7 },
+            PathBuf::from(python27_path),
+        );
+        let python36_path = "/path/to/3/6/python";
+        executables.insert(
+            ExactVersion { major: 3, minor: 6 },
+            PathBuf::from(python36_path),
+        );
+        let python37_path = "/path/to/3/7/python";
+        executables.insert(
+            ExactVersion { major: 3, minor: 7 },
+            PathBuf::from(python37_path),
+        );
+
+        // Tests try not to make any guarantees about explicit formatting, just
+        // that the interpreters are in descending order of version and the
+        // interpreter version comes before the path (i.e. in column order).
+        let executables_list = list_executables(&executables).unwrap();
+        // No critical data is missing.
+        assert!(executables_list.contains("2.7"));
+        assert!(executables_list.contains(python27_path));
+        assert!(executables_list.contains("3.6"));
+        assert!(executables_list.contains(python36_path));
+        assert!(executables_list.contains("3.7"));
+        assert!(executables_list.contains(python37_path));
+
+        // Interpreters listed in the expected order.
+        assert!(executables_list.find("2.7").unwrap() < executables_list.find("3.6").unwrap());
+        assert!(executables_list.find("3.6").unwrap() < executables_list.find("3.7").unwrap());
+
+        // Columns are in the expected order.
+        assert!(
+            executables_list.find("3.6").unwrap() < executables_list.find(python36_path).unwrap()
+        );
+        assert!(
+            executables_list.find(python36_path).unwrap() < executables_list.find("3.7").unwrap()
+        );
+    }
 
     // XXX Test venv_executable()
 
