@@ -122,23 +122,17 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
 }
 
 // XXX Expose publicly?
-// XXX Factor out `VIRTUAL_ENV` call.
 /// Returns the path to the activated virtual environment's executable.
 ///
 /// A virtual environment is determined to be activated based on the existence of the `VIRTUAL_ENV`
 /// environment variable.
-fn venv_executable() -> Option<PathBuf> {
-    match env::var_os("VIRTUAL_ENV") {
-        None => None,
-        Some(venv_root) => {
-            let mut path = PathBuf::new();
-            path.push(venv_root);
-            path.push("bin");
-            path.push("python");
-            // TODO: Do a is_file() check first?
-            Some(path)
-        }
-    }
+fn venv_executable(venv_root: &str) -> PathBuf {
+    let mut path = PathBuf::new();
+    path.push(venv_root);
+    path.push("bin");
+    path.push("python");
+    // XXX: Do a is_file() check first?
+    path
 }
 
 // XXX Expose publicly?
@@ -187,8 +181,8 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
     let mut chosen_path: Option<PathBuf> = None;
 
     if requested_version == RequestedVersion::Any {
-        if let venv_executable @ Some(..) = venv_executable() {
-            chosen_path = venv_executable;
+        if let Some(venv_root) = env::var_os("VIRTUAL_ENV") {
+            chosen_path = Some(venv_executable(&venv_root.to_string_lossy()));
         } else if !args.is_empty() {
             // Using the first argument because it's the simplest and sanest.
             // We can't use the last argument because that could actually be an argument to the
@@ -310,7 +304,14 @@ mod tests {
         );
     }
 
-    // XXX Test venv_executable()
+    #[test]
+    fn test_venv_executable() {
+        let venv_root = "/path/to/venv";
+        assert_eq!(
+            venv_executable(&venv_root),
+            PathBuf::from("/path/to/venv/bin/python")
+        );
+    }
 
     // XXX Test parse_python_shebang()
 
