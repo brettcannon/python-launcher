@@ -166,7 +166,8 @@ fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
             continue;
         }
 
-        return match RequestedVersion::from_str(&acceptable_path[acceptable_path.len()..]) {
+        let version = line[acceptable_path.len()..].to_string();
+        return match RequestedVersion::from_str(&version) {
             Ok(version) => Some(version),
             Err(_) => None,
         };
@@ -313,7 +314,40 @@ mod tests {
         );
     }
 
-    // XXX Test parse_python_shebang()
+    #[test]
+    fn test_parse_python_shebang() {
+        let parameters = [
+            // No shebang.
+            ("/usr/bin/python", None),
+            // Missing bang.
+            ("# /usr/bin/python", None),
+            // Missing octothorpe.
+            ("! /usr/bin/python", None),
+            // Generic shebangs.
+            ("#! /usr/bin/env python", Some(RequestedVersion::Any)),
+            ("#! /usr/bin/python", Some(RequestedVersion::Any)),
+            ("#! /usr/local/bin/python", Some(RequestedVersion::Any)),
+            ("#! python", Some(RequestedVersion::Any)),
+            // Version-specific shebangs.
+            (
+                "#! /usr/bin/env python3.7",
+                Some(RequestedVersion::Exact(3, 7)),
+            ),
+            ("#! /usr/bin/python3.7", Some(RequestedVersion::Exact(3, 7))),
+            ("#! python3.7", Some(RequestedVersion::Exact(3, 7))),
+            // Shebang with no space.
+            ("#!/usr/bin/python", Some(RequestedVersion::Any)),
+        ];
+
+        for arg in parameters.iter() {
+            let result = parse_python_shebang(&mut arg.0.as_bytes());
+            assert_eq!(
+                result, arg.1,
+                "{:?} lead to {:?}, not {:?}",
+                arg.0, result, arg.1
+            );
+        }
+    }
 
     // XXX Test find_executable()
 
