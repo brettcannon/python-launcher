@@ -14,7 +14,6 @@ use common::EnvVarState;
 #[test]
 #[serial]
 fn all_executables() {
-    println!("all_executables()");
     let dir1 = TempDir::new().unwrap();
     let dir2 = TempDir::new().unwrap();
 
@@ -50,7 +49,6 @@ fn all_executables() {
 #[test]
 #[serial]
 fn find_executable() {
-    println!("find_executable()");
     let dir1 = TempDir::new().unwrap();
     let dir2 = TempDir::new().unwrap();
 
