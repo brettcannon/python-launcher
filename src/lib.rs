@@ -31,11 +31,11 @@ impl fmt::Display for Error {
             Error::ParseVersionComponentError(int_error) => {
                 write!(f, "Error parsing a version component: {}", int_error)
             }
-            Error::DotMissing => write!(f, "'.' missing from the version"),
-            Error::FileNameMissing => write!(f, "Path lacks a file name"),
-            Error::FileNameToStrError => write!(f, "Failed to convert file name to `str`"),
-            Error::PathFileNameError => write!(f, "File name not of the format `pythonX.Y`"),
-            Error::NoExecutableFound(requested_version) => write!(
+            Self::DotMissing => write!(f, "'.' missing from the version"),
+            Self::FileNameMissing => write!(f, "Path lacks a file name"),
+            Self::FileNameToStrError => write!(f, "Failed to convert file name to `str`"),
+            Self::PathFileNameError => write!(f, "File name not of the format `pythonX.Y`"),
+            Self::NoExecutableFound(requested_version) => write!(
                 f,
                 "No executable found for {}",
                 requested_version.to_string()
@@ -47,12 +47,12 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Error::ParseVersionComponentError(int_error) => Some(int_error),
-            Error::DotMissing => None,
-            Error::FileNameMissing => None,
-            Error::FileNameToStrError => None,
-            Error::PathFileNameError => None,
-            Error::NoExecutableFound(_) => None,
+            Self::ParseVersionComponentError(int_error) => Some(int_error),
+            Self::DotMissing => None,
+            Self::FileNameMissing => None,
+            Self::FileNameToStrError => None,
+            Self::PathFileNameError => None,
+            Self::NoExecutableFound(_) => None,
         }
     }
 }
@@ -71,9 +71,9 @@ pub enum RequestedVersion {
 impl ToString for RequestedVersion {
     fn to_string(&self) -> String {
         match self {
-            RequestedVersion::Any => "Python".to_string(),
-            RequestedVersion::MajorOnly(major) => format!("Python {}", major),
-            RequestedVersion::Exact(major, minor) => format!("Python {}.{}", major, minor),
+            Self::Any => "Python".to_string(),
+            Self::MajorOnly(major) => format!("Python {}", major),
+            Self::Exact(major, minor) => format!("Python {}.{}", major, minor),
         }
     }
 }
@@ -84,16 +84,13 @@ impl FromStr for RequestedVersion {
     // XXX Require `python` as a prefix?
     fn from_str(version_string: &str) -> Result<Self> {
         if version_string.is_empty() {
-            Ok(RequestedVersion::Any)
+            Ok(Self::Any)
         } else if version_string.contains('.') {
             let exact_version = ExactVersion::from_str(version_string)?;
-            Ok(RequestedVersion::Exact(
-                exact_version.major,
-                exact_version.minor,
-            ))
+            Ok(Self::Exact(exact_version.major, exact_version.minor))
         } else {
             match version_string.parse::<ComponentSize>() {
-                Ok(number) => Ok(RequestedVersion::MajorOnly(number)),
+                Ok(number) => Ok(Self::MajorOnly(number)),
                 Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
             }
         }
@@ -104,8 +101,8 @@ impl RequestedVersion {
     /// Returns the string representing the environment variable for the requested version.
     pub fn env_var(self) -> Option<String> {
         match self {
-            RequestedVersion::Any => Some("PY_PYTHON".to_string()),
-            RequestedVersion::MajorOnly(major) => Some(format!("PY_PYTHON{}", major)),
+            Self::Any => Some("PY_PYTHON".to_string()),
+            Self::MajorOnly(major) => Some(format!("PY_PYTHON{}", major)),
             _ => None,
         }
     }
@@ -119,7 +116,7 @@ pub struct ExactVersion {
 
 impl From<ExactVersion> for RequestedVersion {
     fn from(version: ExactVersion) -> Self {
-        RequestedVersion::Exact(version.major, version.minor)
+        Self::Exact(version.major, version.minor)
     }
 }
 
@@ -142,7 +139,7 @@ impl FromStr for ExactVersion {
 
             let minor_str = &version_string[dot_index + 1..];
             return match minor_str.parse::<ComponentSize>() {
-                Ok(minor) => Ok(ExactVersion { major, minor }),
+                Ok(minor) => Ok(Self { major, minor }),
                 Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
             };
         } else {
@@ -157,7 +154,7 @@ impl ExactVersion {
             if let Some(file_name) = raw_file_name.to_str() {
                 if file_name.len() >= "python3.0".len() && file_name.starts_with("python") {
                     let version_part = &file_name["python".len()..];
-                    return ExactVersion::from_str(version_part);
+                    return Self::from_str(version_part);
                 }
                 return Err(Error::PathFileNameError);
             } else {
