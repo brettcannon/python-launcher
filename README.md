@@ -102,8 +102,7 @@ fashion are very much appreciated, though.)
 
 ## Maintainability
 1. Make sure everything is tested
-   1. Unit tests for `cli.rs`
-   1. Functional tests (in one spot to share testing code)
+   1. System tests
    1. Integration tests for `main.rs` (via `pytest`)
 1. Get CI set up (in order of execution)
    1. Unit tests (also covers compilation)

@@ -348,8 +348,4 @@ mod tests {
             );
         }
     }
-
-    // XXX Test find_executable()
-
-    // XXX Test Action::from_main()
 }
