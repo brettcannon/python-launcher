@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::env;
 use std::ffi::{OsStr, OsString};
 use std::fs::File;
@@ -7,38 +8,35 @@ use std::path::PathBuf;
 // tests from stepping on each other.
 // https://github.com/rust-lang/rust/issues/43155#issuecomment-315543432 should
 // work, but I can't get access to the `lazy_static!` macro in this file to work.
-pub struct TempEnvVar {
-    key: OsString,
-    value: Option<OsString>,
+pub struct EnvVarState {
+    changed: HashMap<OsString, Option<OsString>>,
 }
 
-impl Drop for TempEnvVar {
+impl Drop for EnvVarState {
     fn drop(&mut self) {
-        println!(
-            "Resetting {} to {:?}",
-            self.key.to_string_lossy(),
-            self.value
-        );
-        match &self.value {
-            Some(original_value) => env::set_var(&self.key, original_value),
-            None => env::remove_var(&self.key),
-        }
+        self.changed.iter().for_each(|(k, v)| match &v {
+            Some(original_v) => env::set_var(&k, original_v),
+            None => env::remove_var(&k),
+        });
     }
 }
 
-impl TempEnvVar {
-    pub fn new(key: &OsStr, value: &OsStr) -> Self {
-        let env_var = TempEnvVar {
-            key: key.to_os_string(),
-            value: env::var_os(key),
-        };
-        println!(
-            "Setting {} to {}",
-            key.to_string_lossy(),
-            value.to_string_lossy()
-        );
-        env::set_var(key, value);
-        env_var
+impl EnvVarState {
+    pub fn new() -> Self {
+        Self {
+            changed: HashMap::new(),
+        }
+    }
+
+    pub fn change(&mut self, k: &OsStr, v: Option<&OsStr>) {
+        if !self.changed.contains_key(k) {
+            let original_v = env::var_os(k);
+            self.changed.insert(k.to_os_string(), original_v);
+        }
+        match v {
+            Some(new_v) => env::set_var(k, new_v),
+            None => env::remove_var(k),
+        }
     }
 }
 

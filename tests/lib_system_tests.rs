@@ -9,7 +9,7 @@ use tempfile::TempDir;
 use python_launcher;
 use python_launcher::{ExactVersion, RequestedVersion};
 
-use common::TempEnvVar;
+use common::EnvVarState;
 
 #[test]
 #[serial]
@@ -24,7 +24,8 @@ fn all_executables() {
     let python37_path = common::touch_file(dir2.path().join("python3.7"));
 
     let new_path = env::join_paths([dir1.path(), dir2.path()].iter()).unwrap();
-    let _temp_path = TempEnvVar::new(OsStr::new("PATH"), &new_path);
+    let mut _temp_path = EnvVarState::new();
+    _temp_path.change(OsStr::new("PATH"), Some(&new_path));
 
     let executables = python_launcher::all_executables();
 
@@ -59,7 +60,8 @@ fn find_executable() {
     let python37_path = common::touch_file(dir2.path().join("python3.7"));
 
     let new_path = env::join_paths([dir1.path(), dir2.path()].iter()).unwrap();
-    let _temp_path = TempEnvVar::new(OsStr::new("PATH"), &new_path);
+    let mut _temp_path = EnvVarState::new();
+    _temp_path.change(OsStr::new("PATH"), Some(&new_path));
 
     assert_eq!(
         python_launcher::find_executable(RequestedVersion::Any),
