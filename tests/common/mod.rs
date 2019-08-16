@@ -58,6 +58,14 @@ pub struct EnvState {
 }
 
 impl EnvState {
+    /// Create a testing environement within the OS.
+    /// - Create two temp directories (referred to as `dir1` and `dir2` from now on)
+    /// - `dir1/python2.7`
+    /// - `dir1/python3.6`
+    /// - `dir2/python3.6`
+    /// - `dir2/python3.7`
+    /// - `PATH` environment variable is set to `dir1` and `dir2`
+    /// - `VIRTUAL_ENV` is unset
     pub fn new() -> Self {
         let dir1 = TempDir::new().unwrap();
         let dir2 = TempDir::new().unwrap();
