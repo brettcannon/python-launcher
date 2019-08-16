@@ -16,6 +16,7 @@ fn from_main_help() {
         if let Ok(Action::Help(message, python_path)) = help {
             assert!(message.contains(launcher_path));
             assert_eq!(env_state.python37, python_path);
+            assert!(message.contains(python_path.to_str().unwrap()));
         } else {
             panic!("{:?} flag did not return Action::Help", flag);
         }
