@@ -1,8 +1,13 @@
 mod common;
 
+use std::env;
+use std::path::PathBuf;
+
 use serial_test_derive::serial;
 
 use python_launcher::cli::Action;
+use python_launcher::Error;
+use python_launcher::RequestedVersion;
 
 use common::EnvState;
 
@@ -39,6 +44,72 @@ fn from_main_list() {
 
 #[test]
 #[serial]
+fn from_main_by_flag() {
+    let env_state = common::EnvState::new();
+    let launcher_location = "/path/to/py".to_string();
+    let no_argv = Action::from_main(&[launcher_location.clone()]);
+    if let Ok(Action::Execute {
+        launcher_path,
+        executable,
+        args,
+    }) = no_argv
+    {
+        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+        assert_eq!(executable, env_state.python37);
+        assert_eq!(args.len(), 0);
+    } else {
+        panic!("No executable found in default case");
+    }
+
+    let argv_2 = Action::from_main(&[launcher_location.clone(), "-2".to_string()]);
+    if let Ok(Action::Execute {
+        launcher_path,
+        executable,
+        args,
+    }) = argv_2
+    {
+        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+        assert_eq!(executable, env_state.python27);
+        assert_eq!(args.len(), 0);
+    } else {
+        panic!("No executable found in `-3` case");
+    }
+
+    let argv_36 = Action::from_main(&[launcher_location.clone(), "-3.6".to_string()]);
+    if let Ok(Action::Execute {
+        launcher_path,
+        executable,
+        args,
+    }) = argv_36
+    {
+        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+        assert_eq!(executable, env_state.python36);
+        assert_eq!(args.len(), 0);
+    } else {
+        panic!("No executable found in `-3.6` case");
+    }
+
+    let argv_36_args = Action::from_main(&[
+        launcher_location.clone(),
+        "-3.6".to_string(),
+        "-I".to_string(),
+    ]);
+    if let Ok(Action::Execute {
+        launcher_path,
+        executable,
+        args,
+    }) = argv_36_args
+    {
+        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+        assert_eq!(executable, env_state.python36);
+        assert_eq!(args, ["-I".to_string()]);
+    } else {
+        panic!("No executable found in `-3.6` case");
+    }
+}
+
+#[test]
+#[serial]
 fn from_main_activated_virtual_env() {
     // VIRTUAL_ENV
 }
@@ -52,20 +123,48 @@ fn from_main_shebang() {
 #[test]
 #[serial]
 fn from_main_env_var() {
-    // PY_PYTHON
+    let env_state = common::EnvState::new();
+    env::set_var("PY_PYTHON", "3.6");
+    let launcher_location = "/path/to/py".to_string();
+    let py_python = Action::from_main(&[launcher_location.clone()]);
+    env::remove_var("PY_PYTHON");
+    if let Ok(Action::Execute {
+        launcher_path,
+        executable,
+        args,
+    }) = py_python
+    {
+        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+        assert_eq!(executable, env_state.python36);
+        assert_eq!(args.len(), 0);
+    } else {
+        panic!("No executable found in PY_PYTHON case");
+    }
+
+    env::set_var("PY_PYTHON3", "3.6");
+    let py_python3 = Action::from_main(&[launcher_location.clone(), "-3".to_string()]);
+    if let Ok(Action::Execute {
+        launcher_path,
+        executable,
+        args,
+    }) = py_python3
+    {
+        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+        assert_eq!(executable, env_state.python36);
+        assert_eq!(args.len(), 0);
+    } else {
+        panic!("No executable found in PY_PYTHON3 case");
+    }
 }
 
 #[test]
 #[serial]
 fn from_main_no_executable_found() {
-    // Err(crate::Error::NoExecutableFound(requested_version))
+    let _env_state = common::EnvState::new();
+    assert_eq!(
+        Action::from_main(&["/path/to/py".to_string(), "-42.13".to_string()]),
+        Err(Error::NoExecutableFound(RequestedVersion::Exact(42, 13)))
+    );
 }
 
-#[test]
-#[serial]
-fn from_main_by_flag() {
-    // no argv
-    // -3 argv
-    // -3.7 argv
-}
 // XXX Test Action::from_main()
