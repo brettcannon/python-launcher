@@ -26,7 +26,15 @@ fn from_main_help() {
 #[test]
 #[serial]
 fn from_main_list() {
-    // --list
+    let env_state = EnvState::new();
+    let list = Action::from_main(&["/path/to/py".to_string(), "--list".to_string()]);
+    if let Ok(Action::List(output)) = list {
+        assert!(output.contains(env_state.python27.to_str().unwrap()));
+        assert!(output.contains(env_state.python36.to_str().unwrap()));
+        assert!(output.contains(env_state.python37.to_str().unwrap()));
+    } else {
+        panic!("'--list' did not return Action::List");
+    }
 }
 
 #[test]
@@ -55,7 +63,7 @@ fn from_main_no_executable_found() {
 
 #[test]
 #[serial]
-fn from_main_execute() {
+fn from_main_by_flag() {
     // no argv
     // -3 argv
     // -3.7 argv
