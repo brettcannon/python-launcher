@@ -13,6 +13,7 @@ use std::{
 
 use crate::{ExactVersion, RequestedVersion};
 
+#[derive(Debug, PartialEq)]
 pub enum Action {
     Help(String, PathBuf),
     List(String),
