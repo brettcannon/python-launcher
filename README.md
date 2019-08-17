@@ -34,7 +34,7 @@ appropriate to the specificity of the version.
    1. Check for a shebang
    1. If executable starts with `/usr/bin/python`, `/usr/local/bin/python`,
       `/usr/bin/env python` or `python`, proceed based on the version found
-      (bare `python` is considered the equivalent of not specifying a specific
+      (bare `python` is considered the equivalent of not specifying a
       Python version)
 1. Use the version found in the `PY_PYTHON` environment variable if defined
    (e.g. `PY_PYTHON=3` or `PY_PYTHON=3.6`)
@@ -50,6 +50,8 @@ implement something myself instead of accepting a pull request that you submit.
 fashion are very much appreciated, though.)
 
 [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher))
+
+Everything in **bold** is required to hit MVP.
 
 ## Functionality
 1. Provide a `python_launcher` extension module
@@ -91,28 +93,29 @@ fashion are very much appreciated, though.)
    - Massive pain to make work (e.g. cannot easily convert to a `CString`)
 
 ## Polish
+1. **Provide a helpful error message based on requested version when no interpreter found**
+1. **Start using [`human-panic`](https://github.com/rust-clique/human-panic)**
+1. **Make sure all error cases have appropriate exit codes and human-readable results**
 1. Have `--list` somehow denote activated virtual environment?
    * What does the Windows launcher do in this case?
 1. Read https://rust-lang-nursery.github.io/cli-wg/
-1. Provide a helpful error message based on requested version when no interpreter found
-1. Start using [`human-panic`](https://github.com/rust-clique/human-panic)
-1. Make sure all error cases have appropriate exit codes and human-readable results
 1. Man page?
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. Make sure everything is tested
-   1. System tests
-   1. Integration tests for `main.rs` (via `pytest`)
-1. Get CI set up (in order of execution)
+1. **Make sure everything is tested**
+   1. Integration tests for `main.rs` (via Python code)
+1. **Get CI set up (in order of execution)**
    1. Unit tests (also covers compilation)
    1. Integration tests
    1. Code quality (can be executed in parallel)
       1. `cargo clippy`
       1. `cargo fmt`
    1. https://crates.io deployment?
-1. Get code coverage working
-1. Flesh out documentation (and include examples as appropriate for even more testing)
+1. **Get code coverage working**
+1. Flesh out documentation
+   1. **CLI documentation**
+   1. API documentation
 1. Consider dropping [`nix`](https://crates.io/crates/nix) dependency for a straight
    [`libc`](https://crates.io/crates/libc) dependency (to potentially make Debian
    packaging easier)
