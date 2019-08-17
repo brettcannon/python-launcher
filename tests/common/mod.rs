@@ -30,7 +30,7 @@ impl EnvVarState {
         }
     }
 
-    pub fn change(&mut self, k: &str, v: Option<&OsStr>) {
+    pub fn change(&mut self, k: &str, v: Option<&str>) {
         let os_k = OsStr::new(k);
         if !self.changed.contains_key(os_k) {
             let original_v = env::var_os(k);
@@ -52,7 +52,7 @@ fn touch_file(path: PathBuf) -> PathBuf {
 pub struct EnvState {
     _dir1: TempDir,
     _dir2: TempDir,
-    _env_changes: EnvVarState,
+    pub env_vars: EnvVarState,
     pub python27: PathBuf,
     pub python36: PathBuf,
     pub python37: PathBuf,
@@ -78,13 +78,13 @@ impl EnvState {
 
         let new_path = env::join_paths([dir1.path(), dir2.path()].iter()).unwrap();
         let mut env_changes = EnvVarState::new();
-        env_changes.change("PATH", Some(&new_path));
+        env_changes.change("PATH", Some(&new_path.to_str().unwrap()));
         env_changes.change("VIRTUAL_ENV", None);
 
         Self {
             _dir1: dir1,
             _dir2: dir2,
-            _env_changes: env_changes,
+            env_vars: env_changes,
             python27,
             python36,
             python37,

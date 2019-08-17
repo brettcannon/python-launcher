@@ -1,7 +1,5 @@
 mod common;
 
-use std::env;
-use std::ffi::OsStr;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
@@ -116,9 +114,8 @@ fn from_main_by_flag() {
 #[serial]
 fn from_main_activated_virtual_env() {
     let venv_path = "/path/to/venv";
-    let env_state = common::EnvState::new();
-    let mut env_var_state = common::EnvVarState::new();
-    env_var_state.change("VIRTUAL_ENV", Some(OsStr::new(venv_path)));
+    let mut env_state = common::EnvState::new();
+    env_state.env_vars.change("VIRTUAL_ENV", Some(&venv_path));
     let venv_executable = Action::from_main(&["/path/to/py".to_string()]);
     if let Ok(Action::Execute { executable, .. }) = venv_executable {
         let mut expected = PathBuf::from(venv_path);
@@ -169,17 +166,15 @@ fn from_main_shebang() {
     } else {
         panic!("No executable found in shebang case");
     }
-
 }
 
 #[test]
 #[serial]
 fn from_main_env_var() {
-    let env_state = common::EnvState::new();
-    env::set_var("PY_PYTHON", "3.6");
+    let mut env_state = common::EnvState::new();
+    env_state.env_vars.change("PY_PYTHON", Some("3.6"));
     let launcher_location = "/path/to/py".to_string();
     let py_python = Action::from_main(&[launcher_location.clone()]);
-    env::remove_var("PY_PYTHON");
     if let Ok(Action::Execute {
         launcher_path,
         executable,
@@ -193,7 +188,7 @@ fn from_main_env_var() {
         panic!("No executable found in PY_PYTHON case");
     }
 
-    env::set_var("PY_PYTHON3", "3.6");
+    env_state.env_vars.change("PY_PYTHON3", Some("3.6"));
     let py_python3 = Action::from_main(&[launcher_location.clone(), "-3".to_string()]);
     if let Ok(Action::Execute {
         launcher_path,
