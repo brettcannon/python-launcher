@@ -113,14 +113,23 @@ fn from_main_by_flag() {
 #[serial]
 fn from_main_activated_virtual_env() {
     let venv_path = "/path/to/venv";
-    let mut env_state = common::EnvVarState::new();
-    env_state.change("VIRTUAL_ENV", Some(OsStr::new(venv_path)));
+    let env_state = common::EnvState::new();
+    let mut env_var_state = common::EnvVarState::new();
+    env_var_state.change("VIRTUAL_ENV", Some(OsStr::new(venv_path)));
     let venv_executable = Action::from_main(&["/path/to/py".to_string()]);
-    if let Ok(Action::Execute {executable, ..}) = venv_executable {
+    if let Ok(Action::Execute { executable, .. }) = venv_executable {
         let mut expected = PathBuf::from(venv_path);
         expected.push("bin");
         expected.push("python");
         assert_eq!(executable, expected);
+    } else {
+        panic!("No executable found in `VIRTUAL_ENV` case");
+    }
+
+    // VIRTUAL_ENV gets ignored if any specific version is requested.
+    let ignore_virtual_env = Action::from_main(&["/path/to/py".to_string(), "-3".to_string()]);
+    if let Ok(Action::Execute { executable, .. }) = ignore_virtual_env {
+        assert_eq!(executable, env_state.python37);
     } else {
         panic!("No executable found in `VIRTUAL_ENV` case");
     }
