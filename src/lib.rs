@@ -138,12 +138,12 @@ impl FromStr for ExactVersion {
             };
 
             let minor_str = &version_string[dot_index + 1..];
-            return match minor_str.parse::<ComponentSize>() {
+            match minor_str.parse::<ComponentSize>() {
                 Ok(minor) => Ok(Self { major, minor }),
                 Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
-            };
+            }
         } else {
-            return Err(Error::DotMissing);
+            Err(Error::DotMissing)
         }
     }
 }
@@ -156,7 +156,7 @@ impl ExactVersion {
                     let version_part = &file_name["python".len()..];
                     return Self::from_str(version_part);
                 }
-                return Err(Error::PathFileNameError);
+                Err(Error::PathFileNameError)
             } else {
                 Err(Error::FileNameToStrError)
             }
