@@ -10,7 +10,7 @@ use tempfile::TempDir;
 // tests from stepping on each other.
 // https://github.com/rust-lang/rust/issues/43155#issuecomment-315543432 should
 // work, but I can't get access to the `lazy_static!` macro in this file to work.
-struct EnvVarState {
+pub struct EnvVarState {
     changed: HashMap<OsString, Option<OsString>>,
 }
 
@@ -24,16 +24,17 @@ impl Drop for EnvVarState {
 }
 
 impl EnvVarState {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             changed: HashMap::new(),
         }
     }
 
-    fn change(&mut self, k: &OsStr, v: Option<&OsStr>) {
-        if !self.changed.contains_key(k) {
+    pub fn change(&mut self, k: &str, v: Option<&OsStr>) {
+        let os_k = OsStr::new(k);
+        if !self.changed.contains_key(os_k) {
             let original_v = env::var_os(k);
-            self.changed.insert(k.to_os_string(), original_v);
+            self.changed.insert(os_k.to_os_string(), original_v);
         }
         match v {
             Some(new_v) => env::set_var(k, new_v),
@@ -77,8 +78,8 @@ impl EnvState {
 
         let new_path = env::join_paths([dir1.path(), dir2.path()].iter()).unwrap();
         let mut env_changes = EnvVarState::new();
-        env_changes.change(OsStr::new("PATH"), Some(&new_path));
-        env_changes.change(OsStr::new("VIRTUAL_ENV"), None);
+        env_changes.change("PATH", Some(&new_path));
+        env_changes.change("VIRTUAL_ENV", None);
 
         Self {
             _dir1: dir1,

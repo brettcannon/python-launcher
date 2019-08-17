@@ -1,6 +1,7 @@
 mod common;
 
 use std::env;
+use std::ffi::OsStr;
 use std::path::PathBuf;
 
 use serial_test_derive::serial;
@@ -111,7 +112,18 @@ fn from_main_by_flag() {
 #[test]
 #[serial]
 fn from_main_activated_virtual_env() {
-    // VIRTUAL_ENV
+    let venv_path = "/path/to/venv";
+    let mut env_state = common::EnvVarState::new();
+    env_state.change("VIRTUAL_ENV", Some(OsStr::new(venv_path)));
+    let venv_executable = Action::from_main(&["/path/to/py".to_string()]);
+    if let Ok(Action::Execute {executable, ..}) = venv_executable {
+        let mut expected = PathBuf::from(venv_path);
+        expected.push("bin");
+        expected.push("python");
+        assert_eq!(executable, expected);
+    } else {
+        panic!("No executable found in `VIRTUAL_ENV` case");
+    }
 }
 
 #[test]
