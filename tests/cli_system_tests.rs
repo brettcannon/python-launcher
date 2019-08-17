@@ -2,9 +2,12 @@ mod common;
 
 use std::env;
 use std::ffi::OsStr;
+use std::fs::File;
+use std::io::Write;
 use std::path::PathBuf;
 
 use serial_test_derive::serial;
+use tempfile;
 
 use python_launcher::cli::Action;
 use python_launcher::Error;
@@ -138,7 +141,35 @@ fn from_main_activated_virtual_env() {
 #[test]
 #[serial]
 fn from_main_shebang() {
-    // #! /usr/bin/python3
+    let env_state = common::EnvState::new();
+    let temp_dir = tempfile::tempdir().unwrap();
+    let file_path = temp_dir.path().join("shebang.py");
+    let mut file = File::create(&file_path).unwrap();
+    writeln!(file, "#! /usr/bin/env python2.7").unwrap();
+    let shebang_choice = Action::from_main(&[
+        "/path/to/py".to_string(),
+        file_path.to_str().unwrap().to_string(),
+    ]);
+    if let Ok(Action::Execute { executable, .. }) = shebang_choice {
+        assert_eq!(executable, env_state.python27);
+    } else {
+        panic!("No executable found in shebang case");
+    }
+
+    // Shebang checking only works for the first argument to avoid accidentally
+    // reading from arguments to Python code itself.
+    let skip_shebang = Action::from_main(&[
+        "/path/to/py".to_string(),
+        "-m".to_string(),
+        "my_app".to_string(),
+        file_path.to_str().unwrap().to_string(),
+    ]);
+    if let Ok(Action::Execute { executable, .. }) = skip_shebang {
+        assert_eq!(executable, env_state.python37);
+    } else {
+        panic!("No executable found in shebang case");
+    }
+
 }
 
 #[test]
@@ -187,5 +218,3 @@ fn from_main_no_executable_found() {
         Err(Error::NoExecutableFound(RequestedVersion::Exact(42, 13)))
     );
 }
-
-// XXX Test Action::from_main()
