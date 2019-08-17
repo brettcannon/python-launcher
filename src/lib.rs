@@ -355,7 +355,6 @@ mod tests {
             ExactVersion::from_path(&PathBuf::from("/")),
             Err(Error::FileNameMissing)
         );
-        // XXX: test file name cannot be converted to str
         assert_eq!(
             ExactVersion::from_path(&PathBuf::from("/notpython")),
             Err(Error::PathFileNameError)
