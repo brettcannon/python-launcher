@@ -40,12 +40,12 @@ def py(monkeypatch):
     yield call_py
 
 
-def test_help(py):
-    for flag in ["--help", "-h"]:
-        call = py(flag)
-        assert not call.returncode
-        assert os.fspath(py.path) in call.stdout
-        assert sys.executable in call.stdout
+@pytest.mark.parametrize("flag", ["--help", "-h"])
+def test_help(py, flag):
+    call = py(flag)
+    assert not call.returncode
+    assert os.fspath(py.path) in call.stdout
+    assert sys.executable in call.stdout
 
 
 def test_list(py):
