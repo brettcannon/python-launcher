@@ -28,10 +28,7 @@ def py(monkeypatch):
     """
     python_executable = pathlib.Path(sys.executable)
     monkeypatch.setenv("PATH", os.fspath(python_executable.parent))
-    try:
-        monkeypatch.delenv("VIRTUAL_ENV")
-    except KeyError:
-        pass
+    monkeypatch.delenv("VIRTUAL_ENV", raising=False)
     py_path = pathlib.Path(__file__).parent / "target" / "debug" / "py"
 
     def call_py(*args):
