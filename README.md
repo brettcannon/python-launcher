@@ -93,12 +93,12 @@ Everything in **bold** is required to hit MVP.
    - Massive pain to make work (e.g. cannot easily convert to a `CString`)
 
 ## Polish
-1. **Provide a helpful error message based on requested version when no interpreter found**
+1. **Read https://rust-lang-nursery.github.io/cli-wg/**
 1. **Start using [`human-panic`](https://github.com/rust-clique/human-panic)**
+1. **Provide a helpful error message based on requested version when no interpreter found**
 1. **Make sure all error cases have appropriate exit codes and human-readable results**
 1. Have `--list` somehow denote activated virtual environment?
    * What does the Windows launcher do in this case?
-1. Read https://rust-lang-nursery.github.io/cli-wg/
 1. Man page?
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
