@@ -55,10 +55,17 @@ def test_list(py):
     assert ".".join(map(str, sys.version_info[:2])) in call.stdout
 
 
-def test_execute(py):
+@pytest.mark.parametrize(
+    "python_version",
+    [None, f"-{sys.version_info[0]}", f"-{sys.version_info[0]}.{sys.version_info[1]}"],
+)
+def test_execute(py, python_version):
     # Don't use sys.executable as symlinks and such make it hard to get an
     # easy comparison.
-    call = py("-c" "import sys; print(sys.version)")
+    args = ["-c" "import sys; print(sys.version)"]
+    if python_version:
+        args.insert(0, python_version)
+    call = py(*args)
     assert not call.returncode
     assert call.stdout.strip() == sys.version
 
