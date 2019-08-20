@@ -1,4 +1,4 @@
-"""Perform integration tests on the Python launcher.
+"""Perform integration/main tests on the Python launcher.
 
 Due to the fact that Rust's testing infrastructure doesn't allow for direct
 testing of main.rs, this file executes a debug build of the Python launcher to
