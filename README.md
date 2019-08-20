@@ -103,9 +103,7 @@ Everything in **bold** is required to hit MVP.
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. **Make sure everything is tested**
-   1. Integration tests for `main.rs` (via Python code)
-1. **Get CI set up (in order of execution)**
+1. **Get CI set up (in order of execution; waiting for GitHub Actions)**
    1. Unit tests (also covers compilation)
    1. Integration tests
    1. Code quality (can be executed in parallel)
