@@ -26,4 +26,4 @@ jobs:
     - name: Run `main.rs` tests
       run: python -m pytest test_main.py
     - name: Run Black
-      run: python -m black --check --py37 .
+      run: python -m black --check --target-version py37 .
