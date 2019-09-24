@@ -43,6 +43,8 @@ appropriate to the specificity of the version.
 
 # TODO
 
+![Continuous integration status](https://github.com/brettcannon/python-launcher/workflows/Continuous%20Integration/badge.svg)
+
 **NOTE**: I am using this project to learn
 [Rust](https://www.rust-lang.org/), so please don't be offended if I choose to
 implement something myself instead of accepting a pull request that you submit.
@@ -103,13 +105,6 @@ Everything in **bold** is required to hit MVP.
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. **Get CI set up (in order of execution; waiting for GitHub Actions)**
-   1. Unit tests (also covers compilation)
-   1. Integration tests
-   1. Code quality (can be executed in parallel)
-      1. `cargo clippy`
-      1. `cargo fmt`
-   1. https://crates.io deployment?
 1. **Get code coverage working**
 1. Flesh out documentation
    1. **CLI documentation**
