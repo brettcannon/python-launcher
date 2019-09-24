@@ -9,7 +9,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.7.x'
+        architecture: 'x64'
+    - name: Run unit and system tests
       run: cargo test --verbose
+    - name: Install Rust components
+      run: rustup component add rustfmt clippy
+    - name: Run clippy
+      run: cargo clippy --all-targets --all-features -- -D warnings
+    - name: Run rustfmt
+      run: cargo fmt --all -- --check
+    - name: Install Python dependencies
+      run: python -m pip install -r dev-requirements.txt
+    - name: Run `main.rs` tests
+      run: python -m pytest test_main.py
