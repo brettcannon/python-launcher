@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     
-    - name: Run unit and system tests
+    - name: Debug build
       run: cargo build --verbose
   
   unit-test:
