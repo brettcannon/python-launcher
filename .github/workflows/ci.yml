@@ -4,26 +4,76 @@ on: [push]
 
 jobs:
   build:
-
+    name: Build
     runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    
+    - name: Run unit and system tests
+      run: cargo build --verbose
+  
+  unit-test:
+    name: Unit and system testing
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v1
+    
+    - name: Run unit and system tests
+      run: cargo test --verbose
+    
+  main-test:
+    name: `main.rs` testing
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+        
+    - name: Install Python dependencies
+      run: python -m pip install -r dev-requirements.txt
+      
+    - name: Run `main.rs` tests
+      run: python -m pytest test_main.py
+      
+      
+  linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    needs: [unit-test, main-test]
+    
+    steps:
+    - uses: actions/checkout@v1
+    
+    - name: Install dependencies
+      run: rustup component add clippy
+        
+    - name: Run clippy
+      run: cargo clippy --all-targets --all-features -- -D warnings
+      
+  formatting:
+    name: Formatting
+    runs-on: ubuntu-latest
+    needs: [unit-test, main-test]
 
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.7.x'
-        architecture: 'x64'
-    - name: Run unit and system tests
-      run: cargo test --verbose
-    - name: Install Rust components
-      run: rustup component add rustfmt clippy
-    - name: Run clippy
-      run: cargo clippy --all-targets --all-features -- -D warnings
+        python-version: '3.7'
+        
+    - name: Install dependencies
+      run: |
+        rustup component add rustfmt
+        python -m pip install black
+      
     - name: Run rustfmt
       run: cargo fmt --all -- --check
-    - name: Install Python dependencies
-      run: python -m pip install -r dev-requirements.txt
-    - name: Run `main.rs` tests
-      run: python -m pytest test_main.py
+      
     - name: Run Black
       run: python -m black --check --target-version py37 .
