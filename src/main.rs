@@ -1,4 +1,3 @@
-#![cfg_attr(tarpaulin, skip)]
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
 
@@ -10,6 +9,7 @@ use python_launcher::cli;
 
 // XXX Proper exit codes.
 // XXX Write errors out to stderr.
+#[cfg_attr(tarpaulin, skip)]
 fn main() {
     match cli::Action::from_main(&env::args().collect::<Vec<String>>()) {
         Ok(action) => match action {
