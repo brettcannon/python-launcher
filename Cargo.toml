@@ -11,7 +11,7 @@ categories = ["command-line-utilities"]
 edition = "2018"
 
 [badges]
-travis-ci = { repository = "brettcannon/python-launcher" }
+codecov = { repository = "brettcannon/python-launcher", branch = "master", service = "github" }
 maintenance = { status = "experimental" }
 
 [dependencies]
