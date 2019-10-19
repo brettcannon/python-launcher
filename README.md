@@ -105,8 +105,7 @@ Everything in **bold** is required to hit MVP.
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
 
 ## Maintainability
-1. **Get code coverage working**
-1. Flesh out documentation
+1. **Flesh out documentation**
    1. **CLI documentation**
    1. API documentation
 1. Consider dropping [`nix`](https://crates.io/crates/nix) dependency for a straight
