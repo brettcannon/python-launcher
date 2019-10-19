@@ -1,6 +1,6 @@
+#![cfg_attr(tarpaulin, skip)]
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
-#![cfg_attr(tarpaulin, skip)]
 
 use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
@@ -32,6 +32,7 @@ fn main() {
     }
 }
 
+#[cfg_attr(tarpaulin, skip)]
 fn run(executable: &Path, args: &[String]) -> nix::Result<()> {
     let executable_as_cstring = CString::new(executable.as_os_str().as_bytes()).unwrap();
     let mut argv = vec![executable_as_cstring.clone()];
