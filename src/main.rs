@@ -1,5 +1,6 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
+#![cfg_attr(tarpaulin, skip)]
 
 use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
