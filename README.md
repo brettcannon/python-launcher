@@ -83,12 +83,13 @@ Everything in **bold** is required to hit MVP.
    - Windows Store (should be covered by `PATH` search, but need to make sure)
    - Registry
 1. Replacement for `.venv/bin/python` (while keeping the `python` name)
-  - Might need switch off CLI additions -- i.e. `-h`, `--list`, and version specifier support -- in this situation to make this work
+   - Might need switch off CLI additions -- i.e. `-h`, `--list`, and version specifier support -- in this situation to make this work
    - Read `../pyvenv.cfg` and its [`home` key](https://docs.python.org/3/library/venv.html#creating-virtual-environments) to determine where to look for the Python executable
      - What if `home` has multiple Python executables installed? Might need to add an `executable` key to give full path to the creating interpreter.
    - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
    - Speeds up environment creation by not having to copy over entire Python installation on     Windows (e.g. `.pyd` files)
    - [See/edit the `site` module](https://github.com/python/cpython/blob/master/Lib/site.py#L456) to gain ability to specify virtual environment location (while maintaining the invariant on how to detect virtual environments as outlined in the [`venv` module docs](https://docs.python.org/3/library/venv.html#module-venv))
+1. Automatically detect `.venv/pyvenv.cfg` and use that (basically an implicit setting of `$VIRTUAL_ENV`)?
 1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
    - Widest compatibility for people where they have undecodable paths
      (which is hopefully a very small minority)
@@ -99,7 +100,7 @@ Everything in **bold** is required to hit MVP.
 1. **Start using [`human-panic`](https://github.com/rust-clique/human-panic)**
 1. **Provide a helpful error message based on requested version when no interpreter found**
 1. **Make sure all error cases have appropriate exit codes and human-readable results**
-1. Have `--list` somehow denote activated virtual environment?
+1. Have `--list` somehow denote an activated virtual environment?
    * What does the Windows launcher do in this case?
 1. Man page?
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)?
@@ -108,7 +109,7 @@ Everything in **bold** is required to hit MVP.
 1. **Flesh out documentation**
    1. **CLI documentation**
    1. API documentation
-1. Get 100% unit test coverage
+1. **Get ~100% unit test coverage**
 1. Consider dropping [`nix`](https://crates.io/crates/nix) dependency for a straight
    [`libc`](https://crates.io/crates/libc) dependency (to potentially make Debian
    packaging easier)
