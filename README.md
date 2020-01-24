@@ -43,7 +43,7 @@ appropriate to the specificity of the version.
 
 # TODO
 
-[![Continuous integration status](https://github.com/brettcannon/python-launcher/workflows/Continuous%20Integration/badge.svg)](https://github.com/brettcannon/python-launcher/actions?workflow=Continuous+Integration)
+![CI](https://github.com/brettcannon/python-launcher/workflows/CI/badge.svg)
 
 **NOTE**: I am using this project to learn
 [Rust](https://www.rust-lang.org/), so please don't be offended if I choose to
