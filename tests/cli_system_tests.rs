@@ -50,17 +50,19 @@ fn from_main_by_flag() {
     let env_state = common::EnvState::new();
     let launcher_location = "/path/to/py".to_string();
     let no_argv = Action::from_main(&[launcher_location.clone()]);
-    if let Ok(Action::Execute {
-        launcher_path,
-        executable,
-        args,
-    }) = no_argv
-    {
-        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
-        assert_eq!(executable, env_state.python37);
-        assert_eq!(args.len(), 0);
-    } else {
-        panic!("No executable found in default case");
+    match no_argv {
+        Ok(Action::Execute {
+            launcher_path,
+            executable,
+            args,
+        }) => {
+            assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+            assert_eq!(executable, env_state.python37);
+            assert_eq!(args.len(), 0);
+        }
+        Ok(Action::Help(_, _)) => panic!("Got back help"),
+        Ok(Action::List(_)) => panic!("Got back a list of executables"),
+        Err(error) => panic!("No executable found in default case: {:?}", error),
     }
 
     let argv_2 = Action::from_main(&[launcher_location.clone(), "-2".to_string()]);
