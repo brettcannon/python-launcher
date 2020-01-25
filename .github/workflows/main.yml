@@ -66,9 +66,6 @@ jobs:
       shell: bash
       run: "[ -e ~/.cargo/cargo-tarpaulin/bin/cargo-tarpaulin ] || cargo install --root ~/.cargo/cargo-tarpaulin cargo-tarpaulin"
 
-    - name: Install tarpaulin
-      run: cargo install --root ~/.cargo/cargo-tarpaulin cargo-tarpaulin
-
     - name: Run coverage
       run: ~/cargo/cargo-tarpaulin/bin/cargo-tarpaulin -v --out Xml
 
