@@ -67,7 +67,7 @@ jobs:
       run: "[ -e ~/.cargo/cargo-tarpaulin/bin/cargo-tarpaulin ] || cargo install --root ~/.cargo/cargo-tarpaulin cargo-tarpaulin"
 
     - name: Run coverage
-      run: ~/cargo/cargo-tarpaulin/bin/cargo-tarpaulin -v --out Xml
+      run: ~/.cargo/cargo-tarpaulin/bin/cargo-tarpaulin -v --out Xml
 
     - name: Upload to codecov
       run: bash <(curl -s https://codecov.io/bash)
