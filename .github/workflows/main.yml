@@ -46,27 +46,31 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Cache cargo registry
-      uses: actions/cache@v1
-      with:
-        path: ~/.cargo/registry
-        key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-    - name: Cache cargo index
-      uses: actions/cache@v1
-      with:
-        path: ~/.cargo/git
-        key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+    # Skipping caching the index and registry as I don't know how cargo will check its freshness and I want Tarpaulin to be up-to-date.
     - name: Cache cargo build
       uses: actions/cache@v1
       with:
         path: target
         key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+        
+    - name: Get cargo-tarpaulin index
+      run: curl --output cargo-tarpaulin.index https://raw.githubusercontent.com/rust-lang/crates.io-index/master/ca/rg/cargo-tarpaulin
+    
+    - uses: actions/cache@v1
+      name: Check cache for cargo-tarpaulin
+      with:
+        path: ~/.cargo/cargo-tarpaulin
+        key: ${{ runner.os }}-cargo-tarpaulin-${{ hashFiles('cargo-tarpaulin.index') }}
+
+    - name: Install cargo-tarpaulin
+      shell: bash
+      run: "[ -e ~/.cargo/cargo-tarpaulin/bin/cargo-tarpaulin ] || cargo install --root ~/.cargo/cargo-tarpaulin cargo-tarpaulin"
 
     - name: Install tarpaulin
-      run: cargo install cargo-tarpaulin
+      run: cargo install --root ~/.cargo/cargo-tarpaulin cargo-tarpaulin
 
     - name: Run coverage
-      run: cargo tarpaulin -v --out Xml
+      run: ~/cargo/cargo-tarpaulin/bin/cargo-tarpaulin -v --out Xml
 
     - name: Upload to codecov
       run: bash <(curl -s https://codecov.io/bash)
@@ -119,6 +123,7 @@ jobs:
       run: curl --output cargo-audit.index https://raw.githubusercontent.com/rust-lang/crates.io-index/master/ca/rg/cargo-audit
     
     - uses: actions/cache@v1
+      name: Check cache for cargo-audit
       with:
         path: ~/.cargo/cargo-audit
         key: ${{ runner.os }}-cargo-audit-${{ hashFiles('cargo-audit.index') }}
