@@ -19,7 +19,7 @@ fn from_main_help() {
     let env_state = EnvState::new();
     for flag in ["-h", "--help"].iter() {
         let launcher_path = "/path/to/py";
-        let help = Action::from_main(&[launcher_path.to_string(), flag.to_string()]);
+        let help = Action::from_main(&[launcher_path.to_string(), (*flag).to_string()]);
         if let Ok(Action::Help(message, python_path)) = help {
             assert!(message.contains(launcher_path));
             assert_eq!(env_state.python37, python_path);
@@ -102,7 +102,7 @@ fn from_main_by_flag() {
         args,
     }) = argv_36_args
     {
-        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+        assert_eq!(PathBuf::from(launcher_location), launcher_path);
         assert_eq!(executable, env_state.python36);
         assert_eq!(args, ["-I".to_string()]);
     } else {
@@ -196,7 +196,7 @@ fn from_main_env_var() {
         args,
     }) = py_python3
     {
-        assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
+        assert_eq!(PathBuf::from(launcher_location), launcher_path);
         assert_eq!(executable, env_state.python36);
         assert_eq!(args.len(), 0);
     } else {

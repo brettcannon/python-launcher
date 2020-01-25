@@ -401,7 +401,7 @@ mod tests {
         let files = vec![
             python27_path.to_owned(),
             python36_dir1_path.to_owned(),
-            python36_dir2_path.to_owned(),
+            python36_dir2_path,
             python37_path.to_owned(),
         ];
 
