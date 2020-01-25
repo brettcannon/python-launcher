@@ -100,7 +100,6 @@ Everything in **bold** is required to hit MVP.
    - Massive pain to make work (e.g. cannot easily convert to a `CString`)
 
 ## Polish
-1. **Look at [`failure`](https://docs.rs/failure/) and [`exitfailure`](https://docs.rs/exitfailure/)**
 1. **Start using [`human-panic`](https://github.com/rust-clique/human-panic)**
 1. **Provide a helpful error message based on requested version when no interpreter found**
 1. **Make sure to only be printing to `stderr` using `eprintln!`**
