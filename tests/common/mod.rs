@@ -67,6 +67,9 @@ impl EnvState {
     /// - `dir2/python3.7`
     /// - `PATH` environment variable is set to `dir1` and `dir2`
     /// - `VIRTUAL_ENV` is unset
+    /// - `PY_PYTHON` is unset
+    /// - `PY_PYTHON3` is unset
+    /// - `PY_PYTHON2` is unset
     pub fn new() -> Self {
         let dir1 = TempDir::new().unwrap();
         let dir2 = TempDir::new().unwrap();
@@ -79,7 +82,9 @@ impl EnvState {
         let new_path = env::join_paths([dir1.path(), dir2.path()].iter()).unwrap();
         let mut env_changes = EnvVarState::new();
         env_changes.change("PATH", Some(&new_path.to_str().unwrap()));
-        env_changes.change("VIRTUAL_ENV", None);
+        for env_var in ["VIRTUAL_ENV", "PY_PYTHON", "PY_PYTHON3", "PY_PYTHON2"].iter() {
+            env_changes.change(env_var, None);
+        }
 
         Self {
             _dir1: dir1,
