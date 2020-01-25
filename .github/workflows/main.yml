@@ -57,17 +57,18 @@ jobs:
       run: curl --output cargo-tarpaulin.index https://raw.githubusercontent.com/rust-lang/crates.io-index/master/ca/rg/cargo-tarpaulin
     
     - uses: actions/cache@v1
-      name: Check cache for cargo-tarpaulin
+      name: Cache build artifacts
       with:
-        path: ~/.cargo/cargo-tarpaulin
+        path: target
         key: ${{ runner.os }}-cargo-tarpaulin-${{ hashFiles('cargo-tarpaulin.index') }}
 
     - name: Install cargo-tarpaulin
-      shell: bash
-      run: "[ -e ~/.cargo/cargo-tarpaulin/bin/cargo-tarpaulin ] || cargo install --root ~/.cargo/cargo-tarpaulin cargo-tarpaulin"
+      run: cargo install cargo-tarpaulin
+      env:
+        CARGO_TARGET_DIR: target
 
     - name: Run coverage
-      run: ~/.cargo/cargo-tarpaulin/bin/cargo-tarpaulin --out Xml
+      run: cargo tarpaulin -v --out Xml
 
     - name: Upload to codecov
       run: bash <(curl -s https://codecov.io/bash)
