@@ -71,7 +71,7 @@ jobs:
     - name: Upload to codecov
       run: bash <(curl -s https://codecov.io/bash)
       env:
-        CODECOV_TOKEN: "3f48ed0d-a74b-45d6-ac98-025b350a4779"
+        CODECOV_TOKEN: "{{ secrets.CODECOV_TOKEN }}"
 
   lint:
     runs-on: ubuntu-latest
