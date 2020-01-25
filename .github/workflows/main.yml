@@ -124,8 +124,8 @@ jobs:
         key: ${{ runner.os }}-cargo-audit-${{ hashFiles('cargo-audit.index') }}
 
     - name: Install cargo-audit
-      run: cargo install --root ~/.cargo/cargo-audit cargo-audit
-      if: always()
+      shell: bash
+      run: "[ -e ~/.cargo/cargo-audit/bin/cargo-audit ] || cargo install --root ~/.cargo/cargo-audit cargo-audit"
 
     - name: Audit
-      run: ~/.cargo/cargo-audit/bin/cargo-audit --deny-warnings
+      run: ~/.cargo/cargo-audit/bin/cargo-audit
