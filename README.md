@@ -102,6 +102,7 @@ Everything in **bold** is required to hit MVP.
 ## Polish
 1. **Start using [`human-panic`](https://github.com/rust-clique/human-panic)**
 1. **Provide a helpful error message based on requested version when no interpreter found**
+1. **Make sure all potential `panic!` points are rare enough to be acceptable**
 1. **Make sure to only be printing to `stderr` using `eprintln!`**
 1. **Make sure all error cases have appropriate [exit codes](https://rust-lang-nursery.github.io/cli-wg/in-depth/exit-code.html) and human-readable results**
 1. Have `--list` somehow denote an activated virtual environment?
