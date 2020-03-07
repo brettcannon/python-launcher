@@ -15,11 +15,12 @@ codecov = { repository = "brettcannon/python-launcher", branch = "master", servi
 maintenance = { status = "experimental" }
 
 [dependencies]
+human-panic = "1.0.1"
 nix = "0.14.1"
 
 [dev-dependencies]
-serial_test = "0.3.2"
-serial_test_derive = "0.3.2"
+serial_test = "0.4.0"
+serial_test_derive = "0.4.0"
 tempfile = "3.1.0"
 
 [[bin]]

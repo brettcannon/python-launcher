@@ -3,6 +3,7 @@
 
 use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
+use human_panic;
 use nix::unistd;
 
 use python_launcher::cli;
@@ -11,6 +12,13 @@ use python_launcher::cli;
 // XXX Write errors out to stderr.
 #[cfg_attr(tarpaulin, skip)]
 fn main() {
+    human_panic::setup_panic!(Metadata {
+        name: env!("CARGO_PKG_DESCRIPTION").into(),
+        version: env!("CARGO_PKG_VERSION").into(),
+        authors: env!("CARGO_PKG_AUTHORS").into(),
+        homepage: env!("CARGO_PKG_REPOSITORY").into(),
+    });
+
     match cli::Action::from_main(&env::args().collect::<Vec<String>>()) {
         Ok(action) => match action {
             cli::Action::Help(message, executable) => {
