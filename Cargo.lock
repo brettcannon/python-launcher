@@ -191,7 +191,7 @@ dependencies = [
 
 [[package]]
 name = "python-launcher"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
  "human-panic 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "nix 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
