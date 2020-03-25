@@ -1,17 +1,18 @@
 # The Python Launcher for UNIX
 
-An implementation of the `py` command for UNIX-based platforms.
+An implementation of the `py` command for UNIX-based platforms
+(with some potential experimentation for good measure 😉)
 
 The goal is to have `py` become the cross-platform command that all Python users
 use when executing a Python interpreter. By having a version-agnostic command
 it side-steps the "what should the `python` command point to?" debate by
-clearly specifying that upfront (i.e. the newest version of Python that is
-installed). This also unifies the suggested command to document for launching
+clearly specifying that upfront (i.e. the newest version of Python that can be
+found). This also unifies the suggested command to document for launching
 Python on both Windows as UNIX as `py` which has existed as the preferred
 [command on Windows](https://docs.python.org/3/using/windows.html#launcher) for
 some time.
 
-See the top of `py --help` for instructions.
+See the top section of `py --help` for instructions.
 
 # Search order
 
@@ -43,7 +44,7 @@ appropriate to the specificity of the version.
 
 # TODO
 
-![CI](https://github.com/brettcannon/python-launcher/workflows/CI/badge.svg)
+[![CI](https://github.com/brettcannon/python-launcher/workflows/CI/badge.svg)](https://github.com/brettcannon/python-launcher/actions?query=workflow%3ACI)
 
 **NOTE**: I am using this project to learn
 [Rust](https://www.rust-lang.org/), so please don't be offended if I choose to
@@ -60,6 +61,11 @@ Everything in **bold** is required to hit MVP.
    - It will make the pipenv developers happy
    - Might need a rename to `pylauncher` or `pyfinder` to follow Python practices if it
      isn't too much trouble)
+1. Windows support
+   - `PATH`
+   - Windows Store (should be covered by `PATH` search, but need to make sure)
+   - Registry
+   - Bitness
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
    (key thing to remember is should not get to the point that you're using this to alias
    specific interpreters, just making it easier to specify constraints on what kind of
@@ -78,11 +84,7 @@ Everything in **bold** is required to hit MVP.
      - Pre-defined locations?
      - Walk up from current directory?
      - [XDG base directory specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)?
-1. Windows support
-   - `PATH`
-   - Windows Store (should be covered by `PATH` search, but need to make sure)
-   - Registry
-1. Replacement for `.venv/bin/python` (while keeping the `python` name)
+1. Replacement for `.venv/bin/python` (while keeping the `python` name)?
    - Might need switch off CLI additions -- i.e. `-h`, `--list`, and version specifier support -- in this situation to make this work
    - Read `../pyvenv.cfg` and its [`home` key](https://docs.python.org/3/library/venv.html#creating-virtual-environments) to determine where to look for the Python executable
      - What if `home` has multiple Python executables installed? Might need to add an `executable` key to give full path to the creating interpreter.
@@ -105,7 +107,8 @@ Everything in **bold** is required to hit MVP.
 1. **Make sure to only be printing to `stderr` using `eprintln!`**
 1. **Make sure all error cases have appropriate [exit codes](https://rust-lang-nursery.github.io/cli-wg/in-depth/exit-code.html) and human-readable results**
 1. Have `--list` somehow denote an activated virtual environment?
-   * What does the Windows launcher do in this case?
+   * Python Launcher doesn't denote or list anything
+   * Seems useful since that would take precedence if the user didn't specify a version
 1. Man page?
 1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)? ([Rust logging info](https://rust-lang-nursery.github.io/cli-wg/tutorial/output.html#logging))
 1. [Distribute binaries](https://rust-lang-nursery.github.io/cli-wg/tutorial/packaging.html#distributing-binaries)
@@ -114,9 +117,20 @@ Everything in **bold** is required to hit MVP.
 1. **Move to parametrized tests via [`test-case`](https://crates.io/crates/test-case)**
 1. **Flesh out documentation**
    1. **CLI documentation**
+   1. Flowchart of how the interpreter is selected?
    1. API documentation
 1. **Get ~100% unit test coverage**
 1. **Consider dropping [`nix`](https://crates.io/crates/nix)** for a straight
    [`libc`](https://crates.io/crates/libc) dependency (to potentially make Debian
    packaging easier)
    - Otherwise update `nix` to the latest version
+
+Output from `py --list` on Windows:
+```
+Installed Pythons found by C:\WINDOWS\py.exe Launcher for Windows
+ -3.8-64 *
+ -3.7-64
+ -3.6-64
+ -2.7-64
+ -2.7-64
+ ```
