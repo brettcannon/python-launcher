@@ -308,38 +308,18 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_parse_python_shebang() {
-        let parameters = [
-            // No shebang.
-            ("/usr/bin/python", None),
-            // Missing bang.
-            ("# /usr/bin/python", None),
-            // Missing octothorpe.
-            ("! /usr/bin/python", None),
-            // Generic shebangs.
-            ("#! /usr/bin/env python", Some(RequestedVersion::Any)),
-            ("#! /usr/bin/python", Some(RequestedVersion::Any)),
-            ("#! /usr/local/bin/python", Some(RequestedVersion::Any)),
-            ("#! python", Some(RequestedVersion::Any)),
-            // Version-specific shebangs.
-            (
-                "#! /usr/bin/env python3.7",
-                Some(RequestedVersion::Exact(3, 7)),
-            ),
-            ("#! /usr/bin/python3.7", Some(RequestedVersion::Exact(3, 7))),
-            ("#! python3.7", Some(RequestedVersion::Exact(3, 7))),
-            // Shebang with no space.
-            ("#!/usr/bin/python", Some(RequestedVersion::Any)),
-        ];
-
-        for arg in parameters.iter() {
-            let result = parse_python_shebang(&mut arg.0.as_bytes());
-            assert_eq!(
-                result, arg.1,
-                "{:?} lead to {:?}, not {:?}",
-                arg.0, result, arg.1
-            );
-        }
+    #[test_case("/usr/bin/python" => None ; "missing shebang comment")]
+    #[test_case("# /usr/bin/python" => None ; "missing exclamation point")]
+    #[test_case("! /usr/bin/python" => None ; "missing octothorpe")]
+    #[test_case("#! /usr/bin/env python" => Some(RequestedVersion::Any) ; "typical 'env python'")]
+    #[test_case("#! /usr/bin/python" => Some(RequestedVersion::Any) ; "typical 'python'")]
+    #[test_case("#! /usr/local/bin/python" => Some(RequestedVersion::Any) ; "/usr/local")]
+    #[test_case("#! python" => Some(RequestedVersion::Any) ; "bare 'python'")]
+    #[test_case("#! /usr/bin/env python3.7" => Some(RequestedVersion::Exact(3, 7)) ; "typical 'env python' with minor version")]
+    #[test_case("#! /usr/bin/python3.7" => Some(RequestedVersion::Exact(3, 7)) ; "typical 'python' with minor version")]
+    #[test_case("#! python3.7" => Some(RequestedVersion::Exact(3, 7)) ; "bare 'python' with minor version")]
+    #[test_case("#!/usr/bin/python" => Some(RequestedVersion::Any) ; "no space between shebang and path")]
+    fn parse_python_shebang_tests(shebang: &str) -> Option<RequestedVersion> {
+        parse_python_shebang(&mut shebang.as_bytes())
     }
 }
