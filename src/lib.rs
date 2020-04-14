@@ -342,8 +342,12 @@ mod tests {
         assert_eq!(executables.get(&version), Some(&PathBuf::from(path)));
     }
 
-    #[test]
-    fn test_find_executable_in_hashmap() {
+    #[test_case(RequestedVersion::Any => Some(PathBuf::from("/python3.7")) ; "Any version chooses newest version")]
+    #[test_case(RequestedVersion::MajorOnly(42) => None ; "major-only version newer than any options")]
+    #[test_case(RequestedVersion::MajorOnly(3) => Some(PathBuf::from("/python3.7")) ; "matching major version chooses newest minor version")]
+    #[test_case(RequestedVersion::Exact(3, 8) => None ; "version not available")]
+    #[test_case(RequestedVersion::Exact(3, 6) => Some(PathBuf::from("/python3.6")) ; "exact version match")]
+    fn find_executable_in_hashmap_tests(requested_version: RequestedVersion) -> Option<PathBuf> {
         let mut executables = HashMap::new();
         assert_eq!(
             find_executable_in_hashmap(RequestedVersion::Any, &executables),
@@ -356,27 +360,6 @@ mod tests {
         let python37_path = PathBuf::from("/python3.7");
         executables.insert(ExactVersion { major: 3, minor: 7 }, python37_path.clone());
 
-        assert_eq!(
-            find_executable_in_hashmap(RequestedVersion::Any, &executables),
-            Some(python37_path.clone())
-        );
-
-        assert_eq!(
-            find_executable_in_hashmap(RequestedVersion::MajorOnly(42), &executables),
-            None
-        );
-        assert_eq!(
-            find_executable_in_hashmap(RequestedVersion::MajorOnly(3), &executables),
-            Some(python37_path)
-        );
-
-        assert_eq!(
-            find_executable_in_hashmap(RequestedVersion::Exact(3, 8), &executables),
-            None
-        );
-        assert_eq!(
-            find_executable_in_hashmap(RequestedVersion::Exact(3, 6), &executables),
-            Some(python36_path)
-        );
+        find_executable_in_hashmap(requested_version, &executables)
     }
 }
