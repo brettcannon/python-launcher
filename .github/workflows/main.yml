@@ -135,4 +135,4 @@ jobs:
       run: "[ -e ~/.cargo/cargo-audit/bin/cargo-audit ] || cargo install --root ~/.cargo/cargo-audit cargo-audit"
 
     - name: Audit
-      run: ~/.cargo/cargo-audit/bin/cargo-audit audit --deny-warnings
+      run: ~/.cargo/cargo-audit/bin/cargo-audit audit
