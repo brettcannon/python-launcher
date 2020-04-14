@@ -15,7 +15,7 @@ codecov = { repository = "brettcannon/python-launcher", branch = "master", servi
 maintenance = { status = "experimental" }
 
 [dependencies]
-human-panic = "1.0.1"
+human-panic = "1.0.3"
 nix = "0.14.1"
 
 [dev-dependencies]
