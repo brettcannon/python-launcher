@@ -328,10 +328,10 @@ mod tests {
         let python36_dir2_path = PathBuf::from("/dir2/python3.6");
         let python37_path = PathBuf::from("/dir2/python3.7");
         let files = vec![
-            python27_path.to_owned(),
-            python36_dir1_path.to_owned(),
+            python27_path,
+            python36_dir1_path,
             python36_dir2_path,
-            python37_path.to_owned(),
+            python37_path,
         ];
 
         let executables = all_executables_in_paths(files.into_iter());
@@ -355,10 +355,10 @@ mod tests {
         );
 
         let python36_path = PathBuf::from("/python3.6");
-        executables.insert(ExactVersion { major: 3, minor: 6 }, python36_path.clone());
+        executables.insert(ExactVersion { major: 3, minor: 6 }, python36_path);
 
         let python37_path = PathBuf::from("/python3.7");
-        executables.insert(ExactVersion { major: 3, minor: 7 }, python37_path.clone());
+        executables.insert(ExactVersion { major: 3, minor: 7 }, python37_path);
 
         find_executable_in_hashmap(requested_version, &executables)
     }
