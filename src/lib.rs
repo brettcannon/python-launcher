@@ -297,33 +297,13 @@ mod tests {
         ExactVersion::from_str(version_str)
     }
 
-    #[test]
-    fn test_exactversion_from_path() {
-        assert_eq!(
-            ExactVersion::from_path(&PathBuf::from("/")),
-            Err(Error::FileNameMissing)
-        );
-        assert_eq!(
-            ExactVersion::from_path(&PathBuf::from("/notpython")),
-            Err(Error::PathFileNameError)
-        );
-        assert_eq!(
-            ExactVersion::from_path(&PathBuf::from("/python3")),
-            Err(Error::PathFileNameError)
-        );
-        assert_eq!(
-            ExactVersion::from_path(&PathBuf::from("/pythonX.Y")),
-            Err(Error::ParseVersionComponentError(
-                "X".parse::<ComponentSize>().unwrap_err()
-            ))
-        );
-        assert_eq!(
-            ExactVersion::from_path(&PathBuf::from("/python42.13")),
-            Ok(ExactVersion {
-                major: 42,
-                minor: 13
-            })
-        );
+    #[test_case("/" => Err(Error::FileNameMissing) ; "path missing a file name is an error")]
+    #[test_case("/notpython" => Err(Error::PathFileNameError) ; "path not ending with 'python' is an error")]
+    #[test_case("/python3" => Err(Error::PathFileNameError) ; "filename lacking a minor component is an error")]
+    #[test_case("/pythonX.Y" => matches Err(Error::ParseVersionComponentError(_)) ; "filename with non-digit version is an error")]
+    #[test_case("/python42.13" => Ok(ExactVersion { major: 42, minor: 13 }) ; "double digit version components")]
+    fn exactversion_from_path_tests(path: &str) -> Result<ExactVersion> {
+        ExactVersion::from_path(&PathBuf::from(path))
     }
 
     #[test]
