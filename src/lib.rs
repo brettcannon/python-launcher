@@ -261,21 +261,12 @@ mod tests {
         RequestedVersion::from_str(version_str)
     }
 
-    #[test]
-    fn test_requstedversion_env_var() {
-        assert_eq!(
-            RequestedVersion::Any.env_var(),
-            Some("PY_PYTHON".to_string())
-        );
-        assert_eq!(
-            RequestedVersion::MajorOnly(3).env_var(),
-            Some("PY_PYTHON3".to_string())
-        );
-        assert_eq!(
-            RequestedVersion::MajorOnly(42).env_var(),
-            Some("PY_PYTHON42".to_string())
-        );
-        assert!(RequestedVersion::Exact(42, 13).env_var().is_none());
+    #[test_case(RequestedVersion::Any => Some("PY_PYTHON".to_string()) ; "Any is PY_PYTHON")]
+    #[test_case(RequestedVersion::MajorOnly(3) => Some("PY_PYTHON3".to_string()) ; "major-only is PY_PYTHON{major}")]
+    #[test_case(RequestedVersion::MajorOnly(42) => Some("PY_PYTHON42".to_string()) ; "double-digit major-only")]
+    #[test_case(RequestedVersion::Exact(42, 13) => None ; "exact/major.minor has no environment variable")]
+    fn requstedversion_env_var_tests(requested_version: RequestedVersion) -> Option<String> {
+        requested_version.env_var()
     }
 
     #[test]
