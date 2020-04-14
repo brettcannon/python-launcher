@@ -228,7 +228,6 @@ mod tests {
 
     use super::*;
 
-    //#[test]
     #[test_case("-S" => None ; "unrecognized short flag is None")]
     #[test_case("--something" => None ; "unrecognized long flag is None")]
     #[test_case("-3" => Some(RequestedVersion::MajorOnly(3)) ; "major version")]
