@@ -255,7 +255,7 @@ mod tests {
     #[test_case("" => Ok(RequestedVersion::Any) ; "empty string is Any")]
     #[test_case("3" => Ok(RequestedVersion::MajorOnly(3)) ; "major-only version")]
     #[test_case("3.8" => Ok(RequestedVersion::Exact(3, 8)) ; "major.minor")]
-    #[test_case("42.13" => Ok(RequestedVersion::Exact(42, 13)) ; "major.minor with double digits")]
+    #[test_case("42.13" => Ok(RequestedVersion::Exact(42, 13)) ; "double digit version components")]
     #[test_case("3.6.5" => matches Err(Error::ParseVersionComponentError(_)) ; "specifying a micro version is an error")]
     fn requestedversion_from_str_tests(version_str: &str) -> Result<RequestedVersion> {
         RequestedVersion::from_str(version_str)
@@ -263,7 +263,7 @@ mod tests {
 
     #[test_case(RequestedVersion::Any => Some("PY_PYTHON".to_string()) ; "Any is PY_PYTHON")]
     #[test_case(RequestedVersion::MajorOnly(3) => Some("PY_PYTHON3".to_string()) ; "major-only is PY_PYTHON{major}")]
-    #[test_case(RequestedVersion::MajorOnly(42) => Some("PY_PYTHON42".to_string()) ; "double-digit major-only")]
+    #[test_case(RequestedVersion::MajorOnly(42) => Some("PY_PYTHON42".to_string()) ; "double-digit major component")]
     #[test_case(RequestedVersion::Exact(42, 13) => None ; "exact/major.minor has no environment variable")]
     fn requstedversion_env_var_tests(requested_version: RequestedVersion) -> Option<String> {
         requested_version.env_var()
@@ -286,41 +286,15 @@ mod tests {
         ExactVersion { major, minor }.to_string()
     }
 
-    #[test]
-    fn test_exactversion_from_str() {
-        assert_eq!(ExactVersion::from_str(""), Err(Error::DotMissing));
-        assert_eq!(ExactVersion::from_str("3"), Err(Error::DotMissing));
-        assert_eq!(
-            ExactVersion::from_str(".7"),
-            Err(Error::ParseVersionComponentError(
-                "".parse::<ComponentSize>().unwrap_err()
-            ))
-        );
-        assert_eq!(
-            ExactVersion::from_str("3."),
-            Err(Error::ParseVersionComponentError(
-                "".parse::<ComponentSize>().unwrap_err()
-            ))
-        );
-        assert_eq!(
-            ExactVersion::from_str("3.Y"),
-            Err(Error::ParseVersionComponentError(
-                "Y".parse::<ComponentSize>().unwrap_err()
-            ))
-        );
-        assert_eq!(
-            ExactVersion::from_str("X.7"),
-            Err(Error::ParseVersionComponentError(
-                "X".parse::<ComponentSize>().unwrap_err()
-            ))
-        );
-        assert_eq!(
-            ExactVersion::from_str("42.13"),
-            Ok(ExactVersion {
-                major: 42,
-                minor: 13
-            })
-        );
+    #[test_case("" => Err(Error::DotMissing) ; "empty string is an error")]
+    #[test_case("3" => Err(Error::DotMissing) ; "major-only version is an error")]
+    #[test_case(".7" => matches Err(Error::ParseVersionComponentError(_)) ; "missing major version is an error")]
+    #[test_case("3." => matches Err(Error::ParseVersionComponentError(_)) ; "missing minor version is an error")]
+    #[test_case("3.Y" => matches Err(Error::ParseVersionComponentError(_)) ; "non-digit minor version is an error")]
+    #[test_case("X.7" => matches Err(Error::ParseVersionComponentError(_)) ; "non-digit major version is an error")]
+    #[test_case("42.13" => Ok(ExactVersion {major: 42, minor: 13 }) ; "double digit version components")]
+    fn exactversion_from_str_tests(version_str: &str) -> Result<ExactVersion> {
+        ExactVersion::from_str(version_str)
     }
 
     #[test]
