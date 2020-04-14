@@ -306,18 +306,17 @@ mod tests {
         ExactVersion::from_path(&PathBuf::from(path))
     }
 
-    #[test]
-    fn test_exactversion_supports() {
-        let example = ExactVersion { major: 3, minor: 7 };
-
-        assert!(example.supports(RequestedVersion::Any));
-
-        assert!(!example.supports(RequestedVersion::MajorOnly(2)));
-        assert!(example.supports(RequestedVersion::MajorOnly(3)));
-
-        assert!(!example.supports(RequestedVersion::Exact(2, 7)));
-        assert!(!example.supports(RequestedVersion::Exact(3, 6)));
-        assert!(example.supports(RequestedVersion::Exact(3, 7)));
+    #[test_case(RequestedVersion::Any => true ; "Any supports all versions")]
+    #[test_case(RequestedVersion::MajorOnly(2) => false ; "major-only mismatch")]
+    #[test_case(RequestedVersion::MajorOnly(3) => true ; "major-only match")]
+    #[test_case(RequestedVersion::Exact(2, 7) => false ; "older major version")]
+    #[test_case(RequestedVersion::Exact(3, 5) => false ; "older minor version")]
+    #[test_case(RequestedVersion::Exact(4, 0) => false ; "newer major version")]
+    #[test_case(RequestedVersion::Exact(3, 7) => false ; "newer minor version")]
+    #[test_case(RequestedVersion::Exact(3, 6) => true ; "same version")]
+    fn exactversion_supports_tests(requested_version: RequestedVersion) -> bool {
+        let example = ExactVersion { major: 3, minor: 6 };
+        example.supports(requested_version)
     }
 
     #[test]
