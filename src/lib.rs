@@ -319,8 +319,10 @@ mod tests {
         example.supports(requested_version)
     }
 
-    #[test]
-    fn test_all_executables_in_paths() {
+    #[test_case(2, 7, "/dir1/python2.7" ; "first directory")]
+    #[test_case(3, 6, "/dir1/python3.6" ; "matches in multiple directories")]
+    #[test_case(3, 7, "/dir2/python3.7" ; "last directory")]
+    fn all_executables_in_paths_tests(major: ComponentSize, minor: ComponentSize, path: &str) {
         let python27_path = PathBuf::from("/dir1/python2.7");
         let python36_dir1_path = PathBuf::from("/dir1/python3.6");
         let python36_dir2_path = PathBuf::from("/dir2/python3.6");
@@ -335,20 +337,9 @@ mod tests {
         let executables = all_executables_in_paths(files.into_iter());
         assert_eq!(executables.len(), 3);
 
-        let python27_version = ExactVersion { major: 2, minor: 7 };
-        assert!(executables.contains_key(&python27_version));
-        assert_eq!(executables.get(&python27_version), Some(&python27_path));
-
-        let python36_version = ExactVersion { major: 3, minor: 6 };
-        assert!(executables.contains_key(&python27_version));
-        assert_eq!(
-            executables.get(&python36_version),
-            Some(&python36_dir1_path)
-        );
-
-        let python37_version = ExactVersion { major: 3, minor: 7 };
-        assert!(executables.contains_key(&python37_version));
-        assert_eq!(executables.get(&python37_version), Some(&python37_path));
+        let version = ExactVersion { major, minor };
+        assert!(executables.contains_key(&version));
+        assert_eq!(executables.get(&version), Some(&PathBuf::from(path)));
     }
 
     #[test]
