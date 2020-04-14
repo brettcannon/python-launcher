@@ -114,7 +114,6 @@ Everything in **bold** is required to hit MVP.
 1. [Distribute binaries](https://rust-lang-nursery.github.io/cli-wg/tutorial/packaging.html#distributing-binaries)
 
 ## Maintainability
-1. **Move to parametrized tests via [`test-case`](https://crates.io/crates/test-case)**
 1. **Flesh out documentation**
    1. **CLI documentation**
    1. Flowchart of how the interpreter is selected?
