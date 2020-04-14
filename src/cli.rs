@@ -224,25 +224,19 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
 
 #[cfg(test)]
 mod tests {
+    use test_case::test_case;
+
     use super::*;
 
-    #[test]
-    fn test_version_from_flag() {
-        assert!(version_from_flag(&"-S".to_string()).is_none());
-        assert!(version_from_flag(&"--something".to_string()).is_none());
-        assert_eq!(
-            version_from_flag(&"-3".to_string()),
-            Some(RequestedVersion::MajorOnly(3))
-        );
-        assert_eq!(
-            version_from_flag(&"-3.6".to_string()),
-            Some(RequestedVersion::Exact(3, 6))
-        );
-        assert_eq!(
-            version_from_flag(&"-42.13".to_string()),
-            Some(RequestedVersion::Exact(42, 13))
-        );
-        assert!(version_from_flag(&"-3.6.4".to_string()).is_none());
+    //#[test]
+    #[test_case("-S" => None ; "unrecognized short flag is None")]
+    #[test_case("--something" => None ; "unrecognized long flag is None")]
+    #[test_case("-3" => Some(RequestedVersion::MajorOnly(3)) ; "major version")]
+    #[test_case("-3.6" => Some(RequestedVersion::Exact(3, 6)) ; "Exact/major.minor")]
+    #[test_case("-42.13" => Some(RequestedVersion::Exact(42, 13)) ; "double-digit major & minor versions")]
+    #[test_case("-3.6.4" => None ; "version flag with micro version is None")]
+    fn version_from_flag_tests(flag: &str) -> Option<RequestedVersion> {
+        version_from_flag(flag)
     }
 
     #[test]
