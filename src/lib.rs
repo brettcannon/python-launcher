@@ -238,11 +238,13 @@ pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_requestedversion_to_string() {
-        assert_eq!(RequestedVersion::Any.to_string(), "Python");
-        assert_eq!(RequestedVersion::MajorOnly(3).to_string(), "Python 3");
-        assert_eq!(RequestedVersion::Exact(3, 8).to_string(), "Python 3.8");
+    use test_case::test_case;
+
+    #[test_case(RequestedVersion::Any => "Python" ; "Any")]
+    #[test_case(RequestedVersion::MajorOnly(3) => "Python 3" ; "Major")]
+    #[test_case(RequestedVersion::Exact(3, 8) => "Python 3.8" ; "Exact/major.minor")]
+    fn requestedversion_to_string_tests(requested_version: RequestedVersion) -> String {
+        requested_version.to_string()
     }
 
     #[test]
