@@ -280,20 +280,10 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_exactversion_to_string() {
-        assert_eq!(
-            ExactVersion { major: 3, minor: 8 }.to_string(),
-            "3.8".to_string()
-        );
-        assert_eq!(
-            ExactVersion {
-                major: 42,
-                minor: 13
-            }
-            .to_string(),
-            "42.13".to_string()
-        );
+    #[test_case(3, 8 => "3.8" ; "single digits")]
+    #[test_case(42, 13 => "42.13" ; "double digits")]
+    fn exactversion_to_string_tests(major: ComponentSize, minor: ComponentSize) -> String {
+        ExactVersion { major, minor }.to_string()
     }
 
     #[test]
