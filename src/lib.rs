@@ -247,27 +247,18 @@ mod tests {
         requested_version.to_string()
     }
 
-    #[test]
-    fn test_requestedversion_from_str() {
-        assert!(RequestedVersion::from_str(".3").is_err());
-        assert!(RequestedVersion::from_str("3.").is_err());
-        assert!(RequestedVersion::from_str("h").is_err());
-        assert!(RequestedVersion::from_str("3.b").is_err());
-        assert!(RequestedVersion::from_str("a.7").is_err());
-        assert_eq!(RequestedVersion::from_str(""), Ok(RequestedVersion::Any));
-        assert_eq!(
-            RequestedVersion::from_str("3"),
-            Ok(RequestedVersion::MajorOnly(3))
-        );
-        assert_eq!(
-            RequestedVersion::from_str("3.8"),
-            Ok(RequestedVersion::Exact(3, 8))
-        );
-        assert_eq!(
-            RequestedVersion::from_str("42.13"),
-            Ok(RequestedVersion::Exact(42, 13))
-        );
-        assert!(RequestedVersion::from_str("3.6.5").is_err());
+    #[test_case(".3" => matches Err(Error::ParseVersionComponentError(_)) ; "missing major version is an error")]
+    #[test_case("3." => matches Err(Error::ParseVersionComponentError(_)) ; "missing minor version is an error")]
+    #[test_case("h" => matches Err(Error::ParseVersionComponentError(_)) ; "non-number, non-emptry string is an error")]
+    #[test_case("3.b" => matches Err(Error::ParseVersionComponentError(_)) ; "major.minor where minor is a non-number is an error")]
+    #[test_case("a.7" => matches Err(Error::ParseVersionComponentError(_)) ; "major.minor where major is a non-number is an error")]
+    #[test_case("" => Ok(RequestedVersion::Any) ; "empty string is Any")]
+    #[test_case("3" => Ok(RequestedVersion::MajorOnly(3)) ; "major-only version")]
+    #[test_case("3.8" => Ok(RequestedVersion::Exact(3, 8)) ; "major.minor")]
+    #[test_case("42.13" => Ok(RequestedVersion::Exact(42, 13)) ; "major.minor with double digits")]
+    #[test_case("3.6.5" => matches Err(Error::ParseVersionComponentError(_)) ; "specifying a micro version is an error")]
+    fn requestedversion_from_str_tests(version_str: &str) -> Result<RequestedVersion> {
+        RequestedVersion::from_str(version_str)
     }
 
     #[test]
