@@ -85,6 +85,7 @@ Everything in **bold** is required to hit MVP.
      - Walk up from current directory?
      - [XDG base directory specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)?
 1. Replacement for `.venv/bin/python` (while keeping the `python` name)?
+   - `VENV_REDIRECT` variant in `launcher.c`
    - Might need switch off CLI additions -- i.e. `-h`, `--list`, and version specifier support -- in this situation to make this work
    - Read `../pyvenv.cfg` and its [`home` key](https://docs.python.org/3/library/venv.html#creating-virtual-environments) to determine where to look for the Python executable
      - What if `home` has multiple Python executables installed? Might need to add an `executable` key to give full path to the creating interpreter.
