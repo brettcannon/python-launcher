@@ -44,24 +44,18 @@ impl Action {
                 }
             } else if flag == "--list" {
                 let executables = crate::all_executables();
-                return match list_executables(&executables) {
-                    Ok(list) => Ok(Action::List(list)),
-                    Err(message) => Err(message),
-                };
+                return Ok(Action::List(list_executables(&executables)?));
             } else if let Some(version) = version_from_flag(&flag) {
                 args.remove(0);
                 requested_version = version;
             }
         }
 
-        match find_executable(requested_version, &args) {
-            Ok(executable) => Ok(Action::Execute {
-                launcher_path,
-                executable,
-                args,
-            }),
-            Err(message) => Err(message),
-        }
+        Ok(Action::Execute {
+            launcher_path,
+            executable: find_executable(requested_version, &args)?,
+            args,
+        })
     }
 }
 
@@ -168,10 +162,7 @@ fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
         }
 
         let version = line[acceptable_path.len()..].to_string();
-        return match RequestedVersion::from_str(&version) {
-            Ok(version) => Some(version),
-            Err(_) => None,
-        };
+        return RequestedVersion::from_str(&version).ok();
     }
 
     None
@@ -216,10 +207,7 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
         }
     }
 
-    match chosen_path {
-        Some(path) => Ok(path),
-        None => Err(crate::Error::NoExecutableFound(requested_version)),
-    }
+    chosen_path.ok_or(crate::Error::NoExecutableFound(requested_version))
 }
 
 #[cfg(test)]
