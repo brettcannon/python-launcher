@@ -24,7 +24,7 @@ fn main() {
             cli::Action::Help(message, executable) => {
                 print!("{}", message);
                 if let Err(message) = run(&executable, &["--help".to_string()]) {
-                    println!("{}", message);
+                    eprintln!("{}", message);
                 }
             }
             cli::Action::List(output) => print!("{}", output),
@@ -32,11 +32,11 @@ fn main() {
                 executable, args, ..
             } => {
                 if let Err(message) = run(&executable, &args) {
-                    println!("{}", message)
+                    eprintln!("{}", message)
                 }
             }
         },
-        Err(message) => println!("{}", message),
+        Err(message) => eprintln!("{}", message),
     }
 }
 
