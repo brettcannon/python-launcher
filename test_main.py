@@ -70,5 +70,23 @@ def test_execute(py, python_version):
     assert call.stdout.strip() == sys.version
 
 
+class TestExitCode:
+    def test_malformed_version(self, py):
+        call = py("-3.")
+        assert call.returncode
+
+    def test_nonexistent_version(self, py):
+        call = py("-0.9")
+        assert call.returncode
+
+    def test_unexecutable_file(self, py, tmp_path, monkeypatch):
+        version = "0.1"
+        not_executable = tmp_path / f"python{version}"
+        not_executable.touch()
+        monkeypatch.setenv("PATH", os.fspath(tmp_path), prepend=os.pathsep)
+        call = py(f"-{version}")
+        assert call.returncode
+
+
 if __name__ == "__main__":
     pytest.main()

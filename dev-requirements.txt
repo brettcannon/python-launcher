@@ -1,3 +1,3 @@
 # Bug in the Python extension for VS Code prevents using pytest 5.1.0 and newer.
-pytest~=5.0.1
+pytest~=5.4.1
 black

@@ -25,6 +25,7 @@ fn main() {
                 print!("{}", message);
                 if let Err(message) = run(&executable, &["--help".to_string()]) {
                     eprintln!("{}", message);
+                    std::process::exit(nix::errno::errno())
                 }
             }
             cli::Action::List(output) => print!("{}", output),
@@ -32,11 +33,15 @@ fn main() {
                 executable, args, ..
             } => {
                 if let Err(message) = run(&executable, &args) {
-                    eprintln!("{}", message)
+                    eprintln!("{}", message);
+                    std::process::exit(nix::errno::errno())
                 }
             }
         },
-        Err(message) => eprintln!("{}", message),
+        Err(message) => {
+            eprintln!("{}", message);
+            std::process::exit(message.exit_code())
+        }
     }
 }
 

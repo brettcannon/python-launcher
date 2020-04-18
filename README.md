@@ -103,7 +103,6 @@ Everything in **bold** is required to hit MVP.
    - Massive pain to make work (e.g. cannot easily convert to a `CString`)
 
 ## Polish
-1. **Make sure all error cases have appropriate [exit codes](https://rust-lang-nursery.github.io/cli-wg/in-depth/exit-code.html) and human-readable results**
 1. **Make sure all [potential `panic!` points](https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html#shortcuts-for-panic-on-error-unwrap-and-expect) are rare enough to be acceptable**
 1. Have `--list` somehow denote an activated virtual environment?
    * Python Launcher doesn't denote or list anything

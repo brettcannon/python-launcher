@@ -9,6 +9,8 @@ use std::{
     str::FromStr,
 };
 
+use exitcode;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, PartialEq)]
@@ -32,7 +34,7 @@ impl fmt::Display for Error {
                 write!(f, "Error parsing a version component: {}", int_error)
             }
             Self::DotMissing => write!(f, "'.' missing from the version"),
-            Self::FileNameMissing => write!(f, "Path lacks a file name"),
+            Self::FileNameMissing => write!(f, "Path object lacks a file name"),
             Self::FileNameToStrError => write!(f, "Failed to convert file name to `str`"),
             Self::PathFileNameError => write!(f, "File name not of the format `pythonX.Y`"),
             Self::NoExecutableFound(requested_version) => write!(
@@ -53,6 +55,19 @@ impl std::error::Error for Error {
             Self::FileNameToStrError => None,
             Self::PathFileNameError => None,
             Self::NoExecutableFound(_) => None,
+        }
+    }
+}
+
+impl Error {
+    pub fn exit_code(&self) -> exitcode::ExitCode {
+        match self {
+            Self::ParseVersionComponentError(_) => exitcode::USAGE,
+            Self::DotMissing => exitcode::USAGE,
+            Self::FileNameMissing => exitcode::USAGE,
+            Self::FileNameToStrError => exitcode::SOFTWARE,
+            Self::PathFileNameError => exitcode::SOFTWARE,
+            Self::NoExecutableFound(_) => exitcode::USAGE,
         }
     }
 }
