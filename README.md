@@ -93,10 +93,6 @@ Everything in **bold** is required to hit MVP.
    - Speeds up environment creation by not having to copy over entire Python installation on     Windows (e.g. `.pyd` files)
    - [See/edit the `site` module](https://github.com/python/cpython/blob/master/Lib/site.py#L456) to gain ability to specify virtual environment location (while maintaining the invariant on how to detect virtual environments as outlined in the [`venv` module docs](https://docs.python.org/3/library/venv.html#module-venv))
 1. Automatically detect `.venv/pyvenv.cfg` and use that (basically an implicit setting of `$VIRTUAL_ENV`)?
-   - Also detect `venv` directories as well?
-   - Is it worth the overhead/perf hit to search all subdirectories for a `pyvenv.cfg` and only activate if a single one is found?
-   - Is it worth making the directory that is searched for configurable?
-   - Have `--venv` do the search for a `pyvenv.cfg` in subdirectories and use that (or maybe search all subdirectories and perform a normal version resolution to use the newest one; not sure if it's worth the hassle of supporting version specification as well)?
 1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
    - Widest compatibility for people where they have undecodable paths
      (which is hopefully a very small minority)
