@@ -59,7 +59,7 @@ Everything in **bold** is required to hit MVP.
 ## Functionality
 1. Provide a `python_launcher` extension module
    - It will make the pipenv developers happy
-   - Might need a rename to `pylauncher` or `pyfinder` to follow Python practices if it
+   - Might need a rename to `pylauncher` or `pyfinder` to follow Python practices (if it
      isn't too much trouble)
 1. Windows support
    - `PATH`
@@ -97,6 +97,8 @@ Everything in **bold** is required to hit MVP.
    - Widest compatibility for people where they have undecodable paths
      (which is hopefully a very small minority)
    - Massive pain to make work (e.g. cannot easily convert to a `CString`)
+1. `--json` flag for JSONified `--list` output?
+   - Would make consuming data from the CLI easier (e.g. for [Nushell](https://www.nushell.sh/))
 
 ## Polish
 1. **Make sure all [potential `panic!` points](https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html#shortcuts-for-panic-on-error-unwrap-and-expect) are rare enough to be acceptable**
