@@ -52,7 +52,7 @@ implement something myself instead of accepting a pull request that you submit.
 (Pull requests to do something I have already implemented in a more idiomatic
 fashion are very much appreciated, though.)
 
-[PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) ([documentation](https://docs.python.org/3/using/windows.html#launcher); [source](https://github.com/python/cpython/blob/master/PC/launcher.c))
+[PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/) / [PEP 486: Make the Python Launcher aware of virtual environments](https://www.python.org/dev/peps/pep-0486/) ([documentation](https://docs.python.org/3/using/windows.html#launcher); [source](https://github.com/python/cpython/blob/master/PC/launcher.c))
 
 Everything in **bold** is required to hit MVP.
 
