@@ -91,7 +91,7 @@ jobs:
 
     - uses: actions/setup-python@v2
       with:
-      python-version: '3.8'
+        python-version: '3.8'
 
     - name: Install Black
       run: python -m pip install black
@@ -99,9 +99,9 @@ jobs:
     - name: Install Rust components
       uses: actions-rs/toolchain@v1
       with:
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
+        toolchain: stable
+        override: true
+        components: rustfmt, clippy
 
     - uses: actions-rs/clippy-check@v1
       with:
