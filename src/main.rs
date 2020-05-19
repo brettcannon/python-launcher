@@ -3,13 +3,10 @@
 
 use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
-use human_panic;
 use nix::unistd;
 
 use python_launcher::cli;
 
-// XXX Proper exit codes.
-// XXX Write errors out to stderr.
 #[cfg_attr(tarpaulin, skip)]
 fn main() {
     human_panic::setup_panic!(Metadata {

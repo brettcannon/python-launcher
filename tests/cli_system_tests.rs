@@ -5,7 +5,6 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use serial_test_derive::serial;
-use tempfile;
 
 use python_launcher::cli::Action;
 use python_launcher::Error;

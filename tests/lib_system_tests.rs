@@ -2,7 +2,6 @@ mod common;
 
 use serial_test_derive::serial;
 
-use python_launcher;
 use python_launcher::{ExactVersion, RequestedVersion};
 
 use common::EnvState;
