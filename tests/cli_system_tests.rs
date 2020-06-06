@@ -10,7 +10,7 @@ use python_launcher::cli::Action;
 use python_launcher::Error;
 use python_launcher::RequestedVersion;
 
-use common::EnvState;
+use common::{EnvState, EnvVarState};
 
 #[test]
 #[serial]
@@ -26,6 +26,20 @@ fn from_main_help() {
         } else {
             panic!("{:?} flag did not return Action::Help", flag);
         }
+    }
+}
+
+#[test]
+#[serial]
+fn from_main_help_missing_interpreter() {
+    let _state = EnvVarState::empty();
+    for flag in ["-h", "--help"].iter() {
+        let launcher_path = "/path/to/py";
+        let help = Action::from_main(&[launcher_path.to_string(), (*flag).to_string()]);
+        assert_eq!(
+            help,
+            Err(crate::Error::NoExecutableFound(RequestedVersion::Any))
+        );
     }
 }
 

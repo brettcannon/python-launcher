@@ -30,6 +30,18 @@ impl EnvVarState {
         }
     }
 
+    /* XXX This shouldn't be needed! Maybe a bug in Rust 1.44.0? */
+    #[allow(dead_code)]
+    pub fn empty() -> Self {
+        let mut state = Self::new();
+        state.change("PATH", None);
+        for env_var in ["VIRTUAL_ENV", "PY_PYTHON", "PY_PYTHON3", "PY_PYTHON2"].iter() {
+            state.change(env_var, None);
+        }
+
+        state
+    }
+
     pub fn change(&mut self, k: &str, v: Option<&str>) {
         let os_k = OsStr::new(k);
         if !self.changed.contains_key(os_k) {

@@ -115,7 +115,6 @@ Everything in **bold** is required to hit MVP.
    1. **CLI documentation**
    1. Flowchart of how the interpreter is selected?
    1. API documentation
-1. **Get ~100% unit test coverage**
 1. **Consider dropping [`nix`](https://crates.io/crates/nix)** for a straight
    [`libc`](https://crates.io/crates/libc) dependency (to potentially make Debian
    packaging easier)

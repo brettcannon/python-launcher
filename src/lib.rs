@@ -25,6 +25,7 @@ pub enum Error {
     NoExecutableFound(RequestedVersion),
 }
 
+#[cfg_attr(tarpaulin, skip)]
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -44,6 +45,7 @@ impl fmt::Display for Error {
     }
 }
 
+#[cfg_attr(tarpaulin, skip)]
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
@@ -57,6 +59,7 @@ impl std::error::Error for Error {
     }
 }
 
+#[cfg_attr(tarpaulin, skip)]
 impl Error {
     pub fn exit_code(&self) -> exitcode::ExitCode {
         match self {
@@ -317,6 +320,21 @@ mod tests {
     #[test_case("/python42.13" => Ok(ExactVersion { major: 42, minor: 13 }) ; "double digit version components")]
     fn exactversion_from_path_tests(path: &str) -> Result<ExactVersion> {
         ExactVersion::from_path(&PathBuf::from(path))
+    }
+
+    #[test]
+    fn exactversion_from_path_invalid_utf8() {
+        // From https://doc.rust-lang.org/std/ffi/struct.OsStr.html#examples-2.
+        use std::ffi::OsStr;
+        use std::os::unix::ffi::OsStrExt;
+
+        let source = [0x66, 0x6f, 0x80, 0x6f];
+        let os_str = OsStr::from_bytes(&source[..]);
+        let path = PathBuf::from(os_str);
+        assert_eq!(
+            ExactVersion::from_path(&path),
+            Err(Error::FileNameToStrError)
+        );
     }
 
     #[test_case(RequestedVersion::Any => true ; "Any supports all versions")]
