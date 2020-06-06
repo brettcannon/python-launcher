@@ -299,6 +299,7 @@ mod tests {
     #[test_case("/usr/bin/python" => None ; "missing shebang comment")]
     #[test_case("# /usr/bin/python" => None ; "missing exclamation point")]
     #[test_case("! /usr/bin/python" => None ; "missing octothorpe")]
+    #[test_case("#! /bin/sh" => None ; "non-Python shebang")]
     #[test_case("#! /usr/bin/env python" => Some(RequestedVersion::Any) ; "typical 'env python'")]
     #[test_case("#! /usr/bin/python" => Some(RequestedVersion::Any) ; "typical 'python'")]
     #[test_case("#! /usr/local/bin/python" => Some(RequestedVersion::Any) ; "/usr/local")]
