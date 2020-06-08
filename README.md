@@ -101,13 +101,19 @@ Everything in **bold** is required to hit MVP.
    - Would make consuming data from the CLI easier (e.g. for [Nushell](https://www.nushell.sh/))
 
 ## Polish
-1. **Make sure all [potential `panic!` points](https://doc.rust-lang.org/book/ch09-02-recoverable-errors-with-result.html#shortcuts-for-panic-on-error-unwrap-and-expect) are rare enough to be acceptable**
 1. **Help when `PY_PYTHON` points at a Python version that isn't installed**
+   * Maybe need to implement logging?
 1. Have `--list` somehow denote an activated virtual environment?
    * Python Launcher doesn't denote or list anything
    * Seems useful since that would take precedence if the user didn't specify a version
 1. Man page?
-1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3.8/using/windows.html#diagnostics)? ([Rust logging info](https://rust-lang-nursery.github.io/cli-wg/tutorial/output.html#logging))
+1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3/using/windows.html#diagnostics)? ([Rust logging info](https://rust-cli.github.io/book/tutorial/output.html))
+   * Rename to `PY_DEBUG` to match `PY_PYTHON`?
+   * Only show logging for binary, not libraries (i.e. simply turning on logging
+     globally is too much)
+   * Colour output might be a nice thing, but definitely not required
+   * Using the Rust logging API may be nice for those that use the code as a
+     library
 1. [Distribute binaries](https://rust-lang-nursery.github.io/cli-wg/tutorial/packaging.html#distributing-binaries)
 
 ## Maintainability
