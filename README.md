@@ -113,7 +113,7 @@ Everything in **bold** is required to hit MVP.
      1. [`stderrlog`](https://crates.io/crates/stderrlog)
      1. [`fern`](https://crates.io/crates/fern)
      1. [`env_logger`](https://crates.io/crates/env_logger)
-1. [Distribute binaries](https://rust-lang-nursery.github.io/cli-wg/tutorial/packaging.html#distributing-binaries)
+1. [Distribute binaries](https://rust-cli.github.io/book/tutorial/packaging.html)
 1. Have `--list` somehow denote an activated virtual environment?
    * Python Launcher doesn't denote or list anything
    * Seems useful since that would take precedence if the user didn't specify a version
