@@ -57,15 +57,20 @@ fashion are very much appreciated, though.)
 Everything in **bold** is required to hit MVP.
 
 ## Functionality
-1. Provide a `python_launcher` extension module
-   - It will make the pipenv developers happy
-   - Might need a rename to `pylauncher` or `pyfinder` to follow Python practices (if it
-     isn't too much trouble)
+1. Automatically detect `.venv/pyvenv.cfg` and use that (basically an implicit setting of `$VIRTUAL_ENV`)?
 1. Windows support
    - `PATH`
    - Windows Store (should be covered by `PATH` search, but need to make sure)
    - Registry
    - Bitness
+1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
+   - Widest compatibility for people where they have undecodable paths
+     (which is hopefully a very small minority)
+   - Massive pain to make work (e.g. cannot easily convert to a `CString`)
+1. Provide a `python_launcher` extension module
+   - It will make the pipenv developers happy
+   - Might need a rename to `pylauncher` or `pyfinder` to follow Python practices (if it
+     isn't too much trouble)
 1. [Configuration files](https://www.python.org/dev/peps/pep-0397/#configuration-file)
    (key thing to remember is should not get to the point that you're using this to alias
    specific interpreters, just making it easier to specify constraints on what kind of
@@ -92,29 +97,27 @@ Everything in **bold** is required to hit MVP.
    - Acts as a heavyweight "symlink" to the Python executable for the virtual environment
    - Speeds up environment creation by not having to copy over entire Python installation on     Windows (e.g. `.pyd` files)
    - [See/edit the `site` module](https://github.com/python/cpython/blob/master/Lib/site.py#L456) to gain ability to specify virtual environment location (while maintaining the invariant on how to detect virtual environments as outlined in the [`venv` module docs](https://docs.python.org/3/library/venv.html#module-venv))
-1. Automatically detect `.venv/pyvenv.cfg` and use that (basically an implicit setting of `$VIRTUAL_ENV`)?
-1. Use `OsString`/`OsStr` everywhere (versus now which is wherever it's easy w/ `path::Path`)?
-   - Widest compatibility for people where they have undecodable paths
-     (which is hopefully a very small minority)
-   - Massive pain to make work (e.g. cannot easily convert to a `CString`)
 1. `--json` flag for JSONified `--list` output?
    - Would make consuming data from the CLI easier (e.g. for [Nushell](https://www.nushell.sh/))
 
 ## Polish
-1. **Help when `PY_PYTHON` points at a Python version that isn't installed**
-   * Maybe need to implement logging?
+1. **[`PYLAUNCH_DEBUG`](https://docs.python.org/3/using/windows.html#diagnostics)? ([Rust logging info](https://rust-cli.github.io/book/tutorial/output.html))**
+   * Rename to `PY_DEBUG` to match `PY_PYTHON`?
+     * Another option is to drop the app-specific environment variable and
+       document how to use `RUST_LOG` instead
+   * Only show logging for binary, not libraries (i.e. simply turning on logging
+     globally is too much)
+   * Cut out cruft like the timestamp or level
+   * Colour output might be a nice thing, but definitely not required
+   * Use the [`log` API](https://crates.io/crates/log); possible implementations to use:
+     1. [`stderrlog`](https://crates.io/crates/stderrlog)
+     1. [`fern`](https://crates.io/crates/fern)
+     1. [`env_logger`](https://crates.io/crates/env_logger)
+1. [Distribute binaries](https://rust-lang-nursery.github.io/cli-wg/tutorial/packaging.html#distributing-binaries)
 1. Have `--list` somehow denote an activated virtual environment?
    * Python Launcher doesn't denote or list anything
    * Seems useful since that would take precedence if the user didn't specify a version
 1. Man page?
-1. [`PYLAUNCH_DEBUG`](https://docs.python.org/3/using/windows.html#diagnostics)? ([Rust logging info](https://rust-cli.github.io/book/tutorial/output.html))
-   * Rename to `PY_DEBUG` to match `PY_PYTHON`?
-   * Only show logging for binary, not libraries (i.e. simply turning on logging
-     globally is too much)
-   * Colour output might be a nice thing, but definitely not required
-   * Using the Rust logging API may be nice for those that use the code as a
-     library
-1. [Distribute binaries](https://rust-lang-nursery.github.io/cli-wg/tutorial/packaging.html#distributing-binaries)
 
 ## Maintainability
 1. **Flesh out documentation**
