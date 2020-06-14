@@ -16,12 +16,30 @@ fn main() {
         homepage: env!("CARGO_PKG_REPOSITORY").into(),
     });
 
+    let log_level = if env::var_os("PYLAUNCH_DEBUG").is_some() {
+        3
+    } else {
+        0
+    };
+    /*
+    - `error!` is for errors
+    - `info!` is to communicate what the launcher is doing/checking
+    - `debug!` is communicating about specific values
+    */
+    stderrlog::new()
+        .module(module_path!())
+        .module("python_launcher")
+        .show_level(false)
+        .verbosity(log_level) // [error, warn, info, debug, trace]
+        .init()
+        .unwrap();
+
     match cli::Action::from_main(&env::args().collect::<Vec<String>>()) {
         Ok(action) => match action {
             cli::Action::Help(message, executable) => {
                 print!("{}", message);
                 if let Err(message) = run(&executable, &["--help".to_string()]) {
-                    eprintln!("{}", message);
+                    log::error!("{}", message);
                     std::process::exit(nix::errno::errno())
                 }
             }
@@ -30,13 +48,13 @@ fn main() {
                 executable, args, ..
             } => {
                 if let Err(message) = run(&executable, &args) {
-                    eprintln!("{}", message);
+                    log::error!("{}", message);
                     std::process::exit(nix::errno::errno())
                 }
             }
         },
         Err(message) => {
-            eprintln!("{}", message);
+            log::error!("{}", message);
             std::process::exit(message.exit_code())
         }
     }
@@ -44,6 +62,7 @@ fn main() {
 
 #[cfg_attr(tarpaulin, skip)]
 fn run(executable: &Path, args: &[String]) -> nix::Result<()> {
+    log::info!("Executing {:?} with {:?}", executable, args);
     let executable_as_cstring = CString::new(executable.as_os_str().as_bytes()).unwrap();
     let mut argv = vec![executable_as_cstring.clone()];
     argv.extend(args.iter().map(|arg| CString::new(arg.as_str()).unwrap()));

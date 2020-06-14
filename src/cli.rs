@@ -134,8 +134,10 @@ fn venv_executable(venv_root: &str) -> PathBuf {
 // https://en.m.wikipedia.org/wiki/Shebang_(Unix)
 fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
     let mut shebang_buffer = [0; 2];
+    log::info!("Looking for a Python-related shebang");
     if reader.read(&mut shebang_buffer).is_err() || shebang_buffer != [0x23, 0x21] {
         // Doesn't start w/ `#!` in ASCII/UTF-8.
+        log::debug!("No '#!' at the start of the first line of the file");
         return None;
     }
 
@@ -143,6 +145,7 @@ fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
     let mut first_line = String::new();
 
     if buffered_reader.read_line(&mut first_line).is_err() {
+        log::debug!("Can't read first line of the file");
         return None;
     };
 
@@ -161,7 +164,9 @@ fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
             continue;
         }
 
+        log::debug!("Found shebang: {}", acceptable_path);
         let version = line[acceptable_path.len()..].to_string();
+        log::debug!("Found version: {}", version);
         return RequestedVersion::from_str(&version).ok();
     }
 
@@ -174,7 +179,9 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
     let mut chosen_path: Option<PathBuf> = None;
 
     if requested_version == RequestedVersion::Any {
+        log::info!("Checking for VIRTUAL_ENV environment variable");
         if let Some(venv_root) = env::var_os("VIRTUAL_ENV") {
+            log::debug!("VIRTUAL_ENV set to {:?}", venv_root);
             chosen_path = Some(venv_executable(&venv_root.to_string_lossy()));
         } else if !args.is_empty() {
             // Using the first argument because it's the simplest and sanest.
@@ -183,7 +190,9 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
             // the first/last file path that we find. The only safe way to get the file path
             // regardless of its position is to replicate Python's arg parsing and that's a
             // **lot** of work for little gain. Hence we only care about the first argument.
-            if let Ok(mut open_file) = File::open(&args[0]) {
+            let possible_file = &args[0];
+            log::info!("Checking {:?} for a shebang", possible_file);
+            if let Ok(mut open_file) = File::open(possible_file) {
                 if let Some(shebang_version) = parse_python_shebang(&mut open_file) {
                     requested_version = shebang_version;
                 }
@@ -193,8 +202,10 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
 
     if chosen_path.is_none() {
         if let Some(env_var) = requested_version.env_var() {
-            if let Ok(env_var_value) = env::var(env_var) {
+            log::info!("Checking for {} environment variable", env_var);
+            if let Ok(env_var_value) = env::var(&env_var) {
                 if !env_var_value.is_empty() {
+                    log::debug!("{} set to {}", env_var, env_var_value);
                     if let Ok(env_requested_version) = RequestedVersion::from_str(&env_var_value) {
                         requested_version = env_requested_version;
                     }

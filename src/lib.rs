@@ -224,11 +224,15 @@ fn all_executables_in_paths(
             executables.entry(version).or_insert(path);
         }
     }
+    log::debug!("Found executables: {:?}", executables.values());
     executables
 }
 
 pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
-    let paths = flatten_directories(env_path());
+    log::info!("Checking PATH environment variable");
+    let path_entries = env_path();
+    log::debug!("PATH: {:?}", path_entries);
+    let paths = flatten_directories(path_entries);
     all_executables_in_paths(paths)
 }
 

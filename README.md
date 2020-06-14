@@ -101,18 +101,6 @@ Everything in **bold** is required to hit MVP.
    - Would make consuming data from the CLI easier (e.g. for [Nushell](https://www.nushell.sh/))
 
 ## Polish
-1. **[`PYLAUNCH_DEBUG`](https://docs.python.org/3/using/windows.html#diagnostics)? ([Rust logging info](https://rust-cli.github.io/book/tutorial/output.html))**
-   * Rename to `PY_DEBUG` to match `PY_PYTHON`?
-     * Another option is to drop the app-specific environment variable and
-       document how to use `RUST_LOG` instead
-   * Only show logging for binary, not libraries (i.e. simply turning on logging
-     globally is too much)
-   * Cut out cruft like the timestamp or level
-   * Colour output might be a nice thing, but definitely not required
-   * Use the [`log` API](https://crates.io/crates/log); possible implementations to use:
-     1. [`stderrlog`](https://crates.io/crates/stderrlog)
-     1. [`fern`](https://crates.io/crates/fern)
-     1. [`env_logger`](https://crates.io/crates/env_logger)
 1. [Distribute binaries](https://rust-cli.github.io/book/tutorial/packaging.html)
 1. Have `--list` somehow denote an activated virtual environment?
    * Python Launcher doesn't denote or list anything

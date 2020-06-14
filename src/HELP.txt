@@ -1,5 +1,5 @@
 Python Launcher for UNIX {}
-usage: {} [launcher-args] [python-args] script [script-args]
+usage: {} [launcher-args] [python-args]
 
 Launcher arguments:
 -h/--help: This output
@@ -10,13 +10,15 @@ Launcher arguments:
 -[X.Y]   : Launch the specified Python version (e.g. `-3.6` for Python 3.6).
 
 Other environment variables:
-PY_PYTHON  : Specify the version of Python to search for when no Python version
-             is explicitly requested (e.g. `3.6` to use Python 3.6 by default).
-PY_PYTHON* : Specify the version of Python to search for when only a major
-             version is specified (e.g. set `PY_PYTHON3` to `3.6` to cause
-             `-3` to use Python 3.6).
-VIRTUAL_ENV: Path to a virtual enviroment to use when no Python version is
-             explicitly requested; typically set by activating a virtual
-             environment.
+PY_PYTHON     : Specify the version of Python to search for when no Python
+                version is explicitly requested (e.g. `3.6` to use Python 3.6 by
+                default).
+PY_PYTHON*    : Specify the version of Python to search for when only a major
+                version is specified (e.g. set `PY_PYTHON3` to `3.6` to cause
+                `-3` to use Python 3.6).
+PYLAUNCH_DEBUG: Log details to stderr about how the Launcher is operating.
+VIRTUAL_ENV   : Path to a virtual enviroment to use when no Python version is
+                explicitly requested; typically set by activating a virtual
+                environment.
 
 The following help text is from {}:
