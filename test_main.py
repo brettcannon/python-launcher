@@ -97,6 +97,7 @@ class TestExitCode:
         assert call.returncode
         assert call.stderr
 
+
 def test_PYLAUNCH_DEBUG(py):
     call = py("-c", "pass", debug=True)
     assert not call.returncode
