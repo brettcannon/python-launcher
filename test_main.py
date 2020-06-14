@@ -31,10 +31,13 @@ def py(monkeypatch):
     monkeypatch.delenv("VIRTUAL_ENV", raising=False)
     py_path = pathlib.Path(__file__).parent / "target" / "debug" / "py"
 
-    def call_py(*args):
+    def call_py(*args, debug=False):
         call = [py_path]
         call.extend(args)
-        return subprocess.run(call, capture_output=True, text=True)
+        env = os.environ.copy()
+        if debug:
+            env["PYLAUNCH_DEBUG"] = "1"
+        return subprocess.run(call, capture_output=True, text=True, env=env)
 
     call_py.path = py_path
     yield call_py
@@ -46,6 +49,7 @@ def test_help(py, flag):
     assert not call.returncode
     assert os.fspath(py.path) in call.stdout
     assert sys.executable in call.stdout
+    assert not call.stderr
 
 
 def test_list(py):
@@ -53,6 +57,7 @@ def test_list(py):
     assert not call.returncode
     assert sys.executable in call.stdout
     assert ".".join(map(str, sys.version_info[:2])) in call.stdout
+    assert not call.stderr
 
 
 @pytest.mark.parametrize(
@@ -68,16 +73,19 @@ def test_execute(py, python_version):
     call = py(*args)
     assert not call.returncode
     assert call.stdout.strip() == sys.version
+    assert not call.stderr
 
 
 class TestExitCode:
     def test_malformed_version(self, py):
         call = py("-3.")
         assert call.returncode
+        assert call.stderr
 
     def test_nonexistent_version(self, py):
         call = py("-0.9")
         assert call.returncode
+        assert call.stderr
 
     def test_unexecutable_file(self, py, tmp_path, monkeypatch):
         version = "0.1"
@@ -86,6 +94,12 @@ class TestExitCode:
         monkeypatch.setenv("PATH", os.fspath(tmp_path), prepend=os.pathsep)
         call = py(f"-{version}")
         assert call.returncode
+        assert call.stderr
+
+def test_PYLAUNCH_DEBUG(py):
+    call = py("-c", "pass", debug=True)
+    assert not call.returncode
+    assert call.stderr
 
 
 if __name__ == "__main__":
