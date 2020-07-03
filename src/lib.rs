@@ -25,7 +25,7 @@ pub enum Error {
     NoExecutableFound(RequestedVersion),
 }
 
-#[cfg_attr(tarpaulin, skip)]
+#[cfg(not(tarpaulin_include))]
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -45,7 +45,7 @@ impl fmt::Display for Error {
     }
 }
 
-#[cfg_attr(tarpaulin, skip)]
+#[cfg(not(tarpaulin_include))]
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
@@ -59,7 +59,7 @@ impl std::error::Error for Error {
     }
 }
 
-#[cfg_attr(tarpaulin, skip)]
+#[cfg(not(tarpaulin_include))]
 impl Error {
     pub fn exit_code(&self) -> exitcode::ExitCode {
         match self {

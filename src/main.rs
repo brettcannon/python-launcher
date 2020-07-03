@@ -7,7 +7,7 @@ use nix::unistd;
 
 use python_launcher::cli;
 
-#[cfg_attr(tarpaulin, skip)]
+#[cfg(not(tarpaulin_include))]
 fn main() {
     human_panic::setup_panic!(Metadata {
         name: env!("CARGO_PKG_DESCRIPTION").into(),
@@ -60,7 +60,7 @@ fn main() {
     }
 }
 
-#[cfg_attr(tarpaulin, skip)]
+#[cfg(not(tarpaulin_include))]
 fn run(executable: &Path, args: &[String]) -> nix::Result<()> {
     log::info!("Executing {:?} with {:?}", executable, args);
     let executable_as_cstring = CString::new(executable.as_os_str().as_bytes()).unwrap();
