@@ -322,4 +322,11 @@ mod tests {
     fn parse_python_shebang_tests(shebang: &str) -> Option<RequestedVersion> {
         parse_python_shebang(&mut shebang.as_bytes())
     }
+
+    #[test_case(&[0x23, 0x21, 0xc0, 0xaf] => None ; "invalid UTF-8")]
+    fn parse_python_sheban_include_invalid_bytes_tests(
+        mut shebang: &[u8],
+    ) -> Option<RequestedVersion> {
+        parse_python_shebang(&mut shebang)
+    }
 }
