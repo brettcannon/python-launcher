@@ -26,36 +26,38 @@ pub enum Action {
 
 impl Action {
     pub fn from_main(argv: &[String]) -> crate::Result<Self> {
-        let mut args = argv.to_owned();
-        let mut requested_version = RequestedVersion::Any;
-        let launcher_path = PathBuf::from(args.remove(0)); // Strip the path to this executable.
+        let launcher_path = PathBuf::from(&argv[0]); // Strip the path to this executable.
 
-        if !args.is_empty() {
-            let flag = &args[0];
-
-            if flag == "-h" || flag == "--help" {
-                if let Some(executable_path) = crate::find_executable(RequestedVersion::Any) {
-                    return Ok(Action::Help(
-                        help_message(&launcher_path, &executable_path),
-                        executable_path,
-                    ));
-                } else {
-                    return Err(crate::Error::NoExecutableFound(RequestedVersion::Any));
-                }
-            } else if flag == "--list" {
-                let executables = crate::all_executables();
-                return Ok(Action::List(list_executables(&executables)?));
-            } else if let Some(version) = version_from_flag(&flag) {
-                args.remove(0);
-                requested_version = version;
+        match argv.get(1) {
+            Some(help) if help == "-h" || help == "--help" => {
+                crate::find_executable(RequestedVersion::Any)
+                    .ok_or(crate::Error::NoExecutableFound(RequestedVersion::Any))
+                    .map(|executable_path| {
+                        Action::Help(
+                            help_message(&launcher_path, &executable_path),
+                            executable_path,
+                        )
+                    })
             }
+            Some(list) if list == "--list" => {
+                Ok(Action::List(list_executables(&crate::all_executables())?))
+            }
+            // TODO: Figure out how to store the result of theversion_from_flag() call.
+            Some(version) if version_from_flag(version).is_some() => {
+                Ok(Action::Execute {
+                    launcher_path,
+                    // Make sure to skip the app path and version specification.
+                    executable: find_executable(version_from_flag(version).unwrap(), &argv[2..])?,
+                    args: argv[2..].to_vec(),
+                })
+            }
+            Some(_) | None => Ok(Action::Execute {
+                launcher_path,
+                // Make sure to skip the app path.
+                executable: find_executable(RequestedVersion::Any, &argv[1..])?,
+                args: argv[1..].to_vec(),
+            }),
         }
-
-        Ok(Action::Execute {
-            launcher_path,
-            executable: find_executable(requested_version, &args)?,
-            args,
-        })
     }
 }
 
