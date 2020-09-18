@@ -38,26 +38,25 @@ fn main() {
         Ok(action) => match action {
             cli::Action::Help(message, executable) => {
                 print!("{}", message);
-                if let Err(message) = run(&executable, &["--help".to_string()]) {
-                    log::error!("{}", message);
-                    std::process::exit(nix::errno::errno())
-                }
+                run(&executable, &["--help".to_string()])
+                    .map_err(|message| log_exit(nix::errno::errno(), message))
+                    .unwrap()
             }
             cli::Action::List(output) => print!("{}", output),
             cli::Action::Execute {
                 executable, args, ..
-            } => {
-                if let Err(message) = run(&executable, &args) {
-                    log::error!("{}", message);
-                    std::process::exit(nix::errno::errno())
-                }
-            }
+            } => run(&executable, &args)
+                .map_err(|message| log_exit(nix::errno::errno(), message))
+                .unwrap(),
         },
-        Err(message) => {
-            log::error!("{}", message);
-            std::process::exit(message.exit_code())
-        }
+        Err(message) => log_exit(message.exit_code(), message),
     }
+}
+
+#[cfg(not(tarpaulin_include))]
+fn log_exit(return_code: i32, message: impl std::error::Error) {
+    log::error!("{}", message);
+    std::process::exit(return_code);
 }
 
 #[cfg(not(tarpaulin_include))]
