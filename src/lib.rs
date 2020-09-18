@@ -146,39 +146,40 @@ impl FromStr for ExactVersion {
     type Err = Error;
 
     fn from_str(version_string: &str) -> Result<Self> {
-        if let Some(dot_index) = version_string.find('.') {
-            let major_str = &version_string[..dot_index];
-            let major = match major_str.parse::<ComponentSize>() {
-                Ok(number) => number,
-                Err(parse_error) => return Err(Error::ParseVersionComponentError(parse_error)),
-            };
+        match version_string.find('.') {
+            Some(dot_index) => {
+                let major_str = &version_string[..dot_index];
+                let major = match major_str.parse::<ComponentSize>() {
+                    Ok(number) => number,
+                    Err(parse_error) => return Err(Error::ParseVersionComponentError(parse_error)),
+                };
+                let minor_str = &version_string[dot_index + 1..];
 
-            let minor_str = &version_string[dot_index + 1..];
-            match minor_str.parse::<ComponentSize>() {
-                Ok(minor) => Ok(Self { major, minor }),
-                Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
+                match minor_str.parse::<ComponentSize>() {
+                    Ok(minor) => Ok(Self { major, minor }),
+                    Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
+                }
             }
-        } else {
-            Err(Error::DotMissing)
+            None => Err(Error::DotMissing),
         }
     }
 }
 
+fn acceptable_file_name(file_name: &str) -> bool {
+    file_name.len() >= "python3.0".len() && file_name.starts_with("python")
+}
+
 impl ExactVersion {
     pub fn from_path(path: &Path) -> Result<Self> {
-        if let Some(raw_file_name) = path.file_name() {
-            if let Some(file_name) = raw_file_name.to_str() {
-                if file_name.len() >= "python3.0".len() && file_name.starts_with("python") {
-                    let version_part = &file_name["python".len()..];
-                    return Self::from_str(version_part);
+        path.file_name()
+            .ok_or(Error::FileNameMissing)
+            .and_then(|raw_file_name| match raw_file_name.to_str() {
+                Some(file_name) if acceptable_file_name(file_name) => {
+                    Self::from_str(&file_name["python".len()..])
                 }
-                Err(Error::PathFileNameError)
-            } else {
-                Err(Error::FileNameToStrError)
-            }
-        } else {
-            Err(Error::FileNameMissing)
-        }
+                Some(_) => Err(Error::PathFileNameError),
+                None => Err(Error::FileNameToStrError),
+            })
     }
 
     // XXX from_shebang()?
@@ -219,11 +220,12 @@ fn all_executables_in_paths(
     paths: impl IntoIterator<Item = PathBuf>,
 ) -> HashMap<ExactVersion, PathBuf> {
     let mut executables = HashMap::new();
-    for path in paths {
-        if let Ok(version) = ExactVersion::from_path(&path) {
+    paths.into_iter().for_each(|path| {
+        ExactVersion::from_path(&path).map_or((), |version| {
             executables.entry(version).or_insert(path);
-        }
-    }
+        })
+    });
+
     log::debug!("Found executables: {:?}", executables.values());
     executables
 }
