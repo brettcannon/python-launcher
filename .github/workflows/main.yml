@@ -41,7 +41,7 @@ jobs:
 
       - name: Run `main.rs` tests
         # Requires a debug build of `py` to exist.
-        run: python -m pytest test/test_main.py
+        run: python -m pytest tests/test_main.py
 
   coverage:
     runs-on: ubuntu-latest
