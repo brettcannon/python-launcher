@@ -147,7 +147,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "nix"
-version = "0.14.1"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -229,7 +229,7 @@ dependencies = [
  "exitcode 1.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "human-panic 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)",
- "nix 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nix 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serial_test 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serial_test_derive 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "stderrlog 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -534,7 +534,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum lock_api 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "79b2de95ecb4691949fea4716ca53cdbcfccb2c612e19644a8bad05edcf9f47b"
 "checksum log 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)" = "4fabed175da42fed1fa0746b0ea71f412aa9d35e76e95e59b192c64b9dc2bf8b"
 "checksum memchr 2.3.3 (registry+https://github.com/rust-lang/crates.io-index)" = "3728d817d99e5ac407411fa471ff9800a778d88a24685968b36824eaf4bee400"
-"checksum nix 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = "6c722bee1037d430d0f8e687bbdbf222f27cc6e4e68d5caf630857bb2b6dbdce"
+"checksum nix 0.17.0 (registry+https://github.com/rust-lang/crates.io-index)" = "50e4785f2c3b7589a0d0c1dd60285e1188adac4006e8abd6dd578e1567027363"
 "checksum num-integer 0.1.43 (registry+https://github.com/rust-lang/crates.io-index)" = "8d59457e662d541ba17869cf51cf177c0b5f0cbf476c66bdc90bf1edac4f875b"
 "checksum num-traits 0.2.12 (registry+https://github.com/rust-lang/crates.io-index)" = "ac267bcc07f48ee5f8935ab0d24f316fb722d7a1292e2913f0cc196b29ffd611"
 "checksum numtoa 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b8f8bdf33df195859076e54ab11ee78a1b208382d3a26ec40d142ffc1ecc49ef"
