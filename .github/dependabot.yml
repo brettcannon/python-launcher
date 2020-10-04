@@ -11,6 +11,8 @@ updates:
     schedule:
       interval: "weekly"
       day: "friday"
+    ignore:
+      - dependency-name: "nix"
 
   - package-ecosystem: pip
     directory: "/"
