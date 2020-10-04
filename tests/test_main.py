@@ -30,7 +30,7 @@ def py(monkeypatch):
     monkeypatch.delenv("PYLAUNCH_DEBUG", raising=False)
     monkeypatch.setenv("PATH", os.fspath(python_executable.parent))
     monkeypatch.delenv("VIRTUAL_ENV", raising=False)
-    py_path = pathlib.Path(__file__).parent / "target" / "debug" / "py"
+    py_path = pathlib.Path(__file__).parent.parent / "target" / "debug" / "py"
 
     def call_py(*args, debug=False):
         call = [py_path]
