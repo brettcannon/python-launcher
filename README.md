@@ -50,12 +50,6 @@ to have it output logging details of how it is performing its search.
 
 ## TODO
 
-**NOTE**: I am using this project to learn
-[Rust](https://www.rust-lang.org/), so please don't be offended if I choose to
-implement something myself instead of accepting a pull request that you submit.
-(Pull requests to do something I have already implemented in a more idiomatic
-fashion are very much appreciated, though.)
-
 [Issues to finish to reach MVP](https://github.com/brettcannon/python-launcher/issues?q=is%3Aissue+is%3Aopen+label%3AMVP)
 
 ## Appendix
