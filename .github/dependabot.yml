@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "friday"
