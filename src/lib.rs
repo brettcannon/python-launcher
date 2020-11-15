@@ -260,6 +260,8 @@ pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
 mod tests {
     use super::*;
 
+    use std::cmp::Ordering;
+
     use test_case::test_case;
 
     #[test_case(RequestedVersion::Any => "Python" ; "Any")]
@@ -300,6 +302,30 @@ mod tests {
             }),
             RequestedVersion::Exact(42, 13)
         );
+    }
+
+    #[test] // For some reason, having Ordering breaks test-case.
+    fn exactversion_comparisons() {
+        let py2_7 = ExactVersion { major: 2, minor: 7 };
+        let py3_0 = ExactVersion { major: 3, minor: 0 };
+        let py3_6 = ExactVersion { major: 3, minor: 6 };
+        let py3_10 = ExactVersion {
+            major: 3,
+            minor: 10,
+        };
+
+        // ==
+        assert_eq!(py3_10.cmp(&py3_10), Ordering::Equal);
+        // <
+        assert_eq!(py3_0.cmp(&py3_6), Ordering::Less);
+        // >
+        assert_eq!(py3_6.cmp(&py3_0), Ordering::Greater);
+        // Differ by major version.
+        assert_eq!(py2_7.cmp(&py3_0), Ordering::Less);
+        assert_eq!(py3_0.cmp(&py2_7), Ordering::Greater);
+        // Sort order different from lexicographic order.
+        assert_eq!(py3_6.cmp(&py3_10), Ordering::Less);
+        assert_eq!(py3_10.cmp(&py3_6), Ordering::Greater);
     }
 
     #[test_case(3, 8 => "3.8" ; "single digits")]
