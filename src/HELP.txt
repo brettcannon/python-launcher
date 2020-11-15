@@ -1,4 +1,4 @@
-Python Launcher for UNIX {}
+Python Launcher for Unix {}
 usage: {} [launcher-args] [python-args]
 
 Launcher arguments:

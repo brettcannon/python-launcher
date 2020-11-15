@@ -1,6 +1,6 @@
-# The Python Launcher for UNIX
+# The Python Launcher for Unix
 
-An implementation of the `py` command for UNIX-based platforms
+An implementation of the `py` command for Unix-based platforms
 (with some potential experimentation for good measure 😉)
 
 The goal is to have `py` become the cross-platform command that all Python users
@@ -8,7 +8,7 @@ use when executing a Python interpreter. By having a version-agnostic command
 it side-steps the "what should the `python` command point to?" debate by
 clearly specifying that upfront (i.e. the newest version of Python that can be
 found). This also unifies the suggested command to document for launching
-Python on both Windows as UNIX as `py` which has existed as the preferred
+Python on both Windows as Unix as `py` which has existed as the preferred
 [command on Windows](https://docs.python.org/3/using/windows.html#launcher) for
 some time.
 
