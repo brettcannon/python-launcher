@@ -304,7 +304,7 @@ mod tests {
         );
     }
 
-    #[test] // For some reason, having Ordering breaks test-case.
+    #[test] // For some reason, having Ordering breaks test-case 1.0.0.
     fn exactversion_comparisons() {
         let py2_7 = ExactVersion { major: 2, minor: 7 };
         let py3_0 = ExactVersion { major: 3, minor: 0 };
