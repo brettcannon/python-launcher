@@ -19,7 +19,7 @@ exitcode = "1.1.2"
 human-panic = "1.0.3"
 log = "0.4.11"
 nix = "0.14.1"
-stderrlog = "0.5.0"
+stderrlog = "0.5.1"
 
 [dev-dependencies]
 serial_test = "0.5.1"
