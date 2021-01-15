@@ -25,7 +25,7 @@ stderrlog = "0.5.0"
 serial_test = "0.5.1"
 serial_test_derive = "0.5.0"
 tempfile = "3.1.0"
-test-case = "1.0.0"
+test-case = "1.1.0"
 
 [[bin]]
 name = "py"
