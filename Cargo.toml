@@ -18,7 +18,7 @@ maintenance = { status = "experimental" }
 exitcode = "1.1.2"
 human-panic = "1.0.3"
 log = "0.4.14"
-nix = "0.14.1"
+nix = "0.19.1"
 stderrlog = "0.5.1"
 
 [dev-dependencies]
