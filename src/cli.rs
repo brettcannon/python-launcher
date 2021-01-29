@@ -42,7 +42,7 @@ impl Action {
             Some(list) if list == "--list" => {
                 Ok(Action::List(list_executables(&crate::all_executables())?))
             }
-            // TODO: Figure out how to store the result of theversion_from_flag() call.
+            // TODO: Figure out how to store the result of the version_from_flag() call.
             Some(version) if version_from_flag(version).is_some() => {
                 Ok(Action::Execute {
                     launcher_path,
