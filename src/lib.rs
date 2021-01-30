@@ -9,18 +9,24 @@ use std::{
     str::FromStr,
 };
 
+/// [`std::result::Result`] type with [`Error`] as the error type.
 pub type Result<T> = std::result::Result<T, Error>;
 
+/// Error enum for the entire crate.
 #[derive(Debug, PartialEq)]
 pub enum Error {
-    // {RequestedVersion, ExactVersion}::from_str
+    /// String passed to [`RequestedVersion::from_str`] or [`ExactVersion::from_str`]
+    /// has an expected digit component that cannot be parsed as an integer.
     ParseVersionComponentError(ParseIntError),
-    // RequestedVersion::from_str
+    /// [`ExactVersion::from_str`] is passed a string missing a `.`.
     DotMissing,
-    // ExactVersion::from_path
+    /// [`ExactVersion::from_path`] is given a [`Path`] which lacks a file name.
     FileNameMissing,
+    /// [`ExactVersion::from_path`] cannot convert a file name to a string.
     FileNameToStrError,
+    /// An unexpected file name was given to [`ExactVersion::from_path`].
     PathFileNameError,
+    /// No Python executable could be found based on the [`RequestedVersion`].
     // cli::{list_executables, find_executable, help}
     NoExecutableFound(RequestedVersion),
 }
@@ -61,6 +67,7 @@ impl std::error::Error for Error {
 
 #[cfg(not(tarpaulin_include))]
 impl Error {
+    /// Returns the appropriate [exit code](`exitcode::ExitCode`) for the error.
     pub fn exit_code(&self) -> exitcode::ExitCode {
         match self {
             Self::ParseVersionComponentError(_) => exitcode::USAGE,
@@ -73,14 +80,17 @@ impl Error {
     }
 }
 
-/// An integral part of a version specifier (e.g. the `X` or `Y` of `X.Y`).
+/// The integral part of a version specifier (e.g. the `X` or `Y` of `X.Y`).
 type ComponentSize = u16;
 
-/// Represents the version of Python a user requsted.
+/// The version of Python being searched for.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum RequestedVersion {
+    /// Any version is acceptable.
     Any,
+    /// A specific major version (e.g. `3.x`).
     MajorOnly(ComponentSize),
+    /// The specific `major.minor` version (e.g. `3.9`).
     Exact(ComponentSize, ComponentSize),
 }
 
@@ -124,6 +134,7 @@ impl RequestedVersion {
     }
 }
 
+/// Specifies the `major.minor` version of a Python executable.
 #[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ExactVersion {
     pub major: ComponentSize,
@@ -170,6 +181,7 @@ fn acceptable_file_name(file_name: &str) -> bool {
 }
 
 impl ExactVersion {
+    /// Constructs a [`ExactVersion`] from a `pythonX.Y` file path.
     pub fn from_path(path: &Path) -> Result<Self> {
         path.file_name()
             .ok_or(Error::FileNameMissing)
@@ -184,6 +196,7 @@ impl ExactVersion {
 
     // XXX from_shebang()?
 
+    /// Tests whether this [`ExactVersion`] satisfies the [`RequestedVersion`].
     pub fn supports(&self, requested: RequestedVersion) -> bool {
         match requested {
             RequestedVersion::Any => true,
@@ -230,6 +243,7 @@ fn all_executables_in_paths(
     executables
 }
 
+/// Finds all possible Python executables.
 pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
     log::info!("Checking PATH environment variable");
     let path_entries = env_path();
@@ -251,6 +265,7 @@ fn find_executable_in_hashmap(
     .map(|pair| pair.1.clone())
 }
 
+/// Attempts to find an executable that satisfies a specified [`RequestedVersion`].
 pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
     let found_executables = all_executables();
     find_executable_in_hashmap(requested, &found_executables)

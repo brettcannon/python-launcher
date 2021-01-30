@@ -1,3 +1,5 @@
+//! Parsing of CLI flags.
+
 use std::{
     cmp,
     collections::HashMap,
@@ -13,10 +15,15 @@ use std::{
 
 use crate::{ExactVersion, RequestedVersion};
 
+/// Represents the possible outcomes based on CLI arguments.
 #[derive(Debug, PartialEq)]
 pub enum Action {
+    /// The `-h` output for the command itself along with the path to a
+    /// Python executable to get its own `-h` output.
     Help(String, PathBuf),
+    /// A formatted string listing all found executables.
     List(String),
+    /// Details for executing a found Python executable.
     Execute {
         launcher_path: PathBuf,
         executable: PathBuf,
@@ -25,6 +32,7 @@ pub enum Action {
 }
 
 impl Action {
+    /// Parses `argv` to determine what action should be taken.
     pub fn from_main(argv: &[String]) -> crate::Result<Self> {
         let launcher_path = PathBuf::from(&argv[0]); // Strip the path to this executable.
 
@@ -121,8 +129,8 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
 // XXX Expose publicly?
 /// Returns the path to the activated virtual environment's executable.
 ///
-/// A virtual environment is determined to be activated based on the existence of the `VIRTUAL_ENV`
-/// environment variable.
+/// A virtual environment is determined to be activated based on the
+/// existence of the `VIRTUAL_ENV` environment variable.
 fn venv_executable(venv_root: &str) -> PathBuf {
     let mut path = PathBuf::new();
     path.push(venv_root);
@@ -187,11 +195,12 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
             chosen_path = Some(venv_executable(&venv_root.to_string_lossy()));
         } else if !args.is_empty() {
             // Using the first argument because it's the simplest and sanest.
-            // We can't use the last argument because that could actually be an argument to the
-            // Python module being executed. This is the same reason we can't go searching for
-            // the first/last file path that we find. The only safe way to get the file path
-            // regardless of its position is to replicate Python's arg parsing and that's a
-            // **lot** of work for little gain. Hence we only care about the first argument.
+            // We can't use the last argument because that could actually be an argument
+            // to the Python module being executed. This is the same reason we can't go
+            // searching for the first/last file path that we find. The only safe way to
+            // get the file path regardless of its position is to replicate Python's arg
+            // parsing and that's a **lot** of work for little gain. Hence we only care
+            // about the first argument.
             let possible_file = &args[0];
             log::info!("Checking {:?} for a shebang", possible_file);
             if let Ok(mut open_file) = File::open(possible_file) {
