@@ -6,10 +6,6 @@ use std::path::PathBuf;
 
 use tempfile::TempDir;
 
-// XXX Want a global lock on environment variable mutation to prevent interleaving
-// tests from stepping on each other.
-// https://github.com/rust-lang/rust/issues/43155#issuecomment-315543432 should
-// work, but I can't get access to the `lazy_static!` macro in this file to work.
 pub struct EnvVarState {
     changed: HashMap<OsString, Option<OsString>>,
 }
