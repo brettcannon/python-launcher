@@ -145,9 +145,9 @@ fn venv_executable_path(venv_root: &str) -> PathBuf {
 
 fn activated_venv() -> Option<PathBuf> {
     log::info!("Checking for VIRTUAL_ENV environment variable");
-    env::var_os("VIRTUAL_ENV").and_then(|venv_root| {
+    env::var_os("VIRTUAL_ENV").map(|venv_root| {
         log::debug!("VIRTUAL_ENV set to {:?}", venv_root);
-        Some(venv_executable_path(&venv_root.to_string_lossy()))
+        venv_executable_path(&venv_root.to_string_lossy())
     })
 }
 
