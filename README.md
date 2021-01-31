@@ -24,9 +24,11 @@ You can always run the Python Launcher with `PYVENV_DEBUG` set to some value
 to have it output logging details of how it is performing its search.
 
 ### `py -3.6` (specific version)
+
 1. Search `PATH` for `python3.6`
 
 ### `py -3` (loose/major version)
+
 1. Check for the `PY_PYTHON3` environment variable, and if defined
    and not the empty string then use it as the specific version
    (e.g. `PY_PYTHON3=3.6`)
@@ -35,7 +37,9 @@ to have it output logging details of how it is performing its search.
    `PATH`
 
 ### `py` (any version)
+
 1. Use `${VIRTUAL_ENV}/bin/python` immediately if available
+1. Use `.venv/bin/python` immediately if available
 1. If the first argument is a file path ...
    1. Check for a shebang
    1. If shebang path starts with `/usr/bin/python`, `/usr/local/bin/python`,
