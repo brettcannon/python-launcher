@@ -26,7 +26,7 @@ impl EnvVarState {
         }
     }
 
-    /* XXX This shouldn't be needed! Maybe a bug in Rust 1.44.0? */
+    /* XXX This attribute shouldn't be needed; side-effect of only being used in tests? */
     #[allow(dead_code)]
     pub fn empty() -> Self {
         let mut state = Self::new();
@@ -51,7 +51,29 @@ impl EnvVarState {
     }
 }
 
-fn touch_file(path: PathBuf) -> PathBuf {
+pub struct CurrentDir {
+    _original_dir: PathBuf,
+    pub dir: TempDir,
+}
+
+impl Drop for CurrentDir {
+    fn drop(&mut self) {
+        env::set_current_dir(&self._original_dir).unwrap();
+    }
+}
+
+impl CurrentDir {
+    /* XXX This attribute shouldn't be needed; side-effect of only being used in tests? */
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        let _original_dir = env::current_dir().unwrap();
+        let dir = TempDir::new().unwrap();
+        env::set_current_dir(dir.path()).unwrap();
+        Self { _original_dir, dir }
+    }
+}
+
+pub fn touch_file(path: PathBuf) -> PathBuf {
     let file = File::create(&path).unwrap();
     file.sync_all().unwrap();
     path

@@ -15,6 +15,9 @@ use std::{
 
 use crate::{ExactVersion, RequestedVersion};
 
+/// The default directory searched for a virtual environment.
+pub static DEFAULT_VENV_DIR: &str = ".venv";
+
 /// Represents the possible outcomes based on CLI arguments.
 #[derive(Debug, PartialEq)]
 pub enum Action {
@@ -131,13 +134,36 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
 ///
 /// A virtual environment is determined to be activated based on the
 /// existence of the `VIRTUAL_ENV` environment variable.
-fn venv_executable(venv_root: &str) -> PathBuf {
+fn venv_executable_path(venv_root: &str) -> PathBuf {
     let mut path = PathBuf::new();
     path.push(venv_root);
     path.push("bin");
     path.push("python");
     // XXX: Do a is_file() check first?
     path
+}
+
+fn activated_venv() -> Option<PathBuf> {
+    log::info!("Checking for VIRTUAL_ENV environment variable");
+    env::var_os("VIRTUAL_ENV").and_then(|venv_root| {
+        log::debug!("VIRTUAL_ENV set to {:?}", venv_root);
+        Some(venv_executable_path(&venv_root.to_string_lossy()))
+    })
+}
+
+fn venv_in_dir() -> Option<PathBuf> {
+    log::info!("Checking for a venv in {:?}", DEFAULT_VENV_DIR);
+    let venv_path = venv_executable_path(DEFAULT_VENV_DIR);
+    if venv_path.exists() {
+        log::debug!("Virtual environment executable found in {:?}", venv_path);
+        Some(venv_path)
+    } else {
+        None
+    }
+}
+
+fn venv_executable() -> Option<PathBuf> {
+    activated_venv().or_else(venv_in_dir)
 }
 
 // XXX Expose publicly?
@@ -189,10 +215,8 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
     let mut chosen_path: Option<PathBuf> = None;
 
     if requested_version == RequestedVersion::Any {
-        log::info!("Checking for VIRTUAL_ENV environment variable");
-        if let Some(venv_root) = env::var_os("VIRTUAL_ENV") {
-            log::debug!("VIRTUAL_ENV set to {:?}", venv_root);
-            chosen_path = Some(venv_executable(&venv_root.to_string_lossy()));
+        if let Some(venv_path) = venv_executable() {
+            chosen_path = Some(venv_path);
         } else if !args.is_empty() {
             // Using the first argument because it's the simplest and sanest.
             // We can't use the last argument because that could actually be an argument
@@ -310,10 +334,10 @@ mod tests {
     }
 
     #[test]
-    fn test_venv_executable() {
+    fn test_venv_executable_path() {
         let venv_root = "/path/to/venv";
         assert_eq!(
-            venv_executable(&venv_root),
+            venv_executable_path(&venv_root),
             PathBuf::from("/path/to/venv/bin/python")
         );
     }

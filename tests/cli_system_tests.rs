@@ -1,11 +1,13 @@
 mod common;
 
+use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
 use serial_test_derive::serial;
 
+use python_launcher::cli;
 use python_launcher::cli::Action;
 use python_launcher::Error;
 use python_launcher::RequestedVersion;
@@ -62,6 +64,7 @@ fn from_main_list() {
 #[test]
 #[serial]
 fn from_main_by_flag() {
+    let _working_dir = common::CurrentDir::new();
     let env_state = common::EnvState::new();
     let launcher_location = "/path/to/py".to_string();
     let no_argv = Action::from_main(&[launcher_location.clone()]);
@@ -153,7 +156,36 @@ fn from_main_activated_virtual_env() {
 
 #[test]
 #[serial]
+fn from_main_default_venv_path() {
+    let _working_dir = common::CurrentDir::new();
+    let env_state = common::EnvState::new();
+    let mut expected = PathBuf::new();
+    expected.push(cli::DEFAULT_VENV_DIR);
+    expected.push("bin");
+    fs::create_dir_all(&expected).unwrap();
+    expected.push("python");
+    common::touch_file(expected.clone());
+
+    match Action::from_main(&["/path/to/py".to_string()]) {
+        Ok(Action::Execute { executable, .. }) => {
+            assert_eq!(executable, expected);
+        }
+        _ => panic!("No executable found in default virtual environment case"),
+    }
+
+    // VIRTUAL_ENV gets ignored if any specific version is requested.
+    match Action::from_main(&["/path/to/py".to_string(), "-3".to_string()]) {
+        Ok(Action::Execute { executable, .. }) => {
+            assert_eq!(executable, env_state.python37);
+        }
+        _ => panic!("No executable found in default virtual environment case"),
+    }
+}
+
+#[test]
+#[serial]
 fn from_main_shebang() {
+    let _working_dir = common::CurrentDir::new();
     let env_state = common::EnvState::new();
     let temp_dir = tempfile::tempdir().unwrap();
     let file_path = temp_dir.path().join("shebang.py");
@@ -188,6 +220,7 @@ fn from_main_shebang() {
 #[test]
 #[serial]
 fn from_main_env_var() {
+    let _working_dir = common::CurrentDir::new();
     let mut env_state = common::EnvState::new();
     env_state.env_vars.change("PY_PYTHON", Some("3.6"));
     let launcher_location = "/path/to/py".to_string();
