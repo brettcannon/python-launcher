@@ -54,7 +54,7 @@ to have it output logging details of how it is performing its search.
 
 ## TODO
 
-[Issues to finish to reach MVP](https://github.com/brettcannon/python-launcher/issues?q=is%3Aissue+is%3Aopen+label%3AMVP)
+[Issues to finish to reach MVP](https://github.com/brettcannon/python-launcher/milestone/1)
 
 ## Appendix
 
