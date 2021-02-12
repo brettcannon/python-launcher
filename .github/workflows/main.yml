@@ -65,11 +65,13 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
 
-      - uses: actions-rs/install@v0.1
+      - uses: actions-rs/toolchain@v1
         with:
-          crate: cargo-tarpaulin
-          version: latest
-          use-tool-cache: true
+          toolchain: stable
+          override: true
+
+      - name: Install tarpaulin
+        run: cargo install tarpaulin
 
       - name: Run coverage
         run: cargo tarpaulin -v --out Xml --exclude-files tests/*
