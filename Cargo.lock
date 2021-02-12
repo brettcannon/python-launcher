@@ -276,7 +276,7 @@ dependencies = [
 
 [[package]]
 name = "python-launcher"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "exitcode",
  "human-panic",

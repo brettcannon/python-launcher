@@ -78,32 +78,35 @@ def test_execute(py, python_version):
 
 
 class TestExitCode:
-    def test_malformed_version(self, py):
-        call = py("-3.")
+    def call_failed(self, call):
         assert call.returncode
         assert call.stderr
 
+    def test_malformed_version(self, py):
+        self.call_failed(py("-3."))
+
     def test_nonexistent_version(self, py):
-        call = py("-0.9")
-        assert call.returncode
-        assert call.stderr
+        self.call_failed(py("-0.9"))
 
     def test_unexecutable_file(self, py, tmp_path, monkeypatch):
         version = "0.1"
         not_executable = tmp_path / f"python{version}"
         not_executable.touch()
         monkeypatch.setenv("PATH", os.fspath(tmp_path), prepend=os.pathsep)
-        call = py(f"-{version}")
-        assert call.returncode
-        assert call.stderr
 
-    def test_interpreter_does_not_exist(self, py, monkeypatch):
+        self.call_failed(py(f"-{version}"))
+
+    def test_file_does_not_exist(self, py, monkeypatch):
         bad_venv_path = "this_path_does_not_exist"
         assert not os.path.exists(bad_venv_path)
         monkeypatch.setenv("VIRTUAL_ENV", bad_venv_path)
-        call = py("-c", "pass")
-        assert call.returncode
-        assert call.stderr
+
+        self.call_failed(py())
+
+    def test_directory(self, py, tmp_path, monkeypatch):
+        dir_path = tmp_path / "bin" / "python"
+        monkeypatch.setenv("VIRTUAL_ENV", os.fspath(tmp_path))
+        self.call_failed(py())
 
 
 def test_PYLAUNCH_DEBUG(py):
