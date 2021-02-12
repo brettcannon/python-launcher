@@ -71,7 +71,7 @@ jobs:
           override: true
 
       - name: Install tarpaulin
-        run: cargo install tarpaulin
+        run: cargo install cargo-tarpaulin
 
       - name: Run coverage
         run: cargo tarpaulin -v --out Xml --exclude-files tests/*
