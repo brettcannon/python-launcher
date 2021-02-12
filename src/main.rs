@@ -61,7 +61,12 @@ fn log_exit(return_code: i32, message: impl std::error::Error) {
 
 #[cfg(not(tarpaulin_include))]
 fn run(executable: &Path, args: &[String]) -> nix::Result<()> {
-    log::info!("Executing {} with {:?}", executable.display(), args);
+    if executable.exists() {
+        log::info!("Executing {} with {:?}", executable.display(), args);
+    } else {
+        log::error!("{}: No such file", executable.display());
+        std::process::exit(2);
+    }
     let executable_as_cstring = CString::new(executable.as_os_str().as_bytes()).unwrap();
     let mut argv = vec![executable_as_cstring.clone()];
     argv.extend(args.iter().map(|arg| CString::new(arg.as_str()).unwrap()));
