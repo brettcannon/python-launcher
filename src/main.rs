@@ -61,7 +61,7 @@ fn log_exit(return_code: i32, message: impl std::error::Error) {
 
 #[cfg(not(tarpaulin_include))]
 fn run(executable: &Path, args: &[String]) -> nix::Result<()> {
-    log::info!("Executing {:?} with {:?}", executable, args);
+    log::info!("Executing {} with {:?}", executable.display(), args);
     let executable_as_cstring = CString::new(executable.as_os_str().as_bytes()).unwrap();
     let mut argv = vec![executable_as_cstring.clone()];
     argv.extend(args.iter().map(|arg| CString::new(arg.as_str()).unwrap()));

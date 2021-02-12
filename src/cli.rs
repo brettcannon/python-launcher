@@ -155,7 +155,10 @@ fn venv_in_dir() -> Option<PathBuf> {
     log::info!("Checking for a venv in {:?}", DEFAULT_VENV_DIR);
     let venv_path = venv_executable_path(DEFAULT_VENV_DIR);
     venv_path.exists().then(|| {
-        log::debug!("Virtual environment executable found in {:?}", venv_path);
+        log::debug!(
+            "Virtual environment executable found in {}",
+            venv_path.display()
+        );
         venv_path
     })
 }
