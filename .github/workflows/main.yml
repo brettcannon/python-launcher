@@ -122,4 +122,4 @@ jobs:
 
       - name: Run Black
         if: ${{ always() }}
-        run: python -m black --check --target-version py39 .
+        run: python -m black --check .
