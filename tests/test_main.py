@@ -97,6 +97,14 @@ class TestExitCode:
         assert call.returncode
         assert call.stderr
 
+    def test_interpreter_does_not_exist(self, py, monkeypatch):
+        bad_venv_path = "this_path_does_not_exist"
+        assert not os.path.exists(bad_venv_path)
+        monkeypatch.setenv("VIRTUAL_ENV", bad_venv_path)
+        call = py("-c", "pass")
+        assert call.returncode
+        assert call.stderr
+
 
 def test_PYLAUNCH_DEBUG(py):
     call = py("-c", "pass", debug=True)
