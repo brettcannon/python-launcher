@@ -1,7 +1,6 @@
 //! Parsing of CLI flags.
 
 use std::{
-    cmp,
     collections::HashMap,
     env,
     fmt::Write,
@@ -12,6 +11,8 @@ use std::{
     str::FromStr,
     string::ToString,
 };
+
+use comfy_table::Table;
 
 use crate::{ExactVersion, RequestedVersion};
 
@@ -104,29 +105,16 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
 
     let mut executable_pairs = Vec::from_iter(executables);
     executable_pairs.sort_unstable();
+    executable_pairs.reverse();
 
-    let max_version_length = executable_pairs.iter().fold(0, |max_so_far, pair| {
-        cmp::max(max_so_far, pair.0.to_string().len())
-    });
-
-    let left_column_width = cmp::max(max_version_length, "Version".len());
-    let mut help_string = String::new();
-    // Including two spaces between columns for readability.
-    writeln!(help_string, "{:<1$}  Path", "Version", left_column_width).unwrap();
-    writeln!(help_string, "{:<1$}  ====", "=======", left_column_width).unwrap();
+    let mut table = Table::new();
+    table.set_header(vec!["Version", "Path"]);
 
     for (version, path) in executable_pairs {
-        writeln!(
-            help_string,
-            "{:<2$}  {}",
-            version.to_string(),
-            path.to_string_lossy(),
-            left_column_width
-        )
-        .unwrap();
+        table.add_row(vec![version.to_string(), path.display().to_string()]);
     }
 
-    Ok(help_string)
+    Ok(table.to_string())
 }
 
 // XXX Expose publicly?
@@ -322,15 +310,15 @@ mod tests {
         assert!(executables_list.contains(python37_path));
 
         // Interpreters listed in the expected order.
-        assert!(executables_list.find("2.7").unwrap() < executables_list.find("3.6").unwrap());
-        assert!(executables_list.find("3.6").unwrap() < executables_list.find("3.7").unwrap());
+        assert!(executables_list.find("3.7").unwrap() < executables_list.find("3.6").unwrap());
+        assert!(executables_list.find("3.6").unwrap() < executables_list.find("2.7").unwrap());
 
         // Columns are in the expected order.
         assert!(
             executables_list.find("3.6").unwrap() < executables_list.find(python36_path).unwrap()
         );
         assert!(
-            executables_list.find(python36_path).unwrap() < executables_list.find("3.7").unwrap()
+            executables_list.find("3.7").unwrap() < executables_list.find(python36_path).unwrap()
         );
     }
 
