@@ -108,6 +108,7 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
     executable_pairs.reverse();
 
     let mut table = Table::new();
+    table.load_preset(comfy_table::presets::UTF8_FULL);
     table.set_header(vec!["Version", "Path"]);
 
     for (version, path) in executable_pairs {
