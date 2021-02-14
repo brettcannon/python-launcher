@@ -14,6 +14,25 @@ some time.
 
 See the top section of `py --help` for instructions.
 
+## Installation
+
+You can either install from [crates.io](https://crates.io/) or from source.
+Both approaches require you install the Rust toolchain. You can use
+[rustup](https://rustup.rs/) to accomplish this or whatever your OS suggests.
+
+If you want to
+[install from crates.io](https://crates.io/crates/python-launcher), run:
+
+```shell
+cargo install python-launcher
+```
+
+If you want to install from source, run:
+
+```shell
+cargo install --path .
+```
+
 ## Search order
 
 Please note that while searching, the search for a Python version can become
