@@ -39,7 +39,7 @@ Please note that while searching, the search for a Python version can become
 more specific. This leads to a switch in the search algorithm to the one most
 appropriate to the specificity of the version.
 
-You can always run the Python Launcher with `PYVENV_DEBUG` set to some value
+You can always run the Python Launcher with `PYLAUNCH_DEBUG` set to some value
 to have it output logging details of how it is performing its search.
 
 ### `py -3.6` (specific version)
