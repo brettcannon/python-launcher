@@ -115,7 +115,7 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
         table.add_row(vec![version.to_string(), path.display().to_string()]);
     }
 
-    Ok(table.to_string())
+    Ok(table.to_string() + "\n")
 }
 
 // XXX Expose publicly?
