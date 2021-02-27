@@ -41,18 +41,24 @@ impl Action {
         let launcher_path = PathBuf::from(&argv[0]); // Strip the path to this executable.
 
         match argv.get(1) {
-            Some(help) if help == "-h" || help == "--help" => {
-                crate::find_executable(RequestedVersion::Any)
-                    .ok_or(crate::Error::NoExecutableFound(RequestedVersion::Any))
-                    .map(|executable_path| {
-                        Action::Help(
-                            help_message(&launcher_path, &executable_path),
-                            executable_path,
-                        )
-                    })
-            }
-            Some(list) if list == "--list" => {
-                Ok(Action::List(list_executables(&crate::all_executables())?))
+            Some(flag) if flag == "-h" || flag == "--help" || flag == "--list" => {
+                if argv.len() > 2 {
+                    Err(crate::Error::IllegalArgument(
+                        launcher_path,
+                        flag.to_string(),
+                    ))
+                } else if flag == "--list" {
+                    Ok(Action::List(list_executables(&crate::all_executables())?))
+                } else {
+                    crate::find_executable(RequestedVersion::Any)
+                        .ok_or(crate::Error::NoExecutableFound(RequestedVersion::Any))
+                        .map(|executable_path| {
+                            Action::Help(
+                                help_message(&launcher_path, &executable_path),
+                                executable_path,
+                            )
+                        })
+                }
             }
             // TODO: Figure out how to store the result of the version_from_flag() call.
             Some(version) if version_from_flag(version).is_some() => {
@@ -118,7 +124,6 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
     Ok(table.to_string() + "\n")
 }
 
-// XXX Expose publicly?
 /// Returns the path to the activated virtual environment's executable.
 ///
 /// A virtual environment is determined to be activated based on the
@@ -156,7 +161,6 @@ fn venv_executable() -> Option<PathBuf> {
     activated_venv().or_else(venv_in_dir)
 }
 
-// XXX Expose publicly?
 // https://en.m.wikipedia.org/wiki/Shebang_(Unix)
 fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
     let mut shebang_buffer = [0; 2];
@@ -199,7 +203,6 @@ fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
     None
 }
 
-// XXX Expose publicly?
 fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<PathBuf> {
     let mut requested_version = version;
     let mut chosen_path: Option<PathBuf> = None;
@@ -251,6 +254,12 @@ mod tests {
     use test_case::test_case;
 
     use super::*;
+
+    #[test_case(&["py".to_string(), "--help".to_string(), "--list".to_string()] => Err(crate::Error::IllegalArgument(PathBuf::from("py"), "--help".to_string())))]
+    #[test_case(&["py".to_string(), "--list".to_string(), "--help".to_string()] => Err(crate::Error::IllegalArgument(PathBuf::from("py"), "--list".to_string())))]
+    fn from_main_illegal_argument_tests(argv: &[String]) -> crate::Result<Action> {
+        Action::from_main(argv)
+    }
 
     #[test_case("-S" => None ; "unrecognized short flag is None")]
     #[test_case("--something" => None ; "unrecognized long flag is None")]

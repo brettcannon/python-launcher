@@ -29,6 +29,10 @@ pub enum Error {
     /// No Python executable could be found based on the [`RequestedVersion`].
     // cli::{list_executables, find_executable, help}
     NoExecutableFound(RequestedVersion),
+    /// Multiple CLI flags given when the first flag that is expected to be specified
+    /// on its own.
+    // cli::Action::from_main
+    IllegalArgument(PathBuf, String),
 }
 
 #[cfg(not(tarpaulin_include))]
@@ -47,6 +51,14 @@ impl fmt::Display for Error {
                 "No executable found for {}",
                 requested_version.to_string()
             ),
+            Self::IllegalArgument(launcher_path, flag) => {
+                write!(
+                    f,
+                    "The `{}` flag must be specified on its own; see `{} --help` for details",
+                    flag,
+                    launcher_path.to_string_lossy()
+                )
+            }
         }
     }
 }
@@ -61,6 +73,7 @@ impl std::error::Error for Error {
             Self::FileNameToStrError => None,
             Self::PathFileNameError => None,
             Self::NoExecutableFound(_) => None,
+            Self::IllegalArgument(_, _) => None,
         }
     }
 }
@@ -76,6 +89,7 @@ impl Error {
             Self::FileNameToStrError => exitcode::SOFTWARE,
             Self::PathFileNameError => exitcode::SOFTWARE,
             Self::NoExecutableFound(_) => exitcode::USAGE,
+            Self::IllegalArgument(_, _) => exitcode::USAGE,
         }
     }
 }
