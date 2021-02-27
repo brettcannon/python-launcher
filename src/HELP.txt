@@ -2,8 +2,9 @@ Python Launcher for Unix {}
 usage: {} [launcher-args] [python-args]
 
 Launcher arguments:
--h/--help: This output
---list   : List all known interpreters (except activated virtual environment).
+-h/--help: This output; must be specified on its own.
+--list   : List all known interpreters (except activated virtual environment);
+           must be specified on its own.
 -[X]     : Launch the latest Python `X` version (e.g. `-3` for the latest
            Python 3); PY_PYTHON[X] overrides what is considered the latest
            (e.g. `PY_PYTHON3=3.6` will cause `-3` to search for Python 3.6).

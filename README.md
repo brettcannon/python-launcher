@@ -3,16 +3,25 @@
 An implementation of the `py` command for Unix-based platforms
 (with some potential experimentation for good measure 😉)
 
-The goal is to have `py` become the cross-platform command that all Python users
-use when executing a Python interpreter. By having a version-agnostic command
-it side-steps the "what should the `python` command point to?" debate by
-clearly specifying that upfront (i.e. the newest version of Python that can be
-found). This also unifies the suggested command to document for launching
-Python on both Windows as Unix as `py` which has existed as the preferred
-[command on Windows](https://docs.python.org/3/using/windows.html#launcher) for
-some time.
+The goal is to have `py` become the cross-platform command that Python users
+typically use to launch an interpreter. By having a command that is
+version-agnostic command when it comes to Python, it side-steps the "what should
+the `python` command point to?" debate by clearly specifying that upfront (i.e.
+the newest version of Python that can be found). This also unifies the suggested
+command to document for launching Python on both Windows as Unix as `py` has
+existed as the preferred
+[command on Windows](https://docs.python.org/3/using/windows.html#launcher)
+since 2012 with the release of Python 3.3.
 
-See the top section of `py --help` for instructions.
+A non-goal of this project is to become the way to launch the Python
+interpreter _all the time_. If you know the exact interpreter you want to launch
+then you should launch it directly; same goes for when you have
+requirements on the type of interpreter you want (e.g. 32-bit, framework build
+on macOS, etc.). The Python Launcher should be viewed as a tool of convenience,
+not necessity.
+
+For instructions on how to use the Python Launcher, see the top section of
+`py --help`.
 
 ## Installation
 
