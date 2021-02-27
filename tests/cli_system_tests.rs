@@ -1,5 +1,6 @@
 mod common;
 
+use std::env;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
@@ -156,7 +157,7 @@ fn from_main_activated_virtual_env() {
 
 #[test]
 #[serial]
-fn from_main_default_venv_path() {
+fn from_main_default_cwd_venv_path() {
     let _working_dir = common::CurrentDir::new();
     let env_state = common::EnvState::new();
     let mut expected = PathBuf::new();
@@ -168,7 +169,42 @@ fn from_main_default_venv_path() {
 
     match Action::from_main(&["/path/to/py".to_string()]) {
         Ok(Action::Execute { executable, .. }) => {
-            assert_eq!(executable, expected);
+            assert_eq!(executable, expected.canonicalize().unwrap());
+        }
+        _ => panic!("No executable found in default virtual environment case"),
+    }
+
+    // VIRTUAL_ENV gets ignored if any specific version is requested.
+    match Action::from_main(&["/path/to/py".to_string(), "-3".to_string()]) {
+        Ok(Action::Execute { executable, .. }) => {
+            assert_eq!(executable, env_state.python37);
+        }
+        _ => panic!("No executable found in default virtual environment case"),
+    }
+}
+
+#[test]
+#[serial]
+fn from_main_default_parent_venv_path() {
+    let working_dir = common::CurrentDir::new();
+    let temp_dir = working_dir.dir.path().to_path_buf();
+    let env_state = common::EnvState::new();
+    let mut expected = temp_dir.clone();
+    expected.push(cli::DEFAULT_VENV_DIR);
+    expected.push("bin");
+    fs::create_dir_all(&expected).unwrap();
+    expected.push("python");
+    common::touch_file(expected.clone());
+
+    let subdir = temp_dir.join("subdir");
+    fs::create_dir(&subdir).unwrap();
+    env::set_current_dir(&subdir).unwrap();
+
+    // XXX Change working dir
+
+    match Action::from_main(&["/path/to/py".to_string()]) {
+        Ok(Action::Execute { executable, .. }) => {
+            assert_eq!(executable, expected.canonicalize().unwrap());
         }
         _ => panic!("No executable found in default virtual environment case"),
     }

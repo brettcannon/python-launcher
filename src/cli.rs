@@ -124,17 +124,23 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
     Ok(table.to_string() + "\n")
 }
 
+fn relative_venv_path(add_default: bool) -> PathBuf {
+    let mut path = PathBuf::new();
+    if add_default {
+        path.push(DEFAULT_VENV_DIR);
+    }
+    path.push("bin");
+    path.push("python");
+    path
+}
+
 /// Returns the path to the activated virtual environment's executable.
 ///
 /// A virtual environment is determined to be activated based on the
 /// existence of the `VIRTUAL_ENV` environment variable.
 fn venv_executable_path(venv_root: &str) -> PathBuf {
-    let mut path = PathBuf::new();
-    path.push(venv_root);
-    path.push("bin");
-    path.push("python");
+    PathBuf::from(venv_root).join(relative_venv_path(false))
     // XXX: Do a is_file() check first?
-    path
 }
 
 fn activated_venv() -> Option<PathBuf> {
@@ -145,20 +151,22 @@ fn activated_venv() -> Option<PathBuf> {
     })
 }
 
-fn venv_in_dir() -> Option<PathBuf> {
-    log::info!("Checking for a venv in {:?}", DEFAULT_VENV_DIR);
-    let venv_path = venv_executable_path(DEFAULT_VENV_DIR);
-    venv_path.exists().then(|| {
-        log::debug!(
-            "Virtual environment executable found in {}",
-            venv_path.display()
-        );
-        venv_path
+fn venv_path_search() -> Option<PathBuf> {
+    let cwd = env::current_dir().unwrap();
+    log::info!(
+        "Searching for a venv in {} and parent directories",
+        cwd.display()
+    );
+    cwd.ancestors().find_map(|path| {
+        let venv_path = path.join(relative_venv_path(true));
+        log::info!("Checking {}", venv_path.display());
+        // bool::then_some() makes more sense, but still experimental.
+        venv_path.is_file().then(|| venv_path)
     })
 }
 
 fn venv_executable() -> Option<PathBuf> {
-    activated_venv().or_else(venv_in_dir)
+    activated_venv().or_else(venv_path_search)
 }
 
 // https://en.m.wikipedia.org/wiki/Shebang_(Unix)

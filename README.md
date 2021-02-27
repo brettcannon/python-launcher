@@ -67,7 +67,8 @@ to have it output logging details of how it is performing its search.
 ### `py` (any version)
 
 1. Use `${VIRTUAL_ENV}/bin/python` immediately if available
-1. Use `.venv/bin/python` immediately if available
+1. Use `.venv/bin/python` if available in the current working directory or any
+   of its parent directories
 1. If the first argument is a file path ...
    1. Check for a shebang
    1. If shebang path starts with `/usr/bin/python`, `/usr/local/bin/python`,
