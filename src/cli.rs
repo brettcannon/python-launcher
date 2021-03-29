@@ -12,7 +12,7 @@ use std::{
     string::ToString,
 };
 
-use comfy_table::Table;
+use comfy_table::{Table, TableComponent};
 
 use crate::{ExactVersion, RequestedVersion};
 
@@ -114,8 +114,12 @@ fn list_executables(executables: &HashMap<ExactVersion, PathBuf>) -> crate::Resu
     executable_pairs.reverse();
 
     let mut table = Table::new();
-    table.load_preset(comfy_table::presets::UTF8_FULL);
-    table.set_header(vec!["Version", "Path"]);
+    table.load_preset(comfy_table::presets::NOTHING);
+    // Using U+2502/"Box Drawings Light Vertical" over
+    // U+007C/"Vertical Line"/pipe simply because it looks better.
+    // Leaving out a header and other decorations to make it easier
+    // parse the output.
+    table.set_style(TableComponent::VerticalLines, '│');
 
     for (version, path) in executable_pairs {
         table.add_row(vec![version.to_string(), path.display().to_string()]);
