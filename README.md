@@ -101,6 +101,9 @@ would be used). Completions for `python` itself are also included
 (although they are generic to Python itself, so all options may not be valid
 for the version of Python you will be launching).
 
+<img width="537" alt="fish_completions" src="https://user-images.githubusercontent.com/54418/113020397-6a71be00-9137-11eb-9047-2df1022592fa.png">
+
+
 See [fish's documentation on where to put completions](https://fishshell.com/docs/current/completions.html#where-to-put-completions)
 to know where the file should be copied/symlinked.
 
@@ -117,6 +120,9 @@ By using the Launcher with Starship, your prompt will tell you which Python
 version will be used if you run `py`. Since the Launcher supports virtual
 environments, the prompt will properly reflect both what global install of
 Python will be used, but also the local virtual environment.
+
+<img width="630" alt="starship_prompt" src="https://user-images.githubusercontent.com/54418/113020490-807f7e80-9137-11eb-8cf6-69a953017e39.png">
+
 
 ### How do I get a table of Python executables in [Nushell](https://www.nushell.sh/)?
 
