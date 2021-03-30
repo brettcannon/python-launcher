@@ -1,12 +1,30 @@
 name: Security check
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
 jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/audit-check@v1
+
+      - uses: actions/cache@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
+
+      # actions-rs/audit-check isn't updated fast enough for our use
+      # of stable.
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: "Install cargo-audit"
+        run: cargo install cargo-audit
+
+      - name: "Audit"
+        run: cargo audit
