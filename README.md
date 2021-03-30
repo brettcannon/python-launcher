@@ -109,6 +109,8 @@ to know where the file should be copied/symlinked.
 ```TOML
 [python]
 python_binary = ["py"]
+# The following isn't necessary, but convenient.
+detect_folders = [".venv"]
 ```
 
 By using the Launcher with Starship, your prompt will tell you which Python
