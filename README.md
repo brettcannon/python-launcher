@@ -23,25 +23,6 @@ not necessity.
 For instructions on how to use the Python Launcher, see the top section of
 `py --help`.
 
-## Installation
-
-You can either install from [crates.io](https://crates.io/) or from source.
-Both approaches require you install the Rust toolchain. You can use
-[rustup](https://rustup.rs/) to accomplish this or whatever your OS suggests.
-
-If you want to
-[install from crates.io](https://crates.io/crates/python-launcher), run:
-
-```shell
-cargo install python-launcher
-```
-
-If you want to install from source, run:
-
-```shell
-cargo install --path .
-```
-
 ## Search order
 
 Please note that while searching, the search for a Python version can become
@@ -80,6 +61,69 @@ to have it output logging details of how it is performing its search.
    as the loose or specific version (e.g. `PY_PYTHON=3` or `PY_PYTHON=3.6`)
 1. Search `PATH` for all instances of `python*.*`
 1. Find the executable with the newest version that is earliest on `PATH`
+
+## FAQ
+
+### How do I install the Launcher?
+
+You can either install from [crates.io](https://crates.io/) or from source.
+Both approaches require you install the Rust toolchain. You can use
+[rustup](https://rustup.rs/) to accomplish this or whatever your OS suggests.
+Do note that if the compliation fails then your version of Rust is probably too
+old; while the project is always compatible with the stable version of Rust, it
+can update as quickly as the day of a new stable version of Rust.
+
+#### From crates.io
+
+If you want to
+[install from crates.io](https://crates.io/crates/python-launcher), run:
+
+```shell
+cargo install python-launcher
+```
+
+#### From source
+
+If you want to install from source, run:
+
+```shell
+cargo install --path .
+```
+
+### How do I get shell completions for [fish](https://fishshell.com/)?
+
+The [`completions/py.fish` file in the repository](https://github.com/brettcannon/python-launcher/blob/main/completions/py.fish)
+provides completions for the Launcher. Beyond the statically-known completions
+(e.g. `--list`), the completions are also system-specific by providing version
+completions tied to the running shell (e.g. `-3.9` is only a completion if
+Python 3.9 is installed and will list the path to the Python executable that
+would be used). Completions for `python` itself are also included
+(although they are generic to Python itself, so all options may not be valid
+for the version of Python you will be launching).
+
+See [fish's documentation on where to put completions](https://fishshell.com/docs/current/completions.html#where-to-put-completions)
+to know where the file should be copied/symlinked.
+
+### How do I have [Starship](https://starship.rs/) use the Launcher to display the Python version?
+
+```TOML
+[python]
+python_binary = ["py"]
+```
+
+By using the Launcher with Starship, your prompt will tell you which Python
+version will be used if you run `py`. Since the Launcher supports virtual
+environments, the prompt will properly reflect both what global install of
+Python will be used, but also the local virtual environment.
+
+### How do I get a table of Python executables in [Nushell](https://www.nushell.sh/)?
+
+```sh
+py --list | lines | split column "│" version executable | str trim
+```
+
+Do note that the character that is being split on is **not** the traditional
+pip character (`|`), but U+2502/"Box Drawings Light Vertical" (`│`).
 
 ## TODO
 
