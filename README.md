@@ -131,7 +131,8 @@ py --list | lines | split column "│" version executable | str trim
 ```
 
 Do note that the character that is being split on is **not** the traditional
-pip character (`|`), but U+2502/"Box Drawings Light Vertical" (`│`).
+[U+007C/"Vertical Line"/pipe character](https://www.compart.com/en/unicode/U+007C) (`|`),
+but [U+2502/"Box Drawings Light Vertical"](https://www.compart.com/en/unicode/U+2502) (`│`).
 
 ## TODO
 
