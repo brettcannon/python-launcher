@@ -2,8 +2,8 @@
 title: PY
 section: 1
 header: Python Launcher
-footer: Python Launcher 0.15.0
-date: 2021-02-26
+footer: Python Launcher LAUNCHER_VERSION
+date: CURRENT_DATE
 ---
 
 # NAME
