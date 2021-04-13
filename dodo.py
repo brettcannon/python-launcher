@@ -66,4 +66,5 @@ def task_venv():
 
 
 def task_install():
-    return {"actions": ["cargo install --path ."]}
+    """Install from source"""
+    return {"actions": ["cargo install --quiet --path ."]}
