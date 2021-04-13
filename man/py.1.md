@@ -68,8 +68,6 @@ variable.
 **-[X.Y]**
 : Launch the specified Python version (e.g. **-3.6** for Python 3.6).
 
-# ERRORS
-
 # ENVIRONMENT
 
 **PY_PYTHON**
