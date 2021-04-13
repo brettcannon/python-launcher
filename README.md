@@ -20,47 +20,11 @@ requirements on the type of interpreter you want (e.g. 32-bit, framework build
 on macOS, etc.). The Python Launcher should be viewed as a tool of convenience,
 not necessity.
 
+## Documentation
+
 For instructions on how to use the Python Launcher, see the top section of
-`py --help`.
-
-## Search order
-
-Please note that while searching, the search for a Python version can become
-more specific. This leads to a switch in the search algorithm to the one most
-appropriate to the specificity of the version.
-
-You can always run the Python Launcher with `PYLAUNCH_DEBUG` set to some value
-to have it output logging details of how it is performing its search.
-
-### `py -3.6` (specific version)
-
-1. Search `PATH` for `python3.6`
-
-### `py -3` (loose/major version)
-
-1. Check for the `PY_PYTHON3` environment variable, and if defined
-   and not the empty string then use it as the specific version
-   (e.g. `PY_PYTHON3=3.6`)
-1. Search `PATH` for all instances of `python3.*`
-1. Find the executable with the newest version number that comes earliest on
-   `PATH`
-
-### `py` (any version)
-
-1. Use an activated virtual environment immediately via `${VIRTUAL_ENV}/bin/python`
-1. Use `.venv/bin/python` if available in the current working directory or any
-   of its parent directories
-1. If the first argument is a file path ...
-   1. Check for a shebang
-   1. If shebang path starts with `/usr/bin/python`, `/usr/local/bin/python`,
-      `/usr/bin/env python` or `python`, proceed based on the version found
-      on that path
-      (bare `python` is considered the equivalent of not specifying a
-      Python version)
-1. Check for the `PY_PYTHON` environment variable, and if defined then use it
-   as the loose or specific version (e.g. `PY_PYTHON=3` or `PY_PYTHON=3.6`)
-1. Search `PATH` for all instances of `python*.*`
-1. Find the executable with the newest version that is earliest on `PATH`
+`py --help` or the
+[man page](https://github.com/brettcannon/python-launcher/blob/main/man/py.1.md).
 
 ## FAQ
 
@@ -69,9 +33,9 @@ to have it output logging details of how it is performing its search.
 You can either install from [crates.io](https://crates.io/) or from source.
 Both approaches require you install the Rust toolchain. You can use
 [rustup](https://rustup.rs/) to accomplish this or whatever your OS suggests.
-Do note that if the compliation fails then your version of Rust is probably too
+Do note that if the compilation fails then your version of Rust is probably too
 old; while the project is always compatible with the stable version of Rust, it
-can update as quickly as the day of a new stable version of Rust.
+can update as quickly as the day of a new stable release of Rust.
 
 #### From crates.io
 
@@ -103,7 +67,6 @@ for the version of Python you will be launching).
 
 <img width="537" alt="fish_completions" src="https://user-images.githubusercontent.com/54418/113020397-6a71be00-9137-11eb-9047-2df1022592fa.png">
 
-
 See [fish's documentation on where to put completions](https://fishshell.com/docs/current/completions.html#where-to-put-completions)
 to know where the file should be copied/symlinked.
 
@@ -122,7 +85,6 @@ environments, the prompt will properly reflect both what global install of
 Python will be used, but also the local virtual environment.
 
 <img width="630" alt="starship_prompt" src="https://user-images.githubusercontent.com/54418/113020490-807f7e80-9137-11eb-8cf6-69a953017e39.png">
-
 
 ### How do I get a table of Python executables in [Nushell](https://www.nushell.sh/)?
 
