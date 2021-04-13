@@ -12,14 +12,8 @@ black==20.8b1
     # via -r dev-requirements.in
 click==7.1.2
     # via black
-cloudpickle==1.6.0
-    # via doit
-doit==0.33.1
-    # via -r dev-requirements.in
 iniconfig==1.1.1
     # via pytest
-macfsevents==0.8.1
-    # via doit
 mypy-extensions==0.4.3
     # via black
 packaging==20.9
