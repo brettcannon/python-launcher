@@ -1,15 +1,19 @@
 import datetime
+import glob
 import os
 import pathlib
 import re
+import shutil
 import venv
 
 
-DOIT_CONFIG = {"backend": "sqlite3", "default_tasks": ["man", "venv"]}
+DOIT_CONFIG = {"backend": "sqlite3", "default_tasks": ["venv", "lint", "test", "man"]}
 
-# lint: lint-python; lint-rust
-# test: cargo --quiet test; py -m pytest --quiet tests
-# install (not a default target)
+VENV_DIR = pathlib.Path(".venv")
+VENV_EXECUTABLE = VENV_DIR / "bin" / "python"
+
+RUST_FILES = glob.glob("**/*.rs", recursive=True)
+DEBUG_BINARY = pathlib.Path("target") / "debug" / "py"
 
 
 def task_man():
@@ -51,18 +55,61 @@ def task_man():
 
 def task_venv():
     """Create a virtual environment for tests"""
-    venv_dir = pathlib.Path(".venv")
-    venv_executable = venv_dir / "bin" / "python"
 
     return {
         "actions": [
-            (venv.create, (venv_dir,), {"with_pip": True, "clear": True}),
-            f"{os.fspath(venv_executable)} -m pip --quiet --disable-pip-version-check install -r dev-requirements.txt",
+            (venv.create, (VENV_DIR,), {"with_pip": True}),
+            f"{os.fspath(VENV_EXECUTABLE)} -m pip --quiet --disable-pip-version-check install -r dev-requirements.txt",
         ],
         "file_dep": ["dev-requirements.txt"],
         "targets": [".venv"],
-        # "clean" not necessary thanks to `clear` argument to venv.create().
+        "clean": [(shutil.rmtree, (VENV_DIR,))],
     }
+
+
+def task_lint_python():
+    """Lint Python code"""
+    return {
+        "actions": [f"{os.fspath(VENV_EXECUTABLE)} -m black --quiet --check ."],
+        "file_dep": glob.glob("**/*.py", recursive=True),
+        "task_dep": ["venv"],
+    }
+
+
+def task_lint_rust():
+    """Lint Rust code"""
+    return {
+        "actions": ["cargo fmt --quiet --all -- --check"],
+        "file_dep": RUST_FILES,
+    }
+
+
+def task_lint():
+    """Lint code"""
+    return {"actions": None, "task_dep": ["lint_rust", "lint_python"]}
+
+
+def task_rust_tests():
+    """Test code using Rust"""
+    return {
+        "actions": ["cargo --quiet test"],
+        "file_dep": RUST_FILES,
+        "targets": [DEBUG_BINARY],
+    }
+
+
+def task_python_tests():
+    """Test code using Python"""
+    return {
+        "actions": [f"{os.fspath(VENV_EXECUTABLE)} -m pytest --quiet tests"],
+        "file_dep": [DEBUG_BINARY] + glob.glob("tests/**/*.py", recursive=True),
+        "task_dep": ["venv"],
+    }
+
+
+def task_test():
+    """Run all tests"""
+    return {"actions": None, "task_dep": ["rust_tests", "python_tests"]}
 
 
 def task_install():
