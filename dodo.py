@@ -89,16 +89,16 @@ def task_lint():
     return {"actions": None, "task_dep": ["lint_rust", "lint_python"]}
 
 
-def task_rust_tests():
+def task_tests_rust():
     """Test code using Rust"""
     return {
         "actions": ["cargo --quiet test"],
-        "file_dep": RUST_FILES,
+        "file_dep": ["Cargo.lock"] + RUST_FILES,
         "targets": [DEBUG_BINARY],
     }
 
 
-def task_python_tests():
+def task_tests_python():
     """Test code using Python"""
     return {
         "actions": [f"{os.fspath(VENV_EXECUTABLE)} -m pytest --quiet tests"],
@@ -109,9 +109,13 @@ def task_python_tests():
 
 def task_test():
     """Run all tests"""
-    return {"actions": None, "task_dep": ["rust_tests", "python_tests"]}
+    return {"actions": None, "task_dep": ["tests_rust", "tests_python"]}
 
 
 def task_install():
     """Install from source"""
-    return {"actions": ["cargo install --quiet --path ."]}
+    return {
+        "actions": ["cargo install --quiet --path ."],
+        "file_dep": ["Cargo.lock"] + glob.glob("src/**/**.rs", recursive=True),
+        "targets": [pathlib.Path.home() / ".cargo" / "bin" / "py"],
+    }
