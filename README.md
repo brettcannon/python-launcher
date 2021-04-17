@@ -26,6 +26,10 @@ For instructions on how to use the Python Launcher, see the top section of
 `py --help` or the
 [man page](https://github.com/brettcannon/python-launcher/blob/main/man/py.1.md).
 
+The general control flow for finding the appropriate Python executable is:
+
+<img src="https://raw.githubusercontent.com/brettcannon/python-launcher/main/docs/control-flow/control_flow.svg">
+
 ## FAQ
 
 ### How do I install the Launcher?
