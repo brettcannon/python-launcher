@@ -7,7 +7,12 @@ import shutil
 import venv
 
 
-DOIT_CONFIG = {"backend": "sqlite3", "default_tasks": ["venv", "lint", "test", "man"]}
+DOIT_CONFIG = {
+    "backend": "sqlite3",
+    "default_tasks": ["venv", "lint", "test", "man_page", "control_flow"],
+}
+
+DOCS = pathlib.Path("docs")
 
 VENV_DIR = pathlib.Path(".venv")
 VENV_EXECUTABLE = VENV_DIR / "bin" / "python"
@@ -16,9 +21,9 @@ RUST_FILES = glob.glob("**/*.rs", recursive=True)
 DEBUG_BINARY = pathlib.Path("target") / "debug" / "py"
 
 
-def task_man():
+def task_man_page():
     """Generate the man page"""
-    man_dir = pathlib.Path("man")
+    man_dir = DOCS / "man-page"
     md_file = man_dir / "py.1.md"
     man_file = man_dir / "py.1"
 
@@ -51,6 +56,20 @@ def task_man():
         "file_dep": [md_file],
         "targets": [man_file],
     }
+
+
+def task_control_flow():
+    dot_file = DOCS / "control-flow" / "control_flow.dot"
+    for file_type in ["svg", "png"]:
+        output_file = dot_file.with_suffix("." + file_type)
+        yield {
+            "name": file_type,
+            "actions": [
+                f"dot -T {file_type} -o {os.fspath(output_file)} {os.fspath(dot_file)}"
+            ],
+            "file_dep": [dot_file],
+            "targets": [output_file],
+        }
 
 
 def task_venv():
