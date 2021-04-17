@@ -22,7 +22,9 @@ not necessity.
 
 ## Documentation
 
-The general control flow for finding the appropriate Python executable is:
+The general control flow for finding the appropriate Python executable is the
+following (with Python 3.6, Python 3, and the newest version of Python installed
+as examples):
 
 <img src="https://raw.githubusercontent.com/brettcannon/python-launcher/main/docs/control-flow/control_flow.svg">
 
