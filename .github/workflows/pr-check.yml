@@ -12,6 +12,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Cargo up-to-date
+        uses: brettcannon/check-for-changed-files@v1
+        with:
+          prereq-pattern: Cargo.toml
+          file-pattern: Cargo.lock
+
+      - name: Python dev requirements up-to-date
+        uses: brettcannon/check-for-changed-files@v1
+        with:
+          prereq-pattern: dev-requirements.in
+          file-pattern: dev-requirements.txt
+
       - name: Man page up-to-date
         uses: brettcannon/check-for-changed-files@v1
         with:
