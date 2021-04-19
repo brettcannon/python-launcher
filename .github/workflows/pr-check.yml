@@ -1,0 +1,27 @@
+name: PR Check
+on:
+  pull_request:
+    types:
+      - "opened"
+      - "reopened"
+      - "synchronize"
+
+jobs:
+  files-changed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Man page up-to-date
+        uses: brettcannon/check-for-changed-files@v1
+        with:
+          prereq-pattern: docs/man-page/py.1.md
+          file-pattern: docs/man-page/py.1
+
+      - name: Control flow diagram up-to-date
+        uses: brettcannon/check-for-changed-files@v1
+        with:
+          prereq-pattern: docs/control-flow/control_flow.dot
+          file-pattern: |
+            docs/control-flow/control_flow.png
+            docs/control-flow/control_flow.svg
