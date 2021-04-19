@@ -98,7 +98,10 @@ def task_lint_python():
 def task_lint_rust():
     """Lint Rust code"""
     return {
-        "actions": ["cargo fmt --quiet --all -- --check"],
+        "actions": [
+            "cargo fmt --quiet --all -- --check",
+            "cargo clippy --quiet --all-targets --all-features -- -D warnings",
+        ],
         "file_dep": RUST_FILES,
     }
 
