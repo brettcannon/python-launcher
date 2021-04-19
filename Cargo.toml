@@ -14,6 +14,10 @@ resolver = "2"
 [badges]
 maintenance = { status = "experimental" }
 
+[[bench]]
+name = "list"
+harness = false
+
 [[bin]]
 name = "py"
 path = "src/main.rs"
@@ -27,6 +31,7 @@ nix = "0.20.0"
 stderrlog = "0.5.1"
 
 [dev-dependencies]
+criterion = "0.3.4"
 serial_test = "0.5.1"
 serial_test_derive = "0.5.0"
 tempfile = "3.2.0"
