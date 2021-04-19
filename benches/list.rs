@@ -1,5 +1,4 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use python_launcher;
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("List executables", |b| {
