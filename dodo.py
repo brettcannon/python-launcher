@@ -86,18 +86,20 @@ def task_venv():
     }
 
 
-def task_lint_python():
+def lint_python():
     """Lint Python code"""
     return {
+        "name": "python",
         "actions": [f"{os.fspath(VENV_EXECUTABLE)} -m black --quiet --check ."],
         "file_dep": glob.glob("**/*.py", recursive=True),
         "task_dep": ["venv"],
     }
 
 
-def task_lint_rust():
+def lint_rust():
     """Lint Rust code"""
     return {
+        "name": "rust",
         "actions": [
             "cargo fmt --quiet --all -- --check",
             "cargo clippy --quiet --all-targets --all-features -- -D warnings",
@@ -108,21 +110,24 @@ def task_lint_rust():
 
 def task_lint():
     """Lint code"""
-    return {"actions": None, "task_dep": ["lint_rust", "lint_python"]}
+    yield lint_rust()
+    yield lint_python()
 
 
-def task_tests_rust():
+def tests_rust():
     """Test code using Rust"""
     return {
+        "name": "rust",
         "actions": ["cargo --quiet test"],
         "file_dep": ["Cargo.lock"] + RUST_FILES,
         "targets": [DEBUG_BINARY],
     }
 
 
-def task_tests_python():
+def tests_python():
     """Test code using Python"""
     return {
+        "name": "python",
         "actions": [f"{os.fspath(VENV_EXECUTABLE)} -m pytest --quiet tests"],
         "file_dep": [DEBUG_BINARY] + glob.glob("tests/**/*.py", recursive=True),
         "task_dep": ["venv"],
@@ -131,7 +136,8 @@ def task_tests_python():
 
 def task_test():
     """Run all tests"""
-    return {"actions": None, "task_dep": ["tests_rust", "tests_python"]}
+    yield tests_rust()
+    yield tests_python()
 
 
 def task_install():
