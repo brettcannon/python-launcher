@@ -2,7 +2,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("List executables", |b| {
-        b.iter(|| python_launcher::all_executables())
+        b.iter(python_launcher::all_executables)
     });
 }
 
