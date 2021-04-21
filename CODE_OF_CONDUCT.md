@@ -61,7 +61,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-[INSERT CONTACT METHOD].
+brett@python.org.
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
@@ -77,7 +77,7 @@ the consequences for any action they deem in violation of this Code of Conduct:
 **Community Impact**: Use of inappropriate language or other behavior deemed
 unprofessional or unwelcome in the community.
 
-**Consequence**: A private, written warning from community leaders, providing
+**Consequence**: A written warning from community leaders, providing
 clarity around the nature of the violation and an explanation of why the
 behavior was inappropriate. A public apology may be requested.
 
