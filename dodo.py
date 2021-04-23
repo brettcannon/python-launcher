@@ -50,7 +50,7 @@ def task_man_page():
 
     return {
         "actions": [
-            f"pandoc {os.fspath(md_file)} --standalone -t man -o {os.fspath(man_file)}",
+            f"pandoc {os.fsdecode(md_file)} --standalone -t man -o {os.fsdecode(man_file)}",
             (update_man, (md_file, man_file, pathlib.Path("Cargo.toml")), {}),
         ],
         "file_dep": [md_file],
@@ -65,7 +65,7 @@ def task_control_flow():
         yield {
             "name": file_type,
             "actions": [
-                f"dot -T {file_type} -o {os.fspath(output_file)} {os.fspath(dot_file)}"
+                f"dot -T {file_type} -o {os.fsdecode(output_file)} {os.fsdecode(dot_file)}"
             ],
             "file_dep": [dot_file],
             "targets": [output_file],
@@ -78,7 +78,7 @@ def task_venv():
     return {
         "actions": [
             (venv.create, (VENV_DIR,), {"with_pip": True}),
-            f"{os.fspath(VENV_EXECUTABLE)} -m pip --quiet --disable-pip-version-check install -r dev-requirements.txt",
+            f"{os.fsdecode(VENV_EXECUTABLE)} -m pip --quiet --disable-pip-version-check install -r dev-requirements.txt",
         ],
         "file_dep": ["dev-requirements.txt"],
         "targets": [".venv"],
@@ -90,7 +90,7 @@ def lint_python():
     """Lint Python code"""
     return {
         "name": "python",
-        "actions": [f"{os.fspath(VENV_EXECUTABLE)} -m black --quiet --check ."],
+        "actions": [f"{os.fsdecode(VENV_EXECUTABLE)} -m black --quiet --check ."],
         "file_dep": glob.glob("**/*.py", recursive=True),
         "task_dep": ["venv"],
     }
@@ -128,7 +128,7 @@ def tests_python():
     """Test code using Python"""
     return {
         "name": "python",
-        "actions": [f"{os.fspath(VENV_EXECUTABLE)} -m pytest --quiet tests"],
+        "actions": [f"{os.fsdecode(VENV_EXECUTABLE)} -m pytest --quiet tests"],
         "file_dep": [DEBUG_BINARY] + glob.glob("tests/**/*.py", recursive=True),
         "task_dep": ["venv"],
     }
