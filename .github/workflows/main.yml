@@ -39,7 +39,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install distro packages
-        run: sudo apt-get install -y pandoc graphviz
+        run: sudo apt-get install -qq pandoc graphviz
 
       - name: Install doit
         run: python -m pip install --upgrade pip doit
