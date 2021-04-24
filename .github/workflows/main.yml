@@ -21,6 +21,7 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
 
+      # OS-specific
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
@@ -35,17 +36,13 @@ jobs:
 
       - uses: actions/setup-python@v2
         with:
-          python-version: "3.9"
+          python-version: "3.x"
 
-      - name: Run unit and system tests
-        run: cargo test --verbose
+      - name: Install doit
+        run: python -m pip install --upgrade pip doit
 
-      - name: Install Python dependencies
-        run: python -m pip install -r dev-requirements.txt
-
-      - name: Run `main.rs` tests
-        # Requires a debug build of `py` to exist.
-        run: python -m pytest tests/test_main.py
+      - name: Run `doit`
+        run: doit
 
   coverage:
     runs-on: ubuntu-latest
@@ -79,49 +76,3 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
-
-      - uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('dev-requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
-
-      - name: Install Black
-        run: python -m pip install black
-
-      - name: Install Rust components
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
-
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
-
-      - name: Run rustfmt
-        if: ${{ always() }}
-        run: cargo fmt --all -- --check
-
-      - name: Run Black
-        if: ${{ always() }}
-        run: python -m black --check .
