@@ -55,10 +55,17 @@ cargo install python-launcher
 
 #### From source
 
-If you want to install from source, run:
+If you want to install from source, you can either use `cargo` directly:
 
 ```shell
 cargo install --path .
+```
+
+Or you can use `doit` to do the install only if source code as changed since
+the last time you used the `install` command:
+
+```shell
+doit install
 ```
 
 ### How do I get shell completions for [fish](https://fishshell.com/)?
