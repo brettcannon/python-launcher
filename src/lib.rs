@@ -4,6 +4,7 @@ use std::{
     collections::HashMap,
     convert::From,
     env, fmt,
+    fmt::Display,
     num::ParseIntError,
     path::{Path, PathBuf},
     str::FromStr,
@@ -13,7 +14,7 @@ use std::{
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Error enum for the entire crate.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Error {
     /// String passed to [`RequestedVersion::from_str`] or [`ExactVersion::from_str`]
     /// has an expected digit component that cannot be parsed as an integer.
@@ -98,7 +99,7 @@ impl Error {
 type ComponentSize = u16;
 
 /// The version of Python being searched for.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum RequestedVersion {
     /// Any version is acceptable.
     Any,
@@ -108,13 +109,15 @@ pub enum RequestedVersion {
     Exact(ComponentSize, ComponentSize),
 }
 
-impl ToString for RequestedVersion {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for RequestedVersion {
+    /// Format to a readable name of the Python version requested, e.g. `Python 3.9`.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let repr = match self {
             Self::Any => "Python".to_string(),
             Self::MajorOnly(major) => format!("Python {}", major),
             Self::Exact(major, minor) => format!("Python {}.{}", major, minor),
-        }
+        };
+        write!(f, "{}", repr)
     }
 }
 
@@ -149,7 +152,7 @@ impl RequestedVersion {
 }
 
 /// Specifies the `major.minor` version of a Python executable.
-#[derive(Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct ExactVersion {
     pub major: ComponentSize,
     pub minor: ComponentSize,
@@ -161,9 +164,10 @@ impl From<ExactVersion> for RequestedVersion {
     }
 }
 
-impl ToString for ExactVersion {
-    fn to_string(&self) -> String {
-        format!("{}.{}", self.major, self.minor)
+impl Display for ExactVersion {
+    /// Format to the format specifier, e.g. `3.9`.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}.{}", self.major, self.minor)
     }
 }
 
@@ -195,6 +199,11 @@ fn acceptable_file_name(file_name: &str) -> bool {
 }
 
 impl ExactVersion {
+    /// Construct an instance of [`ExactVersion`].
+    pub fn new(major: ComponentSize, minor: ComponentSize) -> Self {
+        ExactVersion { major, minor }
+    }
+
     /// Constructs a [`ExactVersion`] from a `pythonX.Y` file path.
     pub fn from_path(path: &Path) -> Result<Self> {
         path.file_name()

@@ -20,7 +20,7 @@ use crate::{ExactVersion, RequestedVersion};
 pub static DEFAULT_VENV_DIR: &str = ".venv";
 
 /// Represents the possible outcomes based on CLI arguments.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq)]
 pub enum Action {
     /// The `-h` output for the command itself along with the path to a
     /// Python executable to get its own `-h` output.
