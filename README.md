@@ -30,7 +30,7 @@ as examples):
 
 See the top section of
 `py --help` or the
-[man page](https://github.com/brettcannon/python-launcher/blob/main/man/py.1.md)
+[man page](https://github.com/brettcannon/python-launcher/blob/main/docs/man-page/py.1.md)
 for more details.
 
 ## FAQ
