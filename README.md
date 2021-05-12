@@ -86,6 +86,8 @@ to know where the file should be copied/symlinked.
 
 ### How do I have [Starship](https://starship.rs/) use the Launcher to display the Python version?
 
+Add the following to your [Starship configuration file](https://fishshell.com/docs/current/completions.html#where-to-put-completions):
+
 ```TOML
 [python]
 python_binary = ["py"]
