@@ -30,7 +30,7 @@ as examples):
 
 See the top section of
 `py --help` or the
-[man page](https://github.com/brettcannon/python-launcher/blob/main/man/py.1.md)
+[man page](https://github.com/brettcannon/python-launcher/blob/main/docs/man-page/py.1.md)
 for more details.
 
 ## FAQ
@@ -85,6 +85,8 @@ See [fish's documentation on where to put completions](https://fishshell.com/doc
 to know where the file should be copied/symlinked.
 
 ### How do I have [Starship](https://starship.rs/) use the Launcher to display the Python version?
+
+Add the following to your [Starship configuration file](https://fishshell.com/docs/current/completions.html#where-to-put-completions):
 
 ```TOML
 [python]
