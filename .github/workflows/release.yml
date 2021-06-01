@@ -1,0 +1,46 @@
+name: Release
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+
+    env:
+      toolchain: stable
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # https://doc.rust-lang.org/nightly/rustc/platform-support.html
+        # https://github.com/rust-embedded/cross#supported-targets
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            use-cross: false
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.toolchain }}
+          target: ${{ matrix.target }}
+          override: true
+          profile: minimal
+
+      - name: Cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          toolchain: ${{ env.toolchain }}
+          use-cross: ${{ matrix.use-cross }}
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: Strip binary
+        run: |
+          du -h target/${{ matrix.target }}/release/py
+          strip target/${{ matrix.target }}/release/py
+          du -h target/${{ matrix.target }}/release/py
