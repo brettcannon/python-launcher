@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Create release
-        # XXX run: gh release create XXX --notes "XXX" --draft
+        # XXX run: gh release create XXX --notes "" --draft
         run: echo ${{ needs.details.outputs.tag }}
 
   build:
@@ -89,3 +89,9 @@ jobs:
           du -h target/${{ matrix.target }}/release/py
           strip target/${{ matrix.target }}/release/py
           du -h target/${{ matrix.target }}/release/py
+
+      - name: Create tarball
+        run: |
+          export TAR_FILE=`python -m release tarball --target ${{ matrix.target }}`
+          echo $TAR_FILE
+          tar -tvf $TAR_FILE
