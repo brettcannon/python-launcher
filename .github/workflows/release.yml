@@ -73,7 +73,7 @@ jobs:
             os: macos-latest
             use-cross: false
           - target: aarch64-apple-darwin
-            os: macos-latest
+            os: macos-11
             use-cross: false
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
@@ -82,12 +82,6 @@ jobs:
             os: ubuntu-latest
             use-cross: true
           - target: riscv64gc-unknown-linux-gnu
-            os: ubuntu-latest
-            use-cross: true
-          - target: x86_64-unknown-freebsd
-            os: ubuntu-latest
-            use-cross: true
-          - target: x86_64-unknown-dragonfly
             os: ubuntu-latest
             use-cross: true
           - target: x86_64-unknown-netbsd
