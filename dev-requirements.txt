@@ -8,7 +8,7 @@ appdirs==1.4.4
     # via black
 attrs==20.3.0
     # via pytest
-black==21.5b1
+black==21.5b2
     # via -r dev-requirements.in
 click==7.1.2
     # via black
