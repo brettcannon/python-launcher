@@ -2,14 +2,13 @@ name: Release
 
 on: workflow_dispatch
 
+permissions:
+  contents: write
+
 jobs:
   details:
     name: Release details
     runs-on: ubuntu-latest
-
-    # XXX
-    # permissions:
-    #   contents: write
 
     outputs:
       version: ${{ steps.version.outputs.release }}
@@ -48,17 +47,16 @@ jobs:
 
     steps:
       - name: Create release
-        # XXX run: gh release create XXX --notes "" --draft
-        run: echo ${{ needs.details.outputs.tag }}
+        # Specify release notes to make creation non-interactive.
+        run: gh release create ${{ needs.details.outputs.tag }} --notes "" --draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   build:
     name: Build ${{ matrix.target }}
     needs: [details, release]
     runs-on: ${{ matrix.os }}
-
-    # XXX
-    # permissions:
-    #   contents: write
 
     env:
       toolchain: stable
@@ -66,8 +64,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # https://doc.rust-lang.org/nightly/rustc/platform-support.html
+        # https://doc.rust-lang.org/stable/rustc/platform-support.html
         # https://github.com/rust-embedded/cross#supported-targets
+        # aarch64-apple-darwin (basically) requires macos-11 to be generally available.
         include:
           - target: x86_64-apple-darwin
             os: macos-latest
@@ -129,12 +128,12 @@ jobs:
 
       - name: Create tarball
         run: |
-          TAR_FILE=`python -m release tarball --target ${{ matrix.target }}`
-          tar -tvf $TAR_FILE
-          echo "tar_file=$TAR_FILE" >> $GITHUB_ENV
+          TARBALL_PATH=`python -m release tarball --target ${{ matrix.target }}`
+          du -h $TARBALL_PATH
+          tar -tvf $TARBALL_PATH
+          echo "tarball_path=$TARBALL_PATH" >> $GITHUB_ENV
 
-      # XXX
-      # - name: Upload tarball
-      #   run: gh release upload ${{ needs.details.outputs.tag }} ${{ env.tar_file }} --clobber
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload tarball
+        run: gh release upload ${{ needs.details.outputs.tag }} ${{ env.tarball_path }} --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

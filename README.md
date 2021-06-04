@@ -20,6 +20,60 @@ requirements on the type of interpreter you want (e.g. 32-bit, framework build
 on macOS, etc.). The Python Launcher should be viewed as a tool of convenience,
 not necessity.
 
+## Installation
+
+### Via `cargo`
+
+If you have the latest stable
+[release of Rust](https://www.rust-lang.org/tools/install) installed, then you
+can install the [Python Launcher via crates.io](https://crates.io/crates/python-launcher):
+
+```
+cargo install python-launcher
+```
+
+If you get a compilation error then it's very likely you don't have the latest
+stable release of Rust as there is a
+[release every 6 weeks](https://github.com/rust-lang/rfcs/blob/master/text/0507-release-channels.md)
+and this project tracks Rust's stable channel closely.
+
+### From a `.tar.xz` file
+
+If you go to the
+[releases page](https://github.com/brettcannon/python-launcher/releases) you will
+find various `.tar.xz` files for each release that target various platforms. If
+one is available for your platform then you can download the tarball and install
+it into e.g. `/usr/local/` via:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+```
+
+You can use `tar -t -f <tarball>` to see what files are included and where they
+will be installed.
+
+If you don't want to install the tarball then you can extract the tarball
+and copy the files manually as desired; the `py` binary is self-contained and is
+not dependent on any other files from the tarball.
+
+
+### From [source](https://github.com/brettcannon/python-launcher/)
+
+#### Using [`cargo`](https://doc.rust-lang.org/cargo/)
+
+```
+cargo install --path .
+```
+
+#### Using [`doit`](https://pydoit.org/)
+
+[Doit](https://pydoit.org/) will only perform an installation if source code as
+changed since the last time you used the `install` command:
+
+```
+doit install
+```
+
 ## Documentation
 
 The general control flow for finding the appropriate Python executable is the
@@ -35,56 +89,7 @@ for more details.
 
 ## FAQ
 
-### How do I install the Launcher?
-
-You can either install from [crates.io](https://crates.io/) or from source.
-Both approaches require you install the Rust toolchain. You can use
-[rustup](https://rustup.rs/) to accomplish this or whatever your OS suggests.
-Do note that if the compilation fails then your version of Rust is probably too
-old; while the project is always compatible with the stable version of Rust, it
-can update as quickly as the day of a new stable release of Rust.
-
-#### From crates.io
-
-If you want to
-[install from crates.io](https://crates.io/crates/python-launcher), run:
-
-```shell
-cargo install python-launcher
-```
-
-#### From source
-
-If you want to install from source, you can either use `cargo` directly:
-
-```shell
-cargo install --path .
-```
-
-Or you can use `doit` to do the install only if source code as changed since
-the last time you used the `install` command:
-
-```shell
-doit install
-```
-
-### How do I get shell completions for [fish](https://fishshell.com/)?
-
-The [`completions/py.fish` file in the repository](https://github.com/brettcannon/python-launcher/blob/main/completions/py.fish)
-provides completions for the Launcher. Beyond the statically-known completions
-(e.g. `--list`), the completions are also system-specific by providing version
-completions tied to the running shell (e.g. `-3.9` is only a completion if
-Python 3.9 is installed and will list the path to the Python executable that
-would be used). Completions for `python` itself are also included
-(although they are generic to Python itself, so all options may not be valid
-for the version of Python you will be launching).
-
-<img width="537" alt="fish_completions" src="https://user-images.githubusercontent.com/54418/113020397-6a71be00-9137-11eb-9047-2df1022592fa.png">
-
-See [fish's documentation on where to put completions](https://fishshell.com/docs/current/completions.html#where-to-put-completions)
-to know where the file should be copied/symlinked.
-
-### How do I have [Starship](https://starship.rs/) use the Launcher to display the Python version?
+### How do I have [Starship](https://starship.rs/) use the Python Launcher to display the Python version?
 
 Add the following to your [Starship configuration file](https://fishshell.com/docs/current/completions.html#where-to-put-completions):
 
@@ -112,14 +117,10 @@ Do note that the character that is being split on is **not** the traditional
 [U+007C/"Vertical Line"/pipe character](https://www.compart.com/en/unicode/U+007C) (`|`),
 but [U+2502/"Box Drawings Light Vertical"](https://www.compart.com/en/unicode/U+2502) (`│`).
 
-## TODO
-
-[Issues to finish to reach MVP](https://github.com/brettcannon/python-launcher/milestone/1)
-
 ## Appendix
 
 - [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/)
 - [PEP 486: Make the Python Launcher aware of virtual environments](https://www.python.org/dev/peps/pep-0486/)
-- Windows Launcher
+- Python Launcher for Windows
   - [Documentation](https://docs.python.org/3/using/windows.html#launcher)
   - [Source](https://github.com/python/cpython/blob/master/PC/launcher.c)
