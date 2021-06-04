@@ -46,6 +46,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Necessary to implicitly specify the repo to create the release for.
+      - uses: actions/checkout@v2
+
       - name: Create release
         # Specify release notes to make creation non-interactive.
         run: gh release create ${{ needs.details.outputs.tag }} --notes "" --draft
