@@ -5,6 +5,9 @@ on: workflow_dispatch
 permissions:
   contents: write
 
+env:
+  toolchain: stable
+
 jobs:
   details:
     name: Release details
@@ -46,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Necessary to implicitly specify the repo to create the release for.
+      # Necessary to implicitly specify the repo to create the release for.
       - uses: actions/checkout@v2
 
       - name: Create release
@@ -55,14 +58,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
   build:
     name: Build ${{ matrix.target }}
     needs: [details, release]
     runs-on: ${{ matrix.os }}
-
-    env:
-      toolchain: stable
 
     strategy:
       fail-fast: false
@@ -140,3 +139,23 @@ jobs:
         run: gh release upload ${{ needs.details.outputs.tag }} ${{ env.tarball_path }} --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    name: Publish to crates.io
+    needs: release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.toolchain }}
+          override: true
+          profile: minimal
+
+      - name: Publish
+        run: cargo publish --locked
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
