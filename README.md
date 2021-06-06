@@ -1,17 +1,32 @@
 # The Python Launcher for Unix
 
-An implementation of the `py` command for Unix-based platforms
-(with some potential experimentation for good measure 😉)
+Launch your Python interpreter the lazy/smart way!
+
+This project is an implementation of the `py` command for Unix-based platforms
+(with some potential experimentation for good measure 😉).
 
 The goal is to have `py` become the cross-platform command that Python users
-typically use to launch an interpreter. By having a command that is
-version-agnostic command when it comes to Python, it side-steps the "what should
-the `python` command point to?" debate by clearly specifying that upfront (i.e.
-the newest version of Python that can be found). This also unifies the suggested
-command to document for launching Python on both Windows as Unix as `py` has
-existed as the preferred
+typically use to launch an interpreter while doing development. By having a
+command that is version-agnostic when it comes to Python, it side-steps
+the "what should the `python` command point to?" debate by clearly specifying
+that upfront (i.e. the newest version of Python that can be found). This also
+unifies the suggested command to document for launching Python on both Windows
+as Unix as `py` has existed as the preferred
 [command on Windows](https://docs.python.org/3/using/windows.html#launcher)
 since 2012 with the release of Python 3.3.
+
+Typical usage would be:
+
+```
+py -m venv .venv
+py ...  # Whatever you would normally use `python` for during development.
+```
+
+This creates a virtual environment in a `.venv` directory using the latest
+version of Python installed. Subsequent uses of `py` will then use that virtual
+environment as long as it is in the current (or higher) directory; no
+environment activation required (although the Python Launcher supports activated
+environments as well)!
 
 A non-goal of this project is to become the way to launch the Python
 interpreter _all the time_. If you know the exact interpreter you want to launch
