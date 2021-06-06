@@ -22,6 +22,14 @@ not necessity.
 
 ## Installation
 
+There are various ways to install the Python Launcher for Unix. Some will
+install the extras provided by this project while others will not. Specifically,
+those extras are:
+
+- The [man page](https://github.com/brettcannon/python-launcher/blob/main/docs/man-page/py.1.md)
+- Shell completions for [fish](https://github.com/brettcannon/python-launcher/blob/main/completions/py.fish)
+- This [README](https://github.com/brettcannon/python-launcher/blob/main/README.md)
+
 ### Via `cargo`
 
 If you have the latest stable
@@ -37,6 +45,9 @@ stable release of Rust as there is a
 [release every 6 weeks](https://github.com/rust-lang/rfcs/blob/master/text/0507-release-channels.md)
 and this project tracks Rust's stable channel closely.
 
+Do note that this will **not** install things such as shell completions, the man
+page, etc.
+
 ### From a `.tar.xz` file
 
 If you go to the
@@ -50,14 +61,15 @@ tar --extract --strip-components 1 --directory /usr/local --file <tarball>
 ```
 
 You can use `tar -t -f <tarball>` to see what files are included and where they
-will be installed.
+will be installed (e.g. man page, shell completions, etc.).
 
 If you don't want to install the tarball then you can extract the tarball
 and copy the files manually as desired; the `py` binary is self-contained and is
 not dependent on any other files from the tarball.
 
-
 ### From [source](https://github.com/brettcannon/python-launcher/)
+
+This is equivalent to installing via crates.io (i.e. no extras are installed).
 
 #### Using [`cargo`](https://doc.rust-lang.org/cargo/)
 
@@ -82,10 +94,9 @@ as examples):
 
 <img src="https://raw.githubusercontent.com/brettcannon/python-launcher/main/docs/control-flow/control_flow.svg">
 
-See the top section of
-`py --help` or the
+See the
 [man page](https://github.com/brettcannon/python-launcher/blob/main/docs/man-page/py.1.md)
-for more details.
+or the top section of `py --help` for more details.
 
 ## FAQ
 
@@ -100,12 +111,12 @@ python_binary = ["py"]
 detect_folders = [".venv"]
 ```
 
+<img width="630" alt="starship_prompt" src="https://user-images.githubusercontent.com/54418/113020490-807f7e80-9137-11eb-8cf6-69a953017e39.png">
+
 By using the Launcher with Starship, your prompt will tell you which Python
 version will be used if you run `py`. Since the Launcher supports virtual
 environments, the prompt will properly reflect both what global install of
 Python will be used, but also the local virtual environment.
-
-<img width="630" alt="starship_prompt" src="https://user-images.githubusercontent.com/54418/113020490-807f7e80-9137-11eb-8cf6-69a953017e39.png">
 
 ### How do I get a table of Python executables in [Nushell](https://www.nushell.sh/)?
 
