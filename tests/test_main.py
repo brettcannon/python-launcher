@@ -21,14 +21,19 @@ def py(monkeypatch, tmp_path):
     The function has a 'path' attribute for a pathlib.Path object pointing
     at where the Python launcher is located.
 
+    The function has a 'python_executable' attribute for a pathlib.Path
+    object pointing to a temporary symlink to the virtual environments'
+    python executable.
+
     The critical environment variables which can influence the execution of
     the Python launcher are set to a known good state. This includes setting
-    PATH to a single directory of where the Python interpreter executing this
-    file is located.
+    PATH to a single directory in which we create a symlink named with major
+    and minor versions in the name.
     """
     symlink_name = f"python{sys.version_info.major}.{sys.version_info.minor}"
     python_executable = tmp_path / symlink_name
     os.symlink(sys.executable, python_executable)
+
     monkeypatch.delenv("PYLAUNCH_DEBUG", raising=False)
     monkeypatch.setenv("PATH", os.fspath(tmp_path))
     monkeypatch.delenv("VIRTUAL_ENV", raising=False)
