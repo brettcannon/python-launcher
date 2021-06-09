@@ -159,8 +159,6 @@ Or this line in your `~/.config/fish/config.fish` file:
 set -gx PY_PYTHON (head -n 1 (pyenv root)/version | cut -d "." -f 1,2)
 ```
 
-If you're using a global `$(pyenv root)/version` file to control your Python versions (as noted [in the pyenv README](https://github.com/pyenv/pyenv#choosing-the-python-version)) you'll need to replace `~/.python-version` in the lines above by that filename instead.
-
 ## Appendix
 
 - [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/)
