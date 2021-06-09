@@ -15,7 +15,7 @@ import pytest
 
 
 @pytest.fixture
-def py(monkeypatch):
+def py(monkeypatch, tmp_path):
     """Provide a convenience function for calling the Python launcher.
 
     The function has a 'path' attribute for a pathlib.Path object pointing
@@ -26,9 +26,11 @@ def py(monkeypatch):
     PATH to a single directory of where the Python interpreter executing this
     file is located.
     """
-    python_executable = pathlib.Path(sys.executable)
+    symlink_name = f"python{sys.version_info.major}.{sys.version_info.minor}"
+    python_executable = tmp_path / symlink_name
+    os.symlink(sys.executable, python_executable)
     monkeypatch.delenv("PYLAUNCH_DEBUG", raising=False)
-    monkeypatch.setenv("PATH", os.fspath(python_executable.parent))
+    monkeypatch.setenv("PATH", os.fspath(tmp_path))
     monkeypatch.delenv("VIRTUAL_ENV", raising=False)
     py_path = pathlib.Path(__file__).parent.parent / "target" / "debug" / "py"
 
@@ -38,9 +40,11 @@ def py(monkeypatch):
         env = os.environ.copy()
         if debug:
             env["PYLAUNCH_DEBUG"] = "1"
+        print(call, env)
         return subprocess.run(call, capture_output=True, text=True, env=env)
 
     call_py.path = py_path
+    call_py.python_executable = python_executable
     yield call_py
 
 
@@ -49,14 +53,14 @@ def test_help(py, flag):
     call = py(flag)
     assert not call.returncode
     assert os.fspath(py.path) in call.stdout
-    assert sys.executable in call.stdout
+    assert os.fspath(py.python_executable) in call.stdout
     assert not call.stderr
 
 
 def test_list(py):
     call = py("--list")
     assert not call.returncode
-    assert sys.executable in call.stdout
+    assert os.fspath(py.python_executable) in call.stdout
     assert ".".join(map(str, sys.version_info[:2])) in call.stdout
     assert not call.stderr
 
