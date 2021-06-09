@@ -45,7 +45,6 @@ def py(monkeypatch, tmp_path):
         env = os.environ.copy()
         if debug:
             env["PYLAUNCH_DEBUG"] = "1"
-        print(call, env)
         return subprocess.run(call, capture_output=True, text=True, env=env)
 
     call_py.path = py_path
