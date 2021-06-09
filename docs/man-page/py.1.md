@@ -56,7 +56,7 @@ interpreter.
 **-h**/**--help**
 : Print a help message and exit; must be specified on its own.
 
-**--list**
+**-0**/**--list**
 : List all known interpreters (except activated virtual environment);
 must be specified on its own.
 

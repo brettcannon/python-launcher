@@ -53,8 +53,9 @@ def test_help(py, flag):
     assert not call.stderr
 
 
-def test_list(py):
-    call = py("--list")
+@pytest.mark.parametrize("flag", ["--list", "-0"])
+def test_list(py, flag):
+    call = py(flag)
     assert not call.returncode
     assert sys.executable in call.stdout
     assert ".".join(map(str, sys.version_info[:2])) in call.stdout

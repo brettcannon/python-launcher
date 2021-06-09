@@ -41,13 +41,13 @@ impl Action {
         let launcher_path = PathBuf::from(&argv[0]); // Strip the path to this executable.
 
         match argv.get(1) {
-            Some(flag) if flag == "-h" || flag == "--help" || flag == "--list" => {
+            Some(flag) if flag == "-h" || flag == "--help" || flag == "--list" || flag == "-0" => {
                 if argv.len() > 2 {
                     Err(crate::Error::IllegalArgument(
                         launcher_path,
                         flag.to_string(),
                     ))
-                } else if flag == "--list" {
+                } else if flag == "--list" || flag == "-0" {
                     Ok(Action::List(list_executables(&crate::all_executables())?))
                 } else {
                     crate::find_executable(RequestedVersion::Any)

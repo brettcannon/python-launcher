@@ -3,7 +3,7 @@ usage: {} [launcher-args] [python-args]
 
 Launcher arguments:
 -h/--help: This output; must be specified on its own.
---list   : List all known interpreters (except activated virtual environment);
+-0/--list: List all known interpreters (except activated virtual environment);
            must be specified on its own.
 -[X]     : Launch the latest Python `X` version (e.g. `-3` for the latest
            Python 3); PY_PYTHON[X] overrides what is considered the latest

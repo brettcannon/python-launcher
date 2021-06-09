@@ -52,13 +52,15 @@ fn from_main_help_missing_interpreter() {
 fn from_main_list() {
     let env_state = EnvState::new();
 
-    match Action::from_main(&["/path/to/py".to_string(), "--list".to_string()]) {
-        Ok(Action::List(output)) => {
-            assert!(output.contains(env_state.python27.to_str().unwrap()));
-            assert!(output.contains(env_state.python36.to_str().unwrap()));
-            assert!(output.contains(env_state.python37.to_str().unwrap()));
+    for flag in ["-0", "--list"].iter() {
+        match Action::from_main(&["/path/to/py".to_string(), (*flag).to_string()]) {
+            Ok(Action::List(output)) => {
+                assert!(output.contains(env_state.python27.to_str().unwrap()));
+                assert!(output.contains(env_state.python36.to_str().unwrap()));
+                assert!(output.contains(env_state.python37.to_str().unwrap()));
+            }
+            _ => panic!("'{}' did not return Action::List", flag),
         }
-        _ => panic!("'--list' did not return Action::List"),
     }
 }
 
