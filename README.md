@@ -155,6 +155,13 @@ versions, you can add this line to your `.zshrc` or `bashrc` file:
 
 ```sh
 export PY_PYTHON=$(head -n 1 $(pyenv root)/version | cut -d "." -f 1,2)
+```
+
+Or this line in your `~/.config/fish/config.fish` file:
+
+```sh
+set -gx PY_PYTHON (head -n 1 (pyenv root)/version | cut -d "." -f 1,2)
+```
 
 ## Appendix
 
