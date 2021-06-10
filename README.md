@@ -143,6 +143,26 @@ Do note that the character that is being split on is **not** the traditional
 [U+007C/"Vertical Line"/pipe character](https://www.compart.com/en/unicode/U+007C) (`|`),
 but [U+2502/"Box Drawings Light Vertical"](https://www.compart.com/en/unicode/U+2502) (`│`).
 
+### How can I make Python Launcher use my default Python version from pyenv?
+
+If you're using [pyenv](https://github.com/pyenv/pyenv) to manage your Python
+versions, you'll want to grab the major and minor version from the first Python
+version listed in your default
+[pyenv version file](https://github.com/pyenv/pyenv#choosing-the-python-version).
+
+If you're using a `~/.pyenv/version` file to store pyenv's global Python
+versions, you can add this line to your `.zshrc` or `bashrc` file:
+
+```sh
+export PY_PYTHON=$(head -n 1 $(pyenv root)/version | cut -d "." -f 1,2)
+```
+
+Or this line in your `~/.config/fish/config.fish` file:
+
+```sh
+set -gx PY_PYTHON (head -n 1 (pyenv root)/version | cut -d "." -f 1,2)
+```
+
 ## Appendix
 
 - [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/)
