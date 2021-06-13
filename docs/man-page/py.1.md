@@ -72,13 +72,13 @@ variable.
 
 **PY_PYTHON**
 : Specify the version of Python to search for when no Python
-version is explicitly requested (e.g. **3.6** to use Python 3.6 by
-default).
+version is explicitly requested (must be formatted as 'X.Y'; e.g. **3.6** to use
+Python 3.6 by default).
 
 **PY_PYTHON[X]**
 : Specify the version of Python to search for when only a major
-version is specified (e.g. set **PY_PYTHON3** to **3.6** to cause
-**-3** to use Python 3.6).
+version is specified (must be formatted as 'X.Y'; e.g. set **PY_PYTHON3** to
+**3.6** to cause **-3** to use Python 3.6).
 
 **PYLAUNCH_DEBUG**
 : Log details to stderr about how the Launcher is operating.
