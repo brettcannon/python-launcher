@@ -282,11 +282,17 @@ fn from_main_env_var() {
             executable,
             args,
         }) => {
-            assert_eq!(PathBuf::from(launcher_location), launcher_path);
+            assert_eq!(PathBuf::from(launcher_location.clone()), launcher_path);
             assert_eq!(executable, env_state.python36);
             assert_eq!(args.len(), 0);
         }
         _ => panic!("No executable found in PY_PYTHON3 case"),
+    }
+
+    env_state.env_vars.change("PY_PYTHON3", Some("3.8.10"));
+
+    if Action::from_main(&[launcher_location, "-3".to_string()]).is_ok() {
+        panic!("Invalid PY_PYTHON3 did not error out");
     }
 }
 
