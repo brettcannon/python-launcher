@@ -18,7 +18,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     /// String passed to [`RequestedVersion::from_str`] or [`ExactVersion::from_str`]
     /// has an expected digit component that cannot be parsed as an integer.
-    ParseVersionComponentError(ParseIntError),
+    ParseVersionComponentError(ParseIntError, String),
     /// [`ExactVersion::from_str`] is passed a string missing a `.`.
     DotMissing,
     /// [`ExactVersion::from_path`] is given a [`Path`] which lacks a file name.
@@ -40,8 +40,12 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Error::ParseVersionComponentError(int_error) => {
-                write!(f, "Error parsing a version component: {}", int_error)
+            Error::ParseVersionComponentError(int_error, bad_value) => {
+                write!(
+                    f,
+                    "Error parsing '{}' as an integer: {}",
+                    bad_value, int_error
+                )
             }
             Self::DotMissing => write!(f, "'.' missing from the version"),
             Self::FileNameMissing => write!(f, "Path object lacks a file name"),
@@ -68,7 +72,7 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Self::ParseVersionComponentError(int_error) => Some(int_error),
+            Self::ParseVersionComponentError(int_error, _) => Some(int_error),
             Self::DotMissing => None,
             Self::FileNameMissing => None,
             Self::FileNameToStrError => None,
@@ -84,7 +88,7 @@ impl Error {
     /// Returns the appropriate [exit code](`exitcode::ExitCode`) for the error.
     pub fn exit_code(&self) -> exitcode::ExitCode {
         match self {
-            Self::ParseVersionComponentError(_) => exitcode::USAGE,
+            Self::ParseVersionComponentError(_, _) => exitcode::USAGE,
             Self::DotMissing => exitcode::USAGE,
             Self::FileNameMissing => exitcode::USAGE,
             Self::FileNameToStrError => exitcode::SOFTWARE,
@@ -134,7 +138,10 @@ impl FromStr for RequestedVersion {
         } else {
             match version_string.parse::<ComponentSize>() {
                 Ok(number) => Ok(Self::MajorOnly(number)),
-                Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
+                Err(parse_error) => Err(Error::ParseVersionComponentError(
+                    parse_error,
+                    version_string.to_string(),
+                )),
             }
         }
     }
@@ -180,13 +187,21 @@ impl FromStr for ExactVersion {
                 let major_str = &version_string[..dot_index];
                 let major = match major_str.parse::<ComponentSize>() {
                     Ok(number) => number,
-                    Err(parse_error) => return Err(Error::ParseVersionComponentError(parse_error)),
+                    Err(parse_error) => {
+                        return Err(Error::ParseVersionComponentError(
+                            parse_error,
+                            major_str.to_string(),
+                        ))
+                    }
                 };
                 let minor_str = &version_string[dot_index + 1..];
 
                 match minor_str.parse::<ComponentSize>() {
                     Ok(minor) => Ok(Self { major, minor }),
-                    Err(parse_error) => Err(Error::ParseVersionComponentError(parse_error)),
+                    Err(parse_error) => Err(Error::ParseVersionComponentError(
+                        parse_error,
+                        minor_str.to_string(),
+                    )),
                 }
             }
             None => Err(Error::DotMissing),
@@ -309,16 +324,16 @@ mod tests {
         requested_version.to_string()
     }
 
-    #[test_case(".3" => matches Err(Error::ParseVersionComponentError(_)) ; "missing major version is an error")]
-    #[test_case("3." => matches Err(Error::ParseVersionComponentError(_)) ; "missing minor version is an error")]
-    #[test_case("h" => matches Err(Error::ParseVersionComponentError(_)) ; "non-number, non-emptry string is an error")]
-    #[test_case("3.b" => matches Err(Error::ParseVersionComponentError(_)) ; "major.minor where minor is a non-number is an error")]
-    #[test_case("a.7" => matches Err(Error::ParseVersionComponentError(_)) ; "major.minor where major is a non-number is an error")]
+    #[test_case(".3" => matches Err(Error::ParseVersionComponentError(_, _)) ; "missing major version is an error")]
+    #[test_case("3." => matches Err(Error::ParseVersionComponentError(_, _)) ; "missing minor version is an error")]
+    #[test_case("h" => matches Err(Error::ParseVersionComponentError(_, _)) ; "non-number, non-emptry string is an error")]
+    #[test_case("3.b" => matches Err(Error::ParseVersionComponentError(_, _)) ; "major.minor where minor is a non-number is an error")]
+    #[test_case("a.7" => matches Err(Error::ParseVersionComponentError(_, _)) ; "major.minor where major is a non-number is an error")]
     #[test_case("" => Ok(RequestedVersion::Any) ; "empty string is Any")]
     #[test_case("3" => Ok(RequestedVersion::MajorOnly(3)) ; "major-only version")]
     #[test_case("3.8" => Ok(RequestedVersion::Exact(3, 8)) ; "major.minor")]
     #[test_case("42.13" => Ok(RequestedVersion::Exact(42, 13)) ; "double digit version components")]
-    #[test_case("3.6.5" => matches Err(Error::ParseVersionComponentError(_)) ; "specifying a micro version is an error")]
+    #[test_case("3.6.5" => matches Err(Error::ParseVersionComponentError(_, _)) ; "specifying a micro version is an error")]
     fn requestedversion_from_str_tests(version_str: &str) -> Result<RequestedVersion> {
         RequestedVersion::from_str(version_str)
     }
@@ -374,10 +389,10 @@ mod tests {
 
     #[test_case("" => Err(Error::DotMissing) ; "empty string is an error")]
     #[test_case("3" => Err(Error::DotMissing) ; "major-only version is an error")]
-    #[test_case(".7" => matches Err(Error::ParseVersionComponentError(_)) ; "missing major version is an error")]
-    #[test_case("3." => matches Err(Error::ParseVersionComponentError(_)) ; "missing minor version is an error")]
-    #[test_case("3.Y" => matches Err(Error::ParseVersionComponentError(_)) ; "non-digit minor version is an error")]
-    #[test_case("X.7" => matches Err(Error::ParseVersionComponentError(_)) ; "non-digit major version is an error")]
+    #[test_case(".7" => matches Err(Error::ParseVersionComponentError(_, _)) ; "missing major version is an error")]
+    #[test_case("3." => matches Err(Error::ParseVersionComponentError(_, _)) ; "missing minor version is an error")]
+    #[test_case("3.Y" => matches Err(Error::ParseVersionComponentError(_, _)) ; "non-digit minor version is an error")]
+    #[test_case("X.7" => matches Err(Error::ParseVersionComponentError(_, _)) ; "non-digit major version is an error")]
     #[test_case("42.13" => Ok(ExactVersion {major: 42, minor: 13 }) ; "double digit version components")]
     fn exactversion_from_str_tests(version_str: &str) -> Result<ExactVersion> {
         ExactVersion::from_str(version_str)
@@ -386,7 +401,7 @@ mod tests {
     #[test_case("/" => Err(Error::FileNameMissing) ; "path missing a file name is an error")]
     #[test_case("/notpython" => Err(Error::PathFileNameError) ; "path not ending with 'python' is an error")]
     #[test_case("/python3" => Err(Error::PathFileNameError) ; "filename lacking a minor component is an error")]
-    #[test_case("/pythonX.Y" => matches Err(Error::ParseVersionComponentError(_)) ; "filename with non-digit version is an error")]
+    #[test_case("/pythonX.Y" => matches Err(Error::ParseVersionComponentError(_, _)) ; "filename with non-digit version is an error")]
     #[test_case("/python42.13" => Ok(ExactVersion { major: 42, minor: 13 }) ; "double digit version components")]
     fn exactversion_from_path_tests(path: &str) -> Result<ExactVersion> {
         ExactVersion::from_path(&PathBuf::from(path))
