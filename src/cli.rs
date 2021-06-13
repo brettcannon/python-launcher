@@ -242,14 +242,15 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
 
     if chosen_path.is_none() {
         if let Some(env_var) = requested_version.env_var() {
-            log::info!("Checking for {} environment variable", env_var);
+            log::info!("Checking the {} environment variable", env_var);
             if let Ok(env_var_value) = env::var(&env_var) {
                 if !env_var_value.is_empty() {
-                    log::debug!("{} set to {}", env_var, env_var_value);
-                    if let Ok(env_requested_version) = RequestedVersion::from_str(&env_var_value) {
-                        requested_version = env_requested_version;
-                    }
+                    log::debug!("{} = '{}'", env_var, env_var_value);
+                    let env_requested_version = RequestedVersion::from_str(&env_var_value)?;
+                    requested_version = env_requested_version;
                 }
+            } else {
+                log::info!("{} not set", env_var);
             };
         }
 
