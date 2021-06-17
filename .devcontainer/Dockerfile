@@ -18,6 +18,9 @@ RUN apt-get update \
     # Install other dependencies
     && apt-get install -y lldb-3.9 \
     #
+    # Install Python
+    && apt-get install -y python3 python3-pip python3-venv \
+    #
     # Install Rust components
     && rustup update \
     && rustup component add rls rust-analysis rust-src rustfmt clippy \
