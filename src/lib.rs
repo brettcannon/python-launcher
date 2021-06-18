@@ -407,6 +407,7 @@ mod tests {
         );
     }
 
+    #[allow(clippy::bool_assert_comparison)]
     #[test_case(RequestedVersion::Any => true ; "Any supports all versions")]
     #[test_case(RequestedVersion::MajorOnly(2) => false ; "major-only mismatch")]
     #[test_case(RequestedVersion::MajorOnly(3) => true ; "major-only match")]
