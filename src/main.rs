@@ -1,6 +1,5 @@
 // https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
 // https://github.com/python/cpython/blob/master/PC/launcher.c
-
 use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
 use nix::unistd;
@@ -21,11 +20,9 @@ fn main() {
     } else {
         0
     };
-    /*
-    - `error!` is for errors
-    - `info!` is to communicate what the launcher is doing/checking
-    - `debug!` is communicating about specific values
-    */
+    // - `error!` is for errors
+    // - `info!` is to communicate what the launcher is doing/checking
+    // - `debug!` is communicating about specific values
     stderrlog::new()
         .module(module_path!())
         .module("python_launcher")

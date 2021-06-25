@@ -26,7 +26,7 @@ impl EnvVarState {
         }
     }
 
-    /* XXX This attribute shouldn't be needed; side-effect of only being used in tests? */
+    // XXX This attribute shouldn't be needed; side-effect of only being used in tests?
     #[allow(dead_code)]
     pub fn empty() -> Self {
         let mut state = Self::new();
@@ -63,7 +63,7 @@ impl Drop for CurrentDir {
 }
 
 impl CurrentDir {
-    /* XXX This attribute shouldn't be needed; side-effect of only being used in tests? */
+    // XXX This attribute shouldn't be needed; side-effect of only being used in tests?
     #[allow(dead_code)]
     pub fn new() -> Self {
         let _original_dir = env::current_dir().unwrap();
