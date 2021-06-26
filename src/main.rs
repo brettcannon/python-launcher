@@ -1,5 +1,38 @@
-// https://docs.python.org/3.8/using/windows.html#python-launcher-for-windows
-// https://github.com/python/cpython/blob/master/PC/launcher.c
+//! Providing a convenient way to launch `python`
+//!
+//! The binary is meant to make the `py` command your go-to command for
+//! launching a Python interpreter while writing code. It does this by trying
+//! to find the Python interpreter that you most likely want to use.
+//!
+//! # Examples
+//!
+//! Launch the newest version of Python installed.
+//! ```text
+//! > py
+//! ```
+//! It will also launch any activated virtual environments (as set by the
+//! `$VIRTUAL_ENV` environment variable) or any virtual environment in a
+//! `.venv` subdirectory in any of the current or parent directories.
+//!
+//! You can also launch a specific version of Python.
+//! ```text
+//! > py -3.6
+//! ```
+//!
+//! If you only care about the major version of Python, you can specify only
+//! that.
+//! ```text
+//! > py -3
+//! ```
+//!
+//! # Important environment variables
+//!
+//! - `VIRTUAL_ENV`: an activated virtual environment.
+//! - `PYLAUNCH_DEBUG`: turn on logging.
+//! - `PY_PYTHON`: specify what Python version to use by default.
+//! - `PY_PYTHON*`: specify the Python version to use by default for a major
+//!   version (e.g. `PY_PYTHON3` for `-3`).
+
 use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
 use nix::unistd;
