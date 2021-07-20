@@ -1,3 +1,21 @@
+//! Search for Python interpreters in the environment
+//!
+//! This crate provides the code to both find Python interpreters installed and
+//! utilities to implement a CLI which mimic the [Python Launcher for Windows].
+//!
+//! # Layout
+//!
+//! At the top-level, the code directly related to searching is provided.
+//! The [`RequestedVersion`] enum represents the constraints the user has placed
+//! upon what version of Python they are searching for (ranging from any to a
+//! `major.minor` version). The [`ExactVersion`] struct represents an exact
+//! `major.minor` version of Python which was found.
+//!
+//! The [`cli`] module contains all code related to providing a CLI like the one
+//! the [Python Launcher for Windows] provides.
+//!
+//! [Python Launcher for Windows]: https://docs.python.org/3/using/windows.html#launcher
+
 pub mod cli;
 
 use std::{
@@ -16,23 +34,19 @@ pub type Result<T> = std::result::Result<T, Error>;
 /// Error enum for the entire crate.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Error {
-    /// String passed to [`RequestedVersion::from_str`] or [`ExactVersion::from_str`]
-    /// has an expected digit component that cannot be parsed as an integer.
+    /// Parsing a digit component from a string fails.
     ParseVersionComponentError(ParseIntError, String),
-    /// [`ExactVersion::from_str`] is passed a string missing a `.`.
+    /// String parsing fails due to `.` missing.
     DotMissing,
-    /// [`ExactVersion::from_path`] is given a [`Path`] which lacks a file name.
+    /// A [`Path`] lacks a file name when it is required.
     FileNameMissing,
-    /// [`ExactVersion::from_path`] cannot convert a file name to a string.
+    /// A file name cannot be converted to a string.
     FileNameToStrError,
-    /// An unexpected file name was given to [`ExactVersion::from_path`].
+    /// A file name is not structured appropriately.
     PathFileNameError,
-    /// No Python executable could be found based on the [`RequestedVersion`].
-    // cli::{list_executables, find_executable, help}
+    /// No Python executable could be found based on the constraints provided.
     NoExecutableFound(RequestedVersion),
-    /// Multiple CLI flags given when the first flag that is expected to be specified
-    /// on its own.
-    // cli::Action::from_main
+    /// An illegal combination of CLI flags are provided.
     IllegalArgument(PathBuf, String),
 }
 
@@ -99,17 +113,21 @@ impl Error {
     }
 }
 
-/// The integral part of a version specifier (e.g. the `X` or `Y` of `X.Y`).
-type ComponentSize = u16;
+/// The integral part of a version specifier (e.g. the `3` or `10` of `3.10`).
+pub type ComponentSize = u16;
 
 /// The version of Python being searched for.
+///
+/// The constraints of what is being searched for can very from being
+/// open-ended/broad (i.e. [`RequestedVersion::Any`]) to as specific as
+/// `major.minor` (e.g. [`RequestedVersion::Exact`] to search for Python 3.10).
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum RequestedVersion {
-    /// Any version is acceptable.
+    /// Any version of Python is acceptable.
     Any,
-    /// A specific major version (e.g. `3.x`).
+    /// A major version of Python is required (e.g. `3.x`).
     MajorOnly(ComponentSize),
-    /// The specific `major.minor` version (e.g. `3.9`).
+    /// A specific `major.minor` version of Python is required (e.g. `3.9`).
     Exact(ComponentSize, ComponentSize),
 }
 
@@ -148,7 +166,39 @@ impl FromStr for RequestedVersion {
 }
 
 impl RequestedVersion {
-    /// Returns the string representing the environment variable for the requested version.
+    /// Returns the [`String`] representing the environment variable for the
+    /// requested version (if applicable).
+    ///
+    /// # Examples
+    ///
+    /// Searching for [`RequestedVersion::Any`] provides an environment variable
+    /// which can be used to specify the default version of Python to use
+    /// (e.g. `3.10`).
+    ///
+    /// ```
+    /// let any_version = python_launcher::RequestedVersion::Any;
+    ///
+    /// assert_eq!(Some("PY_PYTHON".to_string()), any_version.env_var());
+    /// ```
+    ///
+    /// [`RequestedVersion::MajorOnly`] uses an environment variable which is
+    /// scoped to providing the default version for when the major version is
+    /// only specified.
+    ///
+    /// ```
+    /// let major_version = python_launcher::RequestedVersion::MajorOnly(3);
+    ///
+    /// assert_eq!(Some("PY_PYTHON3".to_string()), major_version.env_var());
+    /// ```
+    ///
+    /// When [`RequestedVersion::Exact`] is specified, there is no "default" to
+    /// provide/interpreter, and so no environment variable exists.
+    ///
+    /// ```
+    /// let exact_version = python_launcher::RequestedVersion::Exact(3, 10);
+    ///
+    /// assert!(exact_version.env_var().is_none());
+    /// ```
     pub fn env_var(self) -> Option<String> {
         match self {
             Self::Any => Some("PY_PYTHON".to_string()),
@@ -159,6 +209,8 @@ impl RequestedVersion {
 }
 
 /// Specifies the `major.minor` version of a Python executable.
+///
+/// This struct is typically used to represent a found executable's version.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct ExactVersion {
     pub major: ComponentSize,
@@ -220,6 +272,27 @@ impl ExactVersion {
     }
 
     /// Constructs a [`ExactVersion`] from a `pythonX.Y` file path.
+    ///
+    /// # Errors
+    ///
+    /// If the [`Path`] is missing a file name component,
+    /// [`Error::FileNameMissing`] is returned.
+    ///
+    /// If the file name is not formatted appropriately,
+    /// [`Error::PathFileNameError`] is returned.
+    ///
+    /// When the [`Path`] cannot be converted to a [`&str`],
+    /// [`Error::FileNameToStrError`] is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let expected = python_launcher::ExactVersion::new(3, 10);
+    /// let executable_path = std::path::Path::new("python3.10");
+    /// let exact_version = python_launcher::ExactVersion::from_path(executable_path);
+    ///
+    /// assert_eq!(Ok(expected), exact_version);
+    /// ```
     pub fn from_path(path: &Path) -> Result<Self> {
         path.file_name()
             .ok_or(Error::FileNameMissing)
@@ -235,6 +308,19 @@ impl ExactVersion {
     // XXX from_shebang()?
 
     /// Tests whether this [`ExactVersion`] satisfies the [`RequestedVersion`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let py3_10 = python_launcher::ExactVersion::new(3, 10);
+    /// let any_version = python_launcher::RequestedVersion::Any;
+    /// let py3_version = python_launcher::RequestedVersion::MajorOnly(3);
+    /// let py3_10_version = python_launcher::RequestedVersion::Exact(3, 10);
+    ///
+    /// assert!(py3_10.supports(any_version));
+    /// assert!(py3_10.supports(py3_version));
+    /// assert!(py3_10.supports(py3_10_version));
+    /// ```
     pub fn supports(&self, requested: RequestedVersion) -> bool {
         match requested {
             RequestedVersion::Any => true,
@@ -281,7 +367,7 @@ fn all_executables_in_paths(
     executables
 }
 
-/// Finds all possible Python executables.
+/// Finds all possible Python executables on `PATH`.
 pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
     log::info!("Checking PATH environment variable");
     let path_entries = env_path();
@@ -303,7 +389,8 @@ fn find_executable_in_hashmap(
     .map(|pair| pair.1.clone())
 }
 
-/// Attempts to find an executable that satisfies a specified [`RequestedVersion`].
+/// Attempts to find an executable that satisfies a specified
+/// [`RequestedVersion`] on `PATH`.
 pub fn find_executable(requested: RequestedVersion) -> Option<PathBuf> {
     let found_executables = all_executables();
     find_executable_in_hashmap(requested, &found_executables)

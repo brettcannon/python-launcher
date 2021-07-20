@@ -1,4 +1,7 @@
-//! Parsing of CLI flags.
+//! Parsing of CLI flags
+//!
+//! The [`Action`] enum represents what action to perform based on the
+//! command-line arguments passed to the program.
 
 use std::{
     collections::HashMap,
@@ -16,27 +19,91 @@ use comfy_table::{Table, TableComponent};
 
 use crate::{ExactVersion, RequestedVersion};
 
-/// The default directory searched for a virtual environment.
+/// The expected directory name for virtual environments.
 pub static DEFAULT_VENV_DIR: &str = ".venv";
 
 /// Represents the possible outcomes based on CLI arguments.
 #[derive(Clone, Debug, Hash, PartialEq)]
 pub enum Action {
-    /// The `-h` output for the command itself along with the path to a
-    /// Python executable to get its own `-h` output.
+    /// The help string for the Python Launcher along with the path to a Python
+    /// executable.
+    ///
+    /// The executable path is so that it can be executed with `-h` to append
+    /// Python's own help output.
     Help(String, PathBuf),
-    /// A formatted string listing all found executables.
+    /// A string listing all found executables on `PATH`.
+    ///
+    /// The string is formatted to be human-readable.
     List(String),
-    /// Details for executing a found Python executable.
+    /// Details for executing a Python executable.
     Execute {
+        /// The Python Launcher used to find the Python executable.
         launcher_path: PathBuf,
+        /// The Python executable to run.
         executable: PathBuf,
+        /// Arguments to the executable.
         args: Vec<String>,
     },
 }
 
 impl Action {
-    /// Parses `argv` to determine what action should be taken.
+    /// Parses CLI arguments to determine what action should be taken.
+    ///
+    /// The first argument -- `argv[0]` -- is considered the path to the
+    /// Launcher itself (i.e. [`Action::Execute::launcher_path`]).
+    ///
+    /// The second argument -- `argv.get(1)` -- is used to determine if/what
+    /// argument has been provided for the Launcher.
+    ///
+    /// # Launcher Arguments
+    ///
+    /// ## `-h`/`--help`
+    ///
+    /// Returns [`Action::Help`].
+    ///
+    /// The search for the Python executable to use is done using
+    /// [`crate::find_executable`] with an [`RequestedVersion::Any`] argument.
+    ///
+    /// ## `--list`
+    ///
+    /// Returns [`Action::List`].
+    ///
+    /// The list of executable is gathered via [`crate::all_executables`].
+    ///
+    /// ## Version Restriction
+    ///
+    /// Returns the appropriate [`Action::Execute`] instance for the requested
+    /// Python version.
+    ///
+    /// [`crate::find_executable`] is used to perform the search.
+    ///
+    /// ## No Arguments for the Launcher
+    ///
+    /// Returns an [`Action::Execute`] instance.
+    ///
+    /// As a first step, a check is done for an activated virtual environment
+    /// via the `VIRTUAL_ENV` environment variable. If none is set, look for a
+    /// virtual environment in a directory named by [`DEFAULT_VENV_DIR`] in the
+    /// current or any parent directories.
+    ///
+    /// If no virtual environment is found, a shebang line is searched for in
+    /// the first argument to the Python interpreter. If one is found then it
+    /// is used to (potentially) restrict the requested version searched for.
+    ///
+    /// The search for an interpreter proceeds using [`crate::find_executable`].
+    ///
+    /// # Errors
+    ///
+    /// If `-h`, `--help`, or `--list` are specified as the first argument but
+    /// there are other arguments, [`crate::Error::IllegalArgument`] is returned.
+    ///
+    /// If no executable could be found for [`Action::Help`] or
+    /// [`Action::List`], [`crate::Error::NoExecutableFound`] is returned.
+    ///
+    /// # Panics
+    ///
+    /// - If a [`writeln!`] call fails.
+    /// - If the current directory cannot be accessed.
     pub fn from_main(argv: &[String]) -> crate::Result<Self> {
         let launcher_path = PathBuf::from(&argv[0]); // Strip the path to this executable.
 
