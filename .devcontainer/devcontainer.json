@@ -14,7 +14,7 @@
 	"postCreateCommand": "cargo fetch",
 
 	"extensions": [
-		"rust-lang.rust",
+		"rmatklad.rust-analyzer",
 		"bungcip.better-toml",
 		"vadimcn.vscode-lldb"
 	],
