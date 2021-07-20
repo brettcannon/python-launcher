@@ -200,8 +200,6 @@ fn from_main_default_parent_venv_path() {
     fs::create_dir(&subdir).unwrap();
     env::set_current_dir(&subdir).unwrap();
 
-    // XXX Change working dir
-
     match Action::from_main(&["/path/to/py".to_string()]) {
         Ok(Action::Execute { executable, .. }) => {
             assert_eq!(executable, expected.canonicalize().unwrap());
