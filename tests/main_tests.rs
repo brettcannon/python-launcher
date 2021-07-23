@@ -1,3 +1,9 @@
+mod common;
+
+use std::path::PathBuf;
+
+use common::CurrentDir;
+
 use python_launcher::{ExactVersion, RequestedVersion};
 
 use assert_cmd::Command;
@@ -90,24 +96,6 @@ fn exact_version() {
         .stderr(str::is_empty());
 }
 
-#[test_case("3."; "invalid version specifier")]
-#[test_case("0.1"; "non-existent version")]
-fn version_failure(version: &str) {
-    let flag = format!("-{}", version);
-    let result = py_executable().arg(flag).assert();
-
-    result.failure().stdout(str::is_empty());
-}
-
-#[test]
-fn invalid_activated_virtual_env() {
-    let result = py_executable()
-        .env("VIRTUAL_ENV", "this does not exist")
-        .assert();
-
-    result.failure().stdout(str::is_empty());
-}
-
 #[test]
 fn logging_output() {
     let result = py_executable()
@@ -119,4 +107,43 @@ fn logging_output() {
         .success()
         .stdout(str::is_empty())
         .stderr(str::contains("Executing"));
+}
+
+#[test_case("3."; "invalid version specifier")]
+#[test_case("0.1"; "non-existent version")]
+fn version_failure(version: &str) {
+    let flag = format!("-{}", version);
+    let result = py_executable().arg(flag).assert();
+
+    result.failure().stdout(str::is_empty());
+}
+
+#[test]
+fn nonexistent_activated_virtual_env_dir() {
+    let result = py_executable()
+        .env("VIRTUAL_ENV", "this does not exist")
+        .assert();
+
+    result.failure().stdout(str::is_empty());
+}
+
+#[test]
+fn empty_activated_virtual_env() {
+    let cwd = CurrentDir::new();
+    let result = py_executable()
+        .env("VIRTUAL_ENV", cwd.dir.path().as_os_str())
+        .assert();
+
+    result.failure();
+}
+
+#[test]
+fn unexecutable() {
+    let cwd = CurrentDir::new();
+    let cwd_name = cwd.dir.path().as_os_str();
+    let fake_python = PathBuf::from("python0.1");
+    common::touch_file(fake_python);
+    let result = py_executable().env("PATH", cwd_name).assert();
+
+    result.failure();
 }
