@@ -44,23 +44,6 @@ def py(monkeypatch):
     yield call_py
 
 
-@pytest.mark.parametrize("flag", ["--help", "-h"])
-def test_help(py, flag):
-    call = py(flag)
-    assert not call.returncode
-    assert os.fspath(py.path) in call.stdout
-    assert sys.executable in call.stdout
-    assert not call.stderr
-
-
-def test_list(py):
-    call = py("--list")
-    assert not call.returncode
-    assert sys.executable in call.stdout
-    assert ".".join(map(str, sys.version_info[:2])) in call.stdout
-    assert not call.stderr
-
-
 @pytest.mark.parametrize(
     "python_version",
     [None, f"-{sys.version_info[0]}", f"-{sys.version_info[0]}.{sys.version_info[1]}"],
@@ -82,12 +65,6 @@ class TestExitCode:
         assert call.returncode
         assert call.stderr
 
-    def test_malformed_version(self, py):
-        self.call_failed(py("-3."))
-
-    def test_nonexistent_version(self, py):
-        self.call_failed(py("-0.9"))
-
     def test_unexecutable_file(self, py, tmp_path, monkeypatch):
         version = "0.1"
         not_executable = tmp_path / f"python{version}"
@@ -96,23 +73,10 @@ class TestExitCode:
 
         self.call_failed(py(f"-{version}"))
 
-    def test_file_does_not_exist(self, py, monkeypatch):
-        bad_venv_path = "this_path_does_not_exist"
-        assert not os.path.exists(bad_venv_path)
-        monkeypatch.setenv("VIRTUAL_ENV", bad_venv_path)
-
-        self.call_failed(py())
-
     def test_directory(self, py, tmp_path, monkeypatch):
         dir_path = tmp_path / "bin" / "python"
         monkeypatch.setenv("VIRTUAL_ENV", os.fspath(tmp_path))
         self.call_failed(py())
-
-
-def test_PYLAUNCH_DEBUG(py):
-    call = py("-c", "pass", debug=True)
-    assert not call.returncode
-    assert call.stderr
 
 
 if __name__ == "__main__":
