@@ -223,17 +223,22 @@ fn activated_venv() -> Option<PathBuf> {
 }
 
 fn venv_path_search() -> Option<PathBuf> {
-    let cwd = env::current_dir().unwrap();
-    log::info!(
-        "Searching for a venv in {} and parent directories",
-        cwd.display()
-    );
-    cwd.ancestors().find_map(|path| {
-        let venv_path = path.join(relative_venv_path(true));
-        log::info!("Checking {}", venv_path.display());
-        // bool::then_some() makes more sense, but still experimental.
-        venv_path.is_file().then(|| venv_path)
-    })
+    if env::current_dir().is_err() {
+        log::warn!("current working directory is invalid");
+        None
+    } else {
+        let cwd = env::current_dir().unwrap();
+        log::info!(
+            "Searching for a venv in {} and parent directories",
+            cwd.display()
+        );
+        cwd.ancestors().find_map(|path| {
+            let venv_path = path.join(relative_venv_path(true));
+            log::info!("Checking {}", venv_path.display());
+            // bool::then_some() makes more sense, but still experimental.
+            venv_path.is_file().then(|| venv_path)
+        })
+    }
 }
 
 fn venv_executable() -> Option<PathBuf> {
