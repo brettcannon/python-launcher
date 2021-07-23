@@ -79,6 +79,7 @@ pub fn touch_file(path: PathBuf) -> PathBuf {
     path
 }
 
+#[allow(dead_code)]
 pub struct EnvState {
     _dir1: TempDir,
     _dir2: TempDir,
@@ -100,6 +101,7 @@ impl EnvState {
     /// - `PY_PYTHON` is unset
     /// - `PY_PYTHON3` is unset
     /// - `PY_PYTHON2` is unset
+    #[allow(dead_code)]
     pub fn new() -> Self {
         let dir1 = TempDir::new().unwrap();
         let dir2 = TempDir::new().unwrap();
