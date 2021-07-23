@@ -1,11 +1,11 @@
-use python_launcher::RequestedVersion;
+use python_launcher::{ExactVersion, RequestedVersion};
 
 use assert_cmd::Command;
 use predicates::str;
 use test_case::test_case;
 
 fn py_executable() -> Command {
-    Command::cargo_bin("py").unwrap()
+    Command::cargo_bin("py").expect("binary 'py' not found")
 }
 
 #[test_case("-h"; "short")]
@@ -33,6 +33,61 @@ fn list_output() {
             .stdout(str::contains(version.to_string()))
             .stdout(str::contains(path.to_string_lossy()));
     }
+}
+
+#[test]
+fn any_version() {
+    let python = python_launcher::find_executable(RequestedVersion::Any)
+        .expect("no Python executable found");
+    let version = ExactVersion::from_path(&python).unwrap();
+    let result = py_executable()
+        .args(&["-c", "import sys; print(sys.version)"])
+        .assert();
+
+    result
+        .success()
+        .stdout(str::starts_with(version.to_string()))
+        .stderr(str::is_empty());
+}
+
+#[test]
+fn major_version() {
+    let python = python_launcher::find_executable(RequestedVersion::Any)
+        .expect("no Python executable found");
+    let version = ExactVersion::from_path(&python).unwrap();
+    let version_flag = format!("-{}", version.major);
+    let result = py_executable()
+        .args(&[
+            version_flag.as_str(),
+            "-c",
+            "import sys; print(sys.version)",
+        ])
+        .assert();
+
+    result
+        .success()
+        .stdout(str::starts_with(version.to_string()))
+        .stderr(str::is_empty());
+}
+
+#[test]
+fn exact_version() {
+    let python = python_launcher::find_executable(RequestedVersion::Any)
+        .expect("no Python executable found");
+    let version = ExactVersion::from_path(&python).unwrap();
+    let version_flag = format!("-{}", version);
+    let result = py_executable()
+        .args(&[
+            version_flag.as_str(),
+            "-c",
+            "import sys; print(sys.version)",
+        ])
+        .assert();
+
+    result
+        .success()
+        .stdout(str::starts_with(version.to_string()))
+        .stderr(str::is_empty());
 }
 
 #[test_case("3."; "invalid version specifier")]
