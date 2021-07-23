@@ -17,18 +17,22 @@ fn help_flags(help_flag: &str) {
 
     result
         .success()
-        .stdout(str::contains(python.to_string_lossy()));
+        .stdout(str::contains(python.to_string_lossy()))
+        .stderr(str::is_empty());
 }
 
 #[test]
 fn list_output() {
-    let python = python_launcher::find_executable(RequestedVersion::Any)
-        .expect("no Python executable found");
-    let result = py_executable().arg("--list").assert();
+    let pythons = python_launcher::all_executables();
+    let mut result = py_executable().arg("--list").assert();
 
-    result
-        .success()
-        .stdout(str::contains(python.to_string_lossy()));
+    result = result.success();
+
+    for (version, path) in pythons.iter() {
+        result = result
+            .stdout(str::contains(version.to_string()))
+            .stdout(str::contains(path.to_string_lossy()));
+    }
 }
 
 #[test_case("3."; "invalid version specifier")]
@@ -37,7 +41,7 @@ fn version_failure(version: &str) {
     let flag = format!("-{}", version);
     let result = py_executable().arg(flag).assert();
 
-    result.failure();
+    result.failure().stdout(str::is_empty());
 }
 
 #[test]
@@ -46,7 +50,7 @@ fn invalid_activated_virtual_env() {
         .env("VIRTUAL_ENV", "this does not exist")
         .assert();
 
-    result.failure();
+    result.failure().stdout(str::is_empty());
 }
 
 #[test]
@@ -56,5 +60,8 @@ fn logging_output() {
         .env("PYLAUNCH_DEBUG", "1")
         .assert();
 
-    result.success().stderr(str::contains("Executing"));
+    result
+        .success()
+        .stdout(str::is_empty())
+        .stderr(str::contains("Executing"));
 }
