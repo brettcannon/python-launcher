@@ -31,7 +31,8 @@ def task_man_page():
         with open(cargo_file, "r", encoding="UTF-8") as file:
             cargo_lines = file.readlines()
         for line in cargo_lines:
-            if version_match := re.match(r'version\s*=\s*"(?P<version>[\d.]+)"', line):
+            version_match = re.match(r'version\s*=\s*"(?P<version>[\d.]+)"', line)
+            if version_match:
                 version = version_match.group("version")
                 break
         else:
