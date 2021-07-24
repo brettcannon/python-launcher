@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      version: ${{ steps.version.outputs.release }}
+      version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
       notes: ${{ steps.changelog.outputs.notes }}
 
@@ -40,7 +40,7 @@ jobs:
       - name: Version details
         id: version
         run: |
-          echo "::set-output name=release::`python -m release version`"
+          echo "::set-output name=version::`python -m release version`"
           echo "::set-output name=tag::`python -m release version --tag`"
         shell: bash
 
@@ -75,118 +75,128 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r release/requirements.txt
 
-      - name: Update changelog
+      - name: Double-check release notes
+        run: |
+          echo ${{ needs.details.outputs.version }}
+          echo ${{ needs.details.outputs.notes }}
+
+      - name: Double-check changelog
         run: |
           python -m scriv collect --add --version ${{ needs.details.outputs.version }}
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git commit -a -m "Update changelog for ${{ needs.details.outputs.tag }}"
-          git push
+          cat CHANGELOG.md
 
-      - name: Create release
-        # Specify release notes to make creation non-interactive.
-        run: gh release create ${{ needs.details.outputs.tag }} --notes ${{ needs.details.outputs.notes }} --draft
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Update changelog
+      #   run: |
+      #     python -m scriv collect --add --version ${{ needs.details.outputs.version }}
+      #     git config user.name github-actions
+      #     git config user.email github-actions@github.com
+      #     git commit -a -m "Update changelog for ${{ needs.details.outputs.tag }}"
+      #     git push
 
-  build:
-    name: Build ${{ matrix.target }}
-    needs: [details, release]
-    runs-on: ${{ matrix.os }}
+      # - name: Create release
+      #   # Specify release notes to make creation non-interactive.
+      #   run: gh release create ${{ needs.details.outputs.tag }} --notes ${{ needs.details.outputs.notes }} --draft
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        # https://doc.rust-lang.org/stable/rustc/platform-support.html
-        # https://github.com/rust-embedded/cross#supported-targets
-        # aarch64-apple-darwin (basically) requires macos-11 to be generally available.
-        include:
-          - target: x86_64-apple-darwin
-            os: macos-latest
-            use-cross: false
-          - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            use-cross: false
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            use-cross: true
-          - target: riscv64gc-unknown-linux-gnu
-            os: ubuntu-latest
-            use-cross: true
-          - target: x86_64-unknown-netbsd
-            os: ubuntu-latest
-            use-cross: true
+  # build:
+  #   name: Build ${{ matrix.target }}
+  #   needs: [details, release]
+  #   runs-on: ${{ matrix.os }}
 
-    steps:
-      - uses: actions/checkout@v2
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       # https://doc.rust-lang.org/stable/rustc/platform-support.html
+  #       # https://github.com/rust-embedded/cross#supported-targets
+  #       # aarch64-apple-darwin (basically) requires macos-11 to be generally available.
+  #       include:
+  #         - target: x86_64-apple-darwin
+  #           os: macos-latest
+  #           use-cross: false
+  #         - target: x86_64-unknown-linux-gnu
+  #           os: ubuntu-latest
+  #           use-cross: false
+  #         - target: aarch64-unknown-linux-gnu
+  #           os: ubuntu-latest
+  #           use-cross: true
+  #         - target: riscv64gc-unknown-linux-gnu
+  #           os: ubuntu-latest
+  #           use-cross: true
+  #         - target: x86_64-unknown-netbsd
+  #           os: ubuntu-latest
+  #           use-cross: true
 
-      # OS-specific
-      - uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('release/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Install Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.x
+  #     # OS-specific
+  #     - uses: actions/cache@v2
+  #       with:
+  #         path: ~/.cache/pip
+  #         key: ${{ runner.os }}-pip-${{ hashFiles('release/requirements.txt') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pip-
 
-      - name: Install dependencies
-        run: python -m pip install -r release/requirements.txt
+  #     - name: Install Python
+  #       uses: actions/setup-python@v2
+  #       with:
+  #         python-version: 3.x
 
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.toolchain }}
-          target: ${{ matrix.target }}
-          override: true
-          profile: minimal
+  #     - name: Install dependencies
+  #       run: python -m pip install -r release/requirements.txt
 
-      - name: Cargo build
-        uses: actions-rs/cargo@v1
-        with:
-          toolchain: ${{ env.toolchain }}
-          use-cross: ${{ matrix.use-cross }}
-          command: build
-          args: --release --target ${{ matrix.target }}
+  #     - name: Install Rust toolchain
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: ${{ env.toolchain }}
+  #         target: ${{ matrix.target }}
+  #         override: true
+  #         profile: minimal
 
-      - name: Strip binary
-        if: ${{ !matrix.use-cross }}
-        run: |
-          du -h target/${{ matrix.target }}/release/py
-          strip target/${{ matrix.target }}/release/py
-          du -h target/${{ matrix.target }}/release/py
+  #     - name: Cargo build
+  #       uses: actions-rs/cargo@v1
+  #       with:
+  #         toolchain: ${{ env.toolchain }}
+  #         use-cross: ${{ matrix.use-cross }}
+  #         command: build
+  #         args: --release --target ${{ matrix.target }}
 
-      - name: Create tarball
-        run: |
-          TARBALL_PATH=`python -m release tarball --target ${{ matrix.target }}`
-          du -h $TARBALL_PATH
-          tar -tvf $TARBALL_PATH
-          echo "tarball_path=$TARBALL_PATH" >> $GITHUB_ENV
+  #     - name: Strip binary
+  #       if: ${{ !matrix.use-cross }}
+  #       run: |
+  #         du -h target/${{ matrix.target }}/release/py
+  #         strip target/${{ matrix.target }}/release/py
+  #         du -h target/${{ matrix.target }}/release/py
 
-      - name: Upload tarball
-        run: gh release upload ${{ needs.details.outputs.tag }} ${{ env.tarball_path }} --clobber
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Create tarball
+  #       run: |
+  #         TARBALL_PATH=`python -m release tarball --target ${{ matrix.target }}`
+  #         du -h $TARBALL_PATH
+  #         tar -tvf $TARBALL_PATH
+  #         echo "tarball_path=$TARBALL_PATH" >> $GITHUB_ENV
 
-  publish:
-    name: Publish to crates.io
-    needs: release
-    runs-on: ubuntu-latest
+  #     - name: Upload tarball
+  #       run: gh release upload ${{ needs.details.outputs.tag }} ${{ env.tarball_path }} --clobber
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    steps:
-      - uses: actions/checkout@v2
+  # publish:
+  #   name: Publish to crates.io
+  #   needs: release
+  #   runs-on: ubuntu-latest
 
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ env.toolchain }}
-          override: true
-          profile: minimal
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Publish
-        run: cargo publish --locked
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+  #     - name: Install Rust toolchain
+  #       uses: actions-rs/toolchain@v1
+  #       with:
+  #         toolchain: ${{ env.toolchain }}
+  #         override: true
+  #         profile: minimal
+
+  #     - name: Publish
+  #       run: cargo publish --locked
+  #       env:
+  #         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
