@@ -146,7 +146,6 @@ impl Display for RequestedVersion {
 impl FromStr for RequestedVersion {
     type Err = Error;
 
-    // XXX Require `python` as a prefix?
     fn from_str(version_string: &str) -> Result<Self> {
         if version_string.is_empty() {
             Ok(Self::Any)
@@ -306,8 +305,6 @@ impl ExactVersion {
                 None => Err(Error::FileNameToStrError),
             })
     }
-
-    // XXX from_shebang()?
 
     /// Tests whether this [`ExactVersion`] satisfies the [`RequestedVersion`].
     ///

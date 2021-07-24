@@ -127,7 +127,6 @@ impl Action {
                         })
                 }
             }
-            // TODO: Figure out how to store the result of the version_from_flag() call.
             Some(version) if version_from_flag(version).is_some() => {
                 Ok(Action::Execute {
                     launcher_path,
@@ -211,7 +210,6 @@ fn relative_venv_path(add_default: bool) -> PathBuf {
 /// existence of the `VIRTUAL_ENV` environment variable.
 fn venv_executable_path(venv_root: &str) -> PathBuf {
     PathBuf::from(venv_root).join(relative_venv_path(false))
-    // XXX: Do a is_file() check first?
 }
 
 fn activated_venv() -> Option<PathBuf> {
