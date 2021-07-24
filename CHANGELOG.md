@@ -10,16 +10,6 @@ See the changelog fragments in the [`changelog.d` directory](https://github.com/
 
 <!-- scriv-insert-here -->
 
-## 0.18.1 — 2021-07-24
-
-### Fixed
-
-- Changelog and release note generation as part of the release pipeline now works.
-
-### Added
-
-- All shell commands in the release pipeline now specify bash as the shell.
-
 ## 0.18.0 — 2021-07-24
 
 ### Added
