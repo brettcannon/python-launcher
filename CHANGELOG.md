@@ -10,6 +10,20 @@ See the changelog fragments in the [`changelog.d` directory](https://github.com/
 
 <!-- scriv-insert-here -->
 
+## 0.18.0 — 2021-07-24
+
+### Added
+
+- A changelog (powered by [scriv](https://scriv.readthedocs.io/) by @nedbat; [#122](https://github.com/brettcannon/python-launcher/issues/122)).
+
+### Changed
+
+- Moved all tests over to Rust (#126 and implicitly solves the same problem that #109 was meant for).
+
+### Fixed
+
+- When the current working directory is invalid (e.g. doesn't exist or insufficient permissions), don't trigger a panic (fixed as a side-effect of #125).
+
 ## 0.17.0 — 2021-07-18
 
 ### Changed
