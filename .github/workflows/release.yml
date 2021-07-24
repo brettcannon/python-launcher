@@ -89,8 +89,9 @@ jobs:
         shell: bash
 
       - name: Create release
-        # Specify release notes to make creation non-interactive.
-        run: gh release create ${{ needs.details.outputs.tag }} --notes ${{ needs.details.outputs.notes }} --draft
+        run: |
+          echo ${{ needs.details.outputs.notes }} > /tmp/release_notes.md
+          gh release create ${{ needs.details.outputs.tag }} --draft --notes-file /tmp/release_notes.md
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
