@@ -81,7 +81,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git commit -a -m "Update changelog for ${{ needs.details.outputs.tag }}"
-          git push --force
+          git push
 
       - name: Create release
         # Specify release notes to make creation non-interactive.
