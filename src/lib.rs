@@ -213,7 +213,9 @@ impl RequestedVersion {
 /// This struct is typically used to represent a found executable's version.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct ExactVersion {
+    /// The major version of Python, e.g. `3` of `3.10`.
     pub major: ComponentSize,
+    /// The minor version of Python, e.g. `10` of `3.10`.
     pub minor: ComponentSize,
 }
 
