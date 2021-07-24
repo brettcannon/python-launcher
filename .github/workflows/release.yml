@@ -16,7 +16,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
-      notes: ${{ steps.changelog.outputs.notes }}
+      notes: ${{ env.RELEASE_NOTES }}
 
     steps:
       - uses: actions/checkout@v2
@@ -47,7 +47,9 @@ jobs:
       - name: Release notes
         id: changelog
         run: |
-          echo "::set-output name=notes::`python -m release notes`"
+          echo 'RELEASE_NOTES<<EOF' >> $GITHUB_ENV
+          python -m release notes >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
         shell: bash
 
   release:
@@ -77,7 +79,6 @@ jobs:
 
       - name: Double-check release notes
         run: |
-          echo ${{ needs.details.outputs.version }}
           echo ${{ needs.details.outputs.notes }}
 
       - name: Double-check changelog
