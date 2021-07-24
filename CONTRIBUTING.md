@@ -74,3 +74,9 @@ Uncomment the section that is right (remove the HTML comment wrapper).
 
 -->
 ```
+
+## Releasing
+
+1. Adjust the version number in [`Cargo.toml`](https://github.com/brettcannon/python-launcher/blob/main/Cargo.toml) (previous [releases](https://github.com/brettcannon/python-launcher/releases)).
+2. Run the [`release` pipeline](https://github.com/brettcannon/python-launcher/actions/workflows/release.yml).
+3. [Build for Apple Silicon](https://github.com/brettcannon/python-launcher/issues/106).
