@@ -90,7 +90,7 @@ jobs:
 
       - name: Create release
         run: |
-          echo "${{ needs.details.outputs.notes }}" > /tmp/release_notes.md
+          echo '${{ needs.details.outputs.notes }}' > /tmp/release_notes.md
           gh release create ${{ needs.details.outputs.tag }} --draft --notes-file /tmp/release_notes.md
         shell: bash
         env:
