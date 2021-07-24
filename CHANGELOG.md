@@ -10,6 +10,20 @@ See the changelog fragments in the [`changelog.d` directory](https://github.com/
 
 <!-- scriv-insert-here -->
 
+## 1.0.0 — 2021-07-24
+
+### Added
+
+- Release instructions to `CONTRIBUTING.md`.
+
+### Added
+
+- Documentation for `ExactVersion`'s fields.
+
+### Changed
+
+- Add a release step to check action workflows for success.
+
 ## 0.18.1 — 2021-07-24
 
 ### Fixed
