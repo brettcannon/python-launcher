@@ -10,7 +10,7 @@ See the changelog fragments in the [`changelog.d` directory](https://github.com/
 
 <!-- scriv-insert-here -->
 
-## --add — 2021-07-24
+## 0.18.0 — 2021-07-24
 
 ### Added
 
