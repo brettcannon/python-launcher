@@ -45,6 +45,18 @@ those extras are:
 - Shell completions for [fish](https://github.com/brettcannon/python-launcher/blob/main/completions/py.fish)
 - This [README](https://github.com/brettcannon/python-launcher/blob/main/README.md)
 
+### Homebrew
+
+If you are a macOS or Linux [Homebrew](https://brew.sh/) user, bottles are
+available via the
+[`python-launcher` formula](https://formulae.brew.sh/formula/python-launcher):
+
+```
+brew install python-launcher
+```
+
+This installs all of the appropriate extras.
+
 ### Via `cargo`
 
 If you have the latest stable
