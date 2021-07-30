@@ -16,7 +16,9 @@ preferred package manager (e.g. `apt`).
 ## Changelog
 
 The tool used to maintain the changelog is
-[scriv](https://scriv.readthedocs.io).
+[scriv](https://scriv.readthedocs.io). See the
+[`changelog.d` directory](https://github.com/brettcannon/python-launcher/tree/main/changelog.d)
+for details.
 
 
 ## Releasing
