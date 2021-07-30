@@ -134,7 +134,7 @@ fn from_main_by_flag() {
 fn from_main_activated_virtual_env() {
     let venv_path = "/path/to/venv";
     let mut env_state = common::EnvState::new();
-    env_state.env_vars.change("VIRTUAL_ENV", Some(&venv_path));
+    env_state.env_vars.change("VIRTUAL_ENV", Some(venv_path));
 
     match Action::from_main(&["/path/to/py".to_string()]) {
         Ok(Action::Execute { executable, .. }) => {

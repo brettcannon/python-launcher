@@ -111,7 +111,7 @@ impl EnvState {
 
         let new_path = env::join_paths([dir1.path(), dir2.path()].iter()).unwrap();
         let mut env_changes = EnvVarState::new();
-        env_changes.change("PATH", Some(&new_path.to_str().unwrap()));
+        env_changes.change("PATH", Some(new_path.to_str().unwrap()));
         for env_var in ["VIRTUAL_ENV", "PY_PYTHON", "PY_PYTHON3", "PY_PYTHON2"].iter() {
             env_changes.change(env_var, None);
         }

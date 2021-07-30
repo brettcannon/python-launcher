@@ -419,7 +419,7 @@ mod tests {
     fn test_venv_executable_path() {
         let venv_root = "/path/to/venv";
         assert_eq!(
-            venv_executable_path(&venv_root),
+            venv_executable_path(venv_root),
             PathBuf::from("/path/to/venv/bin/python")
         );
     }
