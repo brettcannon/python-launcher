@@ -47,7 +47,7 @@ brew install python-launcher
 
 https://formulae.brew.sh/formula/python-launcher
 
-#### Arch
+#### [Arch](https://archlinux.org/)
 
 ```
 yay -S python-launcher
