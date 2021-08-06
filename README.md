@@ -47,6 +47,14 @@ brew install python-launcher
 
 https://formulae.brew.sh/formula/python-launcher
 
+#### Arch
+
+```
+yay -S python-launcher
+```
+
+https://aur.archlinux.org/packages/python-launcher
+
 #### RISC-V
 
 1. Go to the
