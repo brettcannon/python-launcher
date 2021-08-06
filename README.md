@@ -19,7 +19,7 @@ Typical usage would be:
 
 ```
 py -m venv .venv
-py ...  # Whatever you would normally use `python` for during development.
+py ...  # Normal `python` usage.
 ```
 
 This creates a virtual environment in a `.venv` directory using the latest
@@ -37,81 +37,115 @@ not necessity.
 
 ## Installation
 
-There are various ways to install the Python Launcher for Unix. Some will
-install the extras provided by this project while others will not. Specifically,
-those extras are:
+### Linux
 
-- The [man page](https://github.com/brettcannon/python-launcher/blob/main/docs/man-page/py.1.md)
-- Shell completions for [fish](https://github.com/brettcannon/python-launcher/blob/main/completions/py.fish)
-- This [README](https://github.com/brettcannon/python-launcher/blob/main/README.md)
-
-### Homebrew
-
-If you are a macOS or Linux [Homebrew](https://brew.sh/) user, bottles are
-available via the
-[`python-launcher` formula](https://formulae.brew.sh/formula/python-launcher):
+#### [Linuxbrew](https://docs.brew.sh/Homebrew-on-Linux)
 
 ```
 brew install python-launcher
 ```
 
-This installs all of the appropriate extras.
+https://formulae.brew.sh/formula/python-launcher
 
-### Via `cargo`
+#### RISC-V
 
-If you have the latest stable
-[release of Rust](https://www.rust-lang.org/tools/install) installed, then you
-can install the [Python Launcher via crates.io](https://crates.io/crates/python-launcher):
-
-```
-cargo install python-launcher
-```
-
-If you get a compilation error then it's very likely you don't have the latest
-stable release of Rust as there is a
-[release every 6 weeks](https://github.com/rust-lang/rfcs/blob/master/text/0507-release-channels.md)
-and this project tracks Rust's stable channel closely.
-
-Do note that this will **not** install things such as shell completions, the man
-page, etc.
-
-### From a `.tar.xz` file
-
-If you go to the
-[releases page](https://github.com/brettcannon/python-launcher/releases) you will
-find various `.tar.xz` files for each release that target various platforms. If
-one is available for your platform then you can download the tarball and install
-it into e.g. `/usr/local/` via:
+1. Go to the
+   [releases page](https://github.com/brettcannon/python-launcher/releases).
+2. Download the `riscv64gc-unknown-linux-gnu.tar.xz` tarball.
+3. Run the following command to install into, e.g.
+   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
 
 ```
 tar --extract --strip-components 1 --directory /usr/local --file <tarball>
 ```
 
-You can use `tar -t -f <tarball>` to see what files are included and where they
-will be installed (e.g. man page, shell completions, etc.).
+#### AArch64
 
-If you don't want to install the tarball then you can extract the tarball
-and copy the files manually as desired; the `py` binary is self-contained and is
-not dependent on any other files from the tarball.
+1. Go to the
+   [releases page](https://github.com/brettcannon/python-launcher/releases).
+2. Download the `aarch64-unknown-linux-gnu.tar.xz` tarball.
+3. Run the following command to install into, e.g.
+   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
 
-### From [source](https://github.com/brettcannon/python-launcher/)
+```
+tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+```
 
-This is equivalent to installing via crates.io (i.e. no extras are installed).
+#### x86-64
 
-#### Using [`cargo`](https://doc.rust-lang.org/cargo/)
+1. Go to the
+   [releases page](https://github.com/brettcannon/python-launcher/releases).
+2. Download the `x86_64-unknown-linux-gnu.tar.xz` tarball.
+3. Run the following command to install into, e.g.
+   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+```
+
+### macOS
+
+#### [Homebrew](https://brew.sh/)
+
+```
+brew install python-launcher
+```
+
+https://formulae.brew.sh/formula/python-launcher
+
+#### Apple Silicon
+
+1. Go to the
+   [releases page](https://github.com/brettcannon/python-launcher/releases).
+2. Download the `aarch64-apple-darwin.tar.xz` tarball.
+3. Run the following command to install into, e.g.
+   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+```
+
+#### x86-64
+
+1. Go to the
+   [releases page](https://github.com/brettcannon/python-launcher/releases).
+2. Download the `x86_64-apple-darwin.tar.xz` tarball.
+3. Run the following command to install into, e.g.
+   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+```
+
+### NetBSD
+
+1. Go to the
+   [releases page](https://github.com/brettcannon/python-launcher/releases).
+2. Download the `x86_64-unknown-netbsd.tar.xz` tarball.
+3. Run the following command to install into, e.g.
+   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+```
+
+### Any OS supporting Rust
+
+#### [crates.io](https://crates.io/)
+
+```
+cargo install python-launcher
+```
+
+https://crates.io/crates/python-launcher
+
+#### [Source](https://github.com/brettcannon/python-launcher.git)
 
 ```
 cargo install --path .
 ```
 
-#### Using [`doit`](https://pydoit.org/)
-
-[Doit](https://pydoit.org/) will only perform an installation if source code as
-changed since the last time you used the `install` command:
-
-```
-doit install
-```
+https://github.com/brettcannon/python-launcher
 
 ## Documentation
 
@@ -124,6 +158,9 @@ as examples):
 See the
 [man page](https://github.com/brettcannon/python-launcher/blob/main/docs/man-page/py.1.md)
 or the top section of `py --help` for more details.
+
+See the [API docs](https://docs.rs/python-launcher/) for using this project to
+build your own custom Launcher.
 
 ## FAQ
 
