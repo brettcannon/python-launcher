@@ -127,6 +127,8 @@ tar --extract --strip-components 1 --directory /usr/local --file <tarball>
 
 ### NetBSD
 
+#### x86-64
+
 1. Go to the
    [releases page](https://github.com/brettcannon/python-launcher/releases).
 2. Download the `x86_64-unknown-netbsd.tar.xz` tarball.
