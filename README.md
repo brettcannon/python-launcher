@@ -166,7 +166,7 @@ build your own custom Launcher.
 
 ### How do I have [Starship](https://starship.rs/) use the Python Launcher to display the Python version?
 
-Add the following to your [Starship configuration file](https://fishshell.com/docs/current/completions.html#where-to-put-completions):
+Add the following to your [Starship configuration file](https://starship.rs/config/):
 
 ```TOML
 [python]
