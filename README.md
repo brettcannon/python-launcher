@@ -193,7 +193,7 @@ Python will be used, but also the local virtual environment.
 ### How do I get a table of Python executables in [Nushell](https://www.nushell.sh/)?
 
 ```sh
-py --list | lines | split column "│" version executable | str trim
+py --list | lines | split column "│" version path | str trim
 ```
 
 Do note that the character that is being split on is **not** the traditional
