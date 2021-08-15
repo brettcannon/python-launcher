@@ -57,38 +57,44 @@ https://aur.archlinux.org/packages/python-launcher
 
 #### RISC-V
 
-1. Go to the
-   [releases page](https://github.com/brettcannon/python-launcher/releases).
-2. Download the `riscv64gc-unknown-linux-gnu.tar.xz` tarball.
-3. Run the following command to install into, e.g.
-   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+1. [Download `python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz):
 
 ```
-tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+curl --location --remote-name https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz
+```
+
+2. Install into, e.g. `/usr/local`:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz
 ```
 
 #### AArch64
 
-1. Go to the
-   [releases page](https://github.com/brettcannon/python-launcher/releases).
-2. Download the `aarch64-unknown-linux-gnu.tar.xz` tarball.
-3. Run the following command to install into, e.g.
-   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+1. [Download `python_launcher-1.0.0-aarch64-unknown-linux-gnu.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-aarch64-unknown-linux-gnu.tar.xz):
 
 ```
-tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+curl --location --remote-name https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-aarch64-unknown-linux-gnu.tar.xz
+```
+
+2. Install into, e.g. `/usr/local`:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-aarch64-unknown-linux-gnu.tar.xz
 ```
 
 #### x86-64
 
-1. Go to the
-   [releases page](https://github.com/brettcannon/python-launcher/releases).
-2. Download the `x86_64-unknown-linux-gnu.tar.xz` tarball.
-3. Run the following command to install into, e.g.
-   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+1. [Download `python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz):
 
 ```
-tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+curl --location --remote-name https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz
+```
+
+2. Install into, e.g. `/usr/local`:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz
 ```
 
 ### macOS
@@ -103,48 +109,56 @@ https://formulae.brew.sh/formula/python-launcher
 
 #### Apple Silicon
 
-1. Go to the
-   [releases page](https://github.com/brettcannon/python-launcher/releases).
-2. Download the `aarch64-apple-darwin.tar.xz` tarball.
-3. Run the following command to install into, e.g.
-   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+1. [Download `python_launcher-1.0.0-aarch64-apple-darwin.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-aarch64-apple-darwin.tar.xz):
 
 ```
-tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+curl --location --remote-name https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-aarch64-apple-darwin.tar.xz
+```
+
+2. Install into, e.g. `/usr/local`:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-aarch64-apple-darwin.tar.xz
 ```
 
 #### x86-64
 
-1. Go to the
-   [releases page](https://github.com/brettcannon/python-launcher/releases).
-2. Download the `x86_64-apple-darwin.tar.xz` tarball.
-3. Run the following command to install into, e.g.
-   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+1. [Download `python_launcher-1.0.0-x86_64-apple-darwin.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-apple-darwin.tar.xz):
 
 ```
-tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+curl --location --remote-name https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-apple-darwin.tar.xz
+```
+
+2. Install into, e.g. `/usr/local`:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-apple-darwin.tar.xz
 ```
 
 ### NetBSD
 
 #### x86-64
 
-1. Go to the
-   [releases page](https://github.com/brettcannon/python-launcher/releases).
-2. Download the `x86_64-unknown-netbsd.tar.xz` tarball.
-3. Run the following command to install into, e.g.
-   `/usr/local`, substituting `<tarball>` with the path to the downloaded file:
+1. [Download `python_launcher-1.0.0-x86_64-unknown-netbsd.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-unknown-netbsd.tar.xz):
 
 ```
-tar --extract --strip-components 1 --directory /usr/local --file <tarball>
+curl --location --remote-name https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-unknown-netbsd.tar.xz
+```
+
+2. Install into, e.g. `/usr/local`:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-unknown-netbsd.tar.xz
 ```
 
 ### Any OS supporting Rust
 
-#### [crates.io](https://crates.io/)
+#### [Crates.io](https://crates.io/)
 
 ```
+
 cargo install python-launcher
+
 ```
 
 https://crates.io/crates/python-launcher
@@ -152,7 +166,9 @@ https://crates.io/crates/python-launcher
 #### [Source](https://github.com/brettcannon/python-launcher.git)
 
 ```
+
 cargo install --path .
+
 ```
 
 https://github.com/brettcannon/python-launcher
