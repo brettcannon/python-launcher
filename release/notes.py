@@ -3,7 +3,7 @@ import pathlib
 from scriv import scriv
 
 
-def main(*args):
+def main(_args):
     """Create the release notes"""
     repo_path = pathlib.Path(__file__).parent.parent
     scriv_api = scriv.Scriv()
