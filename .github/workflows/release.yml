@@ -107,8 +107,10 @@ jobs:
       matrix:
         # https://doc.rust-lang.org/stable/rustc/platform-support.html
         # https://github.com/rust-embedded/cross#supported-targets
-        # aarch64-apple-darwin (basically) requires macos-11 to be generally available.
         include:
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            use-cross: false
           - target: x86_64-apple-darwin
             os: macos-latest
             use-cross: false
