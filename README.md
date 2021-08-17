@@ -225,7 +225,7 @@ versions, you'll want to grab the major and minor version from the first Python
 version listed in your default
 [pyenv version file](https://github.com/pyenv/pyenv#choosing-the-python-version).
 
-You can add this line to your `.zshrc` or `bashrc` file:
+You can add this line to your `.zshrc` or `.bashrc` file:
 
 ```sh
 export PY_PYTHON=$(head -n 1 $(pyenv root)/version | cut -d "." -f 1,2)
