@@ -76,6 +76,6 @@ jobs:
       - name: Run coverage
         run: cargo tarpaulin -v --out Xml --exclude-files tests/*
 
-      - uses: codecov/codecov-action@v2.0.2
+      - uses: codecov/codecov-action@v2.0.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
