@@ -227,15 +227,13 @@ versions, you'll want to set the version the Launcher to the pyenv
 Add these lines to your `.zshrc` or `.bashrc` file:
 
 ```sh
-export PY_PYTHON=$(pyenv exec python -c "import sys; print('.'.join(map(str, sys.version_info[0:2])))")
-export PY_PYTHON3=$(pyenv exec python3 -c "import sys; print(*sys.version_info[0:2], sep='.')")
+export PY_PYTHON=$(pyenv exec python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")
 ```
 
 Or these lines to your `~/.config/fish/config.fish` file:
 
 ```sh
-set -gx PY_PYTHON (pyenv exec python -c "import sys; print('.'.join(map(str, sys.version_info[0:2])))")
-set -gx PY_PYTHON3 (pyenv exec python3 -c "import sys; print(*sys.version_info[0:2], sep='.')")
+set -gx PY_PYTHON (pyenv exec python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")
 ```
 
 ## Appendix
