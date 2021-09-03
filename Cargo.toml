@@ -5,6 +5,16 @@ version = "1.0.0"
 authors = ["Brett Cannon <brett@python.org>"]
 repository = "https://github.com/brettcannon/python-launcher"
 readme = "README.md"
+include = [
+    "/src/",
+    "/tests/",
+    "/completions/",
+    "/docs/control-flow/control_flow.svg",
+    "/docs/man-page/py.1",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/LICENSE",
+]
 license = "MIT"
 keywords = ["Python"]
 categories = ["command-line-utilities"]
