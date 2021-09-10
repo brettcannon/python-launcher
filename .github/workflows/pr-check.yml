@@ -13,11 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cargo up-to-date
+      - name: Cargo.lock up-to-date
         uses: brettcannon/check-for-changed-files@v1
         with:
           prereq-pattern: Cargo.toml
           file-pattern: Cargo.lock
+          skip-label: skip Cargo.lock
 
       - name: README up-to-date
         uses: brettcannon/check-for-changed-files@v1
