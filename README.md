@@ -1,5 +1,7 @@
 # The Python Launcher for Unix
 
+<!-- **NOTE**: The master copy of this file lives in docs/readme/template.md -->
+
 Launch your Python interpreter the lazy/smart way!
 
 This project is an implementation of the `py` command for Unix-based platforms
