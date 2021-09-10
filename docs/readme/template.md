@@ -221,20 +221,19 @@ but [U+2502/"Box Drawings Light Vertical"](https://www.compart.com/en/unicode/U+
 ### How can I make the Python Launcher use my default Python version from pyenv?
 
 If you're using [pyenv](https://github.com/pyenv/pyenv) to manage your Python
-versions, you'll want to grab the major and minor version from the first Python
-version listed in your default
-[pyenv version file](https://github.com/pyenv/pyenv#choosing-the-python-version).
+versions, you'll want to set the version the Launcher uses to the pyenv 
+[global version](https://github.com/pyenv/pyenv/blob/master/COMMANDS.md#pyenv-global).
 
-You can add this line to your `.zshrc` or `bashrc` file:
+Add this line to your `.zshrc` or `.bashrc` file:
 
 ```sh
-export PY_PYTHON=$(head -n 1 $(pyenv root)/version | cut -d "." -f 1,2)
+export PY_PYTHON=$(pyenv exec python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")
 ```
 
-Or this line in your `~/.config/fish/config.fish` file:
+Or this line to your `~/.config/fish/config.fish` file:
 
 ```sh
-set -gx PY_PYTHON (head -n 1 (pyenv root)/version | cut -d "." -f 1,2)
+set -gx PY_PYTHON (pyenv exec python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")
 ```
 
 ## Appendix
