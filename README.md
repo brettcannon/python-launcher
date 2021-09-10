@@ -57,6 +57,16 @@ yay -S python-launcher
 
 https://aur.archlinux.org/packages/python-launcher
 
+#### [Fedora](https://getfedora.org/)
+
+```
+sudo dnf install python-launcher
+```
+
+Requires Fedora 34 or higher.
+
+https://src.fedoraproject.org/rpms/rust-python-launcher/
+
 #### RISC-V
 
 1. [Download `python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz):
