@@ -55,7 +55,7 @@ yay -S python-launcher
 
 https://aur.archlinux.org/packages/python-launcher
 
-#### [Fedora Linux](https://getfedora.org/)
+#### [Fedora](https://getfedora.org/)
 
 ```
 sudo dnf install python-launcher
