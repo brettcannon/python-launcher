@@ -6,13 +6,14 @@ authors = ["Brett Cannon <brett@python.org>"]
 repository = "https://github.com/brettcannon/python-launcher"
 readme = "README.md"
 license = "MIT"
+license-file = "LICENSE"
 keywords = ["Python"]
 categories = ["command-line-utilities"]
 edition = "2018"
 resolver = "2"
 
 [badges]
-maintenance = { status = "experimental" }
+maintenance = { status = "actively-developed" }
 
 [[bench]]
 name = "list"
