@@ -8,7 +8,7 @@ on:
 
 jobs:
   files-changed:
-    name: files up-to-date
+    name: Files up-to-date
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,11 +19,17 @@ jobs:
           prereq-pattern: Cargo.toml
           file-pattern: Cargo.lock
 
-      - name: Python dev requirements up-to-date
+      - name: README up-to-date
         uses: brettcannon/check-for-changed-files@v1
         with:
-          prereq-pattern: dev-requirements.in
-          file-pattern: dev-requirements.txt
+          prereq-pattern: README.md
+          file-pattern: docs/readme/template.md
+
+      - name: README template up-to-date
+        uses: brettcannon/check-for-changed-files@v1
+        with:
+          prereq-pattern: docs/readme/template.md
+          file-pattern: README.md
 
       - name: Man page up-to-date
         uses: brettcannon/check-for-changed-files@v1
