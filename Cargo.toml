@@ -51,3 +51,6 @@ test-case = "1.2.0"
 
 [profile.dev]
 split-debuginfo = "unpacked"
+
+[profile.release]
+lto = "fat"
