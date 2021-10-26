@@ -7,11 +7,13 @@
 The Python Launcher is _mostly_ run as a typical Rust project. The only
 potential differences is the automation tool used (for convenience).
 
-## Using doit for automation
+## Using just for automation
 
-We use [doit](https://pydoit.org/) as an automation tool. It's
-[available on PyPI](https://pypi.org/project/doit/) and may be available in your
-preferred package manager (e.g. `apt`).
+We use [just](https://github.com/casey/just) as an automation tool. It is similar to [make](https://www.gnu.org/software/make/)
+but with a few nice features and fewer quirks.
+
+It is available from a variety of package managers and other sources, see the [install](https://github.com/casey/just#installation) docs
+for how to get it for your system.
 
 ## Changelog
 
@@ -19,7 +21,6 @@ The tool used to maintain the changelog is
 [scriv](https://scriv.readthedocs.io). See the
 [`changelog.d` directory](https://github.com/brettcannon/python-launcher/tree/main/changelog.d)
 for details.
-
 
 ## Releasing
 
