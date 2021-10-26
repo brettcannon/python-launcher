@@ -17,7 +17,7 @@ DOT_PNG := join(DOT_DIR, DOT_STEM) + ".png"
 # TODO: Next just release will make `join` accept variadic parameters
 # would clean up the variables quite a bit
 
-# By default, show the list of recipes
+# Set default recipes
 _default: lint test man dot
 
 # Run the unit tests
