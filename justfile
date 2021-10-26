@@ -18,8 +18,7 @@ DOT_PNG := join(DOT_DIR, DOT_STEM) + ".png"
 # would clean up the variables quite a bit
 
 # By default, show the list of recipes
-_default:
-    @just --list
+_default: lint test man dot
 
 # Run the unit tests
 test:
