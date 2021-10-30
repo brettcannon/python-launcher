@@ -1,6 +1,5 @@
 #!/usr/bin/env just --justfile
-# ^ A shebang isn't required, but allows a justfile to be executed
-#   like a script, with `./justfile test`, for example.
+# Written for https://github.com/casey/just/tree/0.10.2 .
 
 ROOT := justfile_directory()
 DOCS := join(ROOT, "docs")
@@ -10,12 +9,12 @@ MAN_FILE := join(MAN_DIR, "py.1")
 CARGO_TOML := join(ROOT, "Cargo.toml")
 DOT_DIR := join(DOCS, "control-flow")
 DOT_FILE := join(DOT_DIR, "control_flow.dot")
-DOT_STEM := file_stem(DOT_FILE)
-DOT_SVG := join(DOT_DIR, DOT_STEM) + ".svg"
-DOT_PNG := join(DOT_DIR, DOT_STEM) + ".png"
+DOT_FILE_NO_STEM := without_extension(DOT_FILE)
+DOT_SVG := DOT_FILE_NO_STEM + ".svg"
+DOT_PNG := DOT_FILE_NO_STEM + ".png"
 
-# TODO: Next just release will make `join` accept variadic parameters
-# would clean up the variables quite a bit
+# TODO: `just` release after 0.10.2 will make `join` accept variadic parameters;
+# would clean up the variables quite a bit.
 
 # Set default recipes
 _default: lint test man dot
@@ -45,12 +44,13 @@ man: _man-md
     import pathlib
     import re
 
+    VERSION_REGEX = re.compile(r'version\s*=\s*"(?P<version>[\d.]+)"')
+
     with open("{{ CARGO_TOML }}", "r", encoding="utf-8") as file:
         cargo_lines = file.readlines()
 
     for line in cargo_lines:
-        version_match = re.match(r'version\s*=\s*"(?P<version>[\d.]+)"', line)
-        if version_match:
+        if version_match := VERSION_REGEX.match(line):
             version = version_match.group("version")
             break
     else:
@@ -67,7 +67,13 @@ man: _man-md
     with open("{{ MAN_FILE }}", "w", encoding="utf-8") as file:
         file.write(new_man_text)
 
-# Build the control flow graphviz diagram
-dot:
+# Build the control flow diagram as an SVG
+dot_svg:
     dot -T "svg" -o {{ DOT_SVG }} {{ DOT_FILE }}
+
+# Build the control flow diagram as a PNG
+dot_png:
     dot -T "png" -o {{ DOT_PNG }} {{ DOT_FILE }}
+
+# Build the control flow diagram
+dot: dot_svg dot_png

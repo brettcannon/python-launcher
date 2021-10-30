@@ -41,7 +41,7 @@ jobs:
       - name: Install distro packages
         run: sudo apt-get install -qq pandoc graphviz
 
-      - name: Install just
+      - name: Install `just`
         uses: extractions/setup-just@v1
 
       - name: Run `just`

@@ -7,7 +7,7 @@
 The Python Launcher is _mostly_ run as a typical Rust project. The only
 potential differences is the automation tool used (for convenience).
 
-## Using just for automation
+## Using `just` for automation
 
 We use [just](https://github.com/casey/just) as an automation tool. It is similar to [make](https://www.gnu.org/software/make/)
 but with a few nice features and fewer quirks.
