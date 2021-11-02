@@ -32,7 +32,7 @@ lint:
 install:
     cargo install --quiet --path .
 
-# Convert the markdown man to man file format (hidden)
+# Convert the markdown-formatted man page to the man file format
 _man-md:
     pandoc {{ MAN_MD }} --standalone -t man -o {{ MAN_FILE }}
 
