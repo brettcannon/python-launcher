@@ -4,5 +4,4 @@
 __pycache__
 .venv
 .pytest_cache
-.doit.db
 *.tar.xz

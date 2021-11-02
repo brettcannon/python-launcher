@@ -50,7 +50,8 @@ man: _man-md
         cargo_lines = file.readlines()
 
     for line in cargo_lines:
-        if version_match := VERSION_REGEX.match(line):
+        version_match = VERSION_REGEX.match(line)
+        if version_match:
             version = version_match.group("version")
             break
     else:
