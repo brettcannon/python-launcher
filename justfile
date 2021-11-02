@@ -67,7 +67,7 @@ man: _man-md
     with open("{{ MAN_FILE }}", "w", encoding="utf-8") as file:
         file.write(new_man_text)
 
-# Build the control flow diagram as an SVG
+# Build the control flow diagram as a SVG
 dot_svg:
     dot -T "svg" -o {{ DOT_SVG }} {{ DOT_FILE }}
 
