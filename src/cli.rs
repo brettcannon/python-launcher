@@ -9,7 +9,6 @@ use std::{
     fmt::Write,
     fs::File,
     io::{BufRead, BufReader, Read},
-    iter::FromIterator,
     path::{Path, PathBuf},
     str::FromStr,
     string::ToString,
