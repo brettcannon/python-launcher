@@ -18,7 +18,7 @@ PY_PYTHON*    : Specify the version of Python to search for when only a major
                 version is specified (must be formatted as 'X.Y', e.g. set
                 `PY_PYTHON3` to `3.6` to cause `-3` to use Python 3.6).
 PYLAUNCH_DEBUG: Log details to stderr about how the Launcher is operating.
-VIRTUAL_ENV   : Path to a directory containing virtual enviroment to use when no
+VIRTUAL_ENV   : Path to a directory containing virtual environment to use when no
                 Python version is explicitly requested; typically set by
                 activating a virtual environment.
 
