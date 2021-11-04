@@ -84,7 +84,7 @@ version is specified (must be formatted as 'X.Y'; e.g. set **PY_PYTHON3** to
 : Log details to stderr about how the Launcher is operating.
 
 **VIRTUAL_ENV**
-: Path to a directory containing virtual enviroment to use when no
+: Path to a directory containing virtual environment to use when no
 Python version is explicitly requested; typically set by
 activating a virtual environment.
 

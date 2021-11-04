@@ -88,7 +88,7 @@ pub struct EnvState {
 }
 
 impl EnvState {
-    /// Create a testing environement within the OS.
+    /// Create a testing environment within the OS.
     /// - Create two temp directories (referred to as `dir1` and `dir2` from now on)
     /// - `dir1/python2.7`
     /// - `dir1/python3.6`
