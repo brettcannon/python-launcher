@@ -1,20 +1,14 @@
 #!/usr/bin/env just --justfile
-# Written for https://github.com/casey/just/tree/0.10.2 .
+# Written for https://github.com/casey/just/tree/0.10.3 .
 
 ROOT := justfile_directory()
-DOCS := join(ROOT, "docs")
-MAN_DIR := join(DOCS, "man-page")
-MAN_MD := join(MAN_DIR, "py.1.md")
-MAN_FILE := join(MAN_DIR, "py.1")
+MAN_MD := join(ROOT, "docs", "man-page", "py.1.md")
+MAN_FILE := join(ROOT, "docs", "man-page", "py.1")
 CARGO_TOML := join(ROOT, "Cargo.toml")
-DOT_DIR := join(DOCS, "control-flow")
-DOT_FILE := join(DOT_DIR, "control_flow.dot")
+DOT_FILE := join(ROOT, "docs", "control-flow", "control_flow.dot")
 DOT_FILE_NO_STEM := without_extension(DOT_FILE)
 DOT_SVG := DOT_FILE_NO_STEM + ".svg"
 DOT_PNG := DOT_FILE_NO_STEM + ".png"
-
-# TODO: `just` release after 0.10.2 will make `join` accept variadic parameters;
-# would clean up the variables quite a bit.
 
 # Set default recipes
 _default: lint test man dot
