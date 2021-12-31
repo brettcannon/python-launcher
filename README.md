@@ -243,6 +243,26 @@ build your own custom Launcher.
 
 ## FAQ
 
+### Why isn't the Python Launcher finding all of my Python versions installed via [Homebrew](https://brew.sh/)?
+
+If you have multiple installs of Python via [Homebrew](https://brew.sh/) but
+they are not all being found (as verified via `py --list`), chances are Homebrew
+didn't symlink an installation due to the `python` symlink already being
+defined. For each installation you are missing you will need to tell Homebrew to
+ignore the conflict so that the version-specific `python` symlink gets created.
+
+For instance, if your Python 3.10 installation isn't being found (due to
+`python3.10` not existing), try running:
+
+```sh
+brew link --overwrite python@3.10
+```
+
+That will critically symlink the `python3.10` command. It will also overwrite
+what `python3` points at, so you may want to run the `brew link` command for the
+newest version of Python you have installed last.
+
+
 ### How do I have [Starship](https://starship.rs/) use the Python Launcher to display the Python version?
 
 Add the following to your [Starship configuration file](https://starship.rs/config/):
@@ -261,6 +281,7 @@ version will be used if you run `py`. Since the Launcher supports virtual
 environments, the prompt will properly reflect both what global install of
 Python will be used, but also the local virtual environment.
 
+
 ### How do I get a table of Python executables in [Nushell](https://www.nushell.sh/)?
 
 ```sh
@@ -271,7 +292,8 @@ Do note that the character that is being split on is **not** the traditional
 [U+007C/"Vertical Line"/pipe character](https://www.compart.com/en/unicode/U+007C) (`|`),
 but [U+2502/"Box Drawings Light Vertical"](https://www.compart.com/en/unicode/U+2502) (`│`).
 
-### How can I make the Python Launcher use my default Python version from pyenv?
+
+### How can I make the Python Launcher use my default Python version from [pyenv](https://github.com/pyenv/pyenv)?
 
 If you're using [pyenv](https://github.com/pyenv/pyenv) to manage your Python
 versions, you'll want to set the version the Launcher uses to the pyenv
