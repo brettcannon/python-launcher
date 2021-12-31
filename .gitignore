@@ -1,6 +1,5 @@
 /target
 **/*.rs.bk
-/.vscode
 __pycache__
 .venv
 .pytest_cache
