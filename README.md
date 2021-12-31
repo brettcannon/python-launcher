@@ -1,7 +1,5 @@
 # The Python Launcher for Unix
 
-<!-- **NOTE**: The master copy of this file lives in docs/readme/template.md -->
-
 Launch your Python interpreter the lazy/smart way!
 
 This project is an implementation of the `py` command for Unix-based platforms
@@ -38,6 +36,25 @@ on macOS, etc.). The Python Launcher should be viewed as a tool of convenience,
 not necessity.
 
 ## Installation
+<!-- [[[cog
+download_template = """1. [Download `python_launcher-{version}-{platform}.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/{tag}/python_launcher-{version}-{platform}.tar.xz):
+
+```
+curl --location --remote-name https://github.com/brettcannon/python-launcher/releases/download/{tag}/python_launcher-{version}-{platform}.tar.xz
+```
+
+2. Install into, e.g. `/usr/local`:
+
+```
+tar --extract --strip-components 1 --directory /usr/local --file python_launcher-{version}-{platform}.tar.xz
+```"""
+
+def platform_download(platform):
+    instructions = download_template.format(tag=TAG, version=VERSION,
+                                            platform=platform)
+    print(instructions)
+]]] -->
+<!-- [[[end]]] -->
 
 ### Linux
 
@@ -69,6 +86,9 @@ https://src.fedoraproject.org/rpms/rust-python-launcher/
 
 #### RISC-V
 
+<!-- [[[cog
+platform_download("riscv64gc-unknown-linux-gnu")
+]]] -->
 1. [Download `python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz):
 
 ```
@@ -80,9 +100,13 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 ```
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-riscv64gc-unknown-linux-gnu.tar.xz
 ```
+<!-- [[[end]]] -->
 
 #### AArch64
 
+<!-- [[[cog
+platform_download("aarch64-unknown-linux-gnu")
+]]] -->
 1. [Download `python_launcher-1.0.0-aarch64-unknown-linux-gnu.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-aarch64-unknown-linux-gnu.tar.xz):
 
 ```
@@ -94,9 +118,13 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 ```
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-aarch64-unknown-linux-gnu.tar.xz
 ```
+<!-- [[[end]]] -->
 
 #### x86-64
 
+<!-- [[[cog
+platform_download("x86_64-unknown-linux-gnu")
+]]] -->
 1. [Download `python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz):
 
 ```
@@ -108,6 +136,7 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 ```
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz
 ```
+<!-- [[[end]]] -->
 
 ### macOS
 
@@ -121,6 +150,9 @@ https://formulae.brew.sh/formula/python-launcher
 
 #### Apple Silicon
 
+<!-- [[[cog
+platform_download("aarch64-apple-darwin")
+]]] -->
 1. [Download `python_launcher-1.0.0-aarch64-apple-darwin.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-aarch64-apple-darwin.tar.xz):
 
 ```
@@ -132,9 +164,13 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 ```
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-aarch64-apple-darwin.tar.xz
 ```
+<!-- [[[end]]] -->
 
 #### x86-64
 
+<!-- [[[cog
+platform_download("x86_64-apple-darwin")
+]]] -->
 1. [Download `python_launcher-1.0.0-x86_64-apple-darwin.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-apple-darwin.tar.xz):
 
 ```
@@ -146,11 +182,15 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 ```
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-apple-darwin.tar.xz
 ```
+<!-- [[[end]]] -->
 
 ### NetBSD
 
 #### x86-64
 
+<!-- [[[cog
+platform_download("x86_64-unknown-netbsd")
+]]] -->
 1. [Download `python_launcher-1.0.0-x86_64-unknown-netbsd.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/v1.0.0/python_launcher-1.0.0-x86_64-unknown-netbsd.tar.xz):
 
 ```
@@ -162,6 +202,7 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 ```
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-unknown-netbsd.tar.xz
 ```
+<!-- [[[end]]] -->
 
 ### Any OS supporting Rust
 
@@ -233,7 +274,7 @@ but [U+2502/"Box Drawings Light Vertical"](https://www.compart.com/en/unicode/U+
 ### How can I make the Python Launcher use my default Python version from pyenv?
 
 If you're using [pyenv](https://github.com/pyenv/pyenv) to manage your Python
-versions, you'll want to set the version the Launcher uses to the pyenv 
+versions, you'll want to set the version the Launcher uses to the pyenv
 [global version](https://github.com/pyenv/pyenv/blob/master/COMMANDS.md#pyenv-global).
 
 Add this line to your `.zshrc` or `.bashrc` file:

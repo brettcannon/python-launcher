@@ -82,7 +82,7 @@ jobs:
       - name: Update changelog & README
         run: |
           python -m scriv collect --add --version ${{ needs.details.outputs.version }}
-          python -m release readme --version ${{ needs.details.outputs.version }} --tag ${{ needs.details.outputs.tag }}
+          python -m cogapp -D VERSION=${{ needs.details.outputs.version }} -D TAG=${{ needs.details.outputs.tag }} -P -r README.md
           git config user.name github-actions
           git config user.email github-actions@github.com
           git commit -a -m "Update changelog and README for ${{ needs.details.outputs.tag }}"
