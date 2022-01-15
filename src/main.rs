@@ -67,12 +67,12 @@ fn main() {
     match cli::Action::from_main(&env::args().collect::<Vec<String>>()) {
         Ok(action) => match action {
             cli::Action::Help(message, executable) => {
-                print!("{}", message);
+                print!("{message}");
                 run(&executable, &["--help".to_string()])
                     .map_err(|message| log_exit(nix::errno::errno(), message))
                     .unwrap()
             }
-            cli::Action::List(output) => print!("{}", output),
+            cli::Action::List(output) => print!("{output}"),
             cli::Action::Execute {
                 executable, args, ..
             } => run(&executable, &args)
@@ -85,16 +85,17 @@ fn main() {
 
 #[cfg(not(tarpaulin_include))]
 fn log_exit(return_code: i32, message: impl std::error::Error) {
-    log::error!("{}", message);
+    log::error!("{message}");
     std::process::exit(return_code);
 }
 
 #[cfg(not(tarpaulin_include))]
 fn run(executable: &Path, args: &[String]) -> nix::Result<()> {
+    let printable_executable = executable.display();
     if executable.is_file() {
-        log::info!("Executing {} with {:?}", executable.display(), args);
+        log::info!("Executing {printable_executable} with {args:?}");
     } else {
-        log::error!("{}: No such file", executable.display());
+        log::error!("{printable_executable}: No such file");
         std::process::exit(1);
     }
     let executable_as_cstring = CString::new(executable.as_os_str().as_bytes()).unwrap();

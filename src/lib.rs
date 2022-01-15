@@ -55,25 +55,20 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::ParseVersionComponentError(int_error, bad_value) => {
-                write!(
-                    f,
-                    "Error parsing '{}' as an integer: {}",
-                    bad_value, int_error
-                )
+                write!(f, "Error parsing '{bad_value}' as an integer: {int_error}")
             }
             Self::DotMissing => write!(f, "'.' missing from the version"),
             Self::FileNameMissing => write!(f, "Path object lacks a file name"),
             Self::FileNameToStrError => write!(f, "Failed to convert file name to `str`"),
             Self::PathFileNameError => write!(f, "File name not of the format `pythonX.Y`"),
             Self::NoExecutableFound(requested_version) => {
-                write!(f, "No executable found for {}", requested_version)
+                write!(f, "No executable found for {requested_version}")
             }
             Self::IllegalArgument(launcher_path, flag) => {
+                let printable_path = launcher_path.to_string_lossy();
                 write!(
                     f,
-                    "The `{}` flag must be specified on its own; see `{} --help` for details",
-                    flag,
-                    launcher_path.to_string_lossy()
+                    "The `{flag}` flag must be specified on its own; see `{printable_path} --help` for details"
                 )
             }
         }
@@ -134,10 +129,10 @@ impl Display for RequestedVersion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let repr = match self {
             Self::Any => "Python".to_string(),
-            Self::MajorOnly(major) => format!("Python {}", major),
-            Self::Exact(major, minor) => format!("Python {}.{}", major, minor),
+            Self::MajorOnly(major) => format!("Python {major}"),
+            Self::Exact(major, minor) => format!("Python {major}.{minor}"),
         };
-        write!(f, "{}", repr)
+        write!(f, "{repr}")
     }
 }
 
@@ -199,7 +194,7 @@ impl RequestedVersion {
     pub fn env_var(self) -> Option<String> {
         match self {
             Self::Any => Some("PY_PYTHON".to_string()),
-            Self::MajorOnly(major) => Some(format!("PY_PYTHON{}", major)),
+            Self::MajorOnly(major) => Some(format!("PY_PYTHON{major}")),
             _ => None,
         }
     }
@@ -225,7 +220,9 @@ impl From<ExactVersion> for RequestedVersion {
 impl Display for ExactVersion {
     /// Format to the format specifier, e.g. `3.9`.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}.{}", self.major, self.minor)
+        let major = self.major;
+        let minor = self.minor;
+        write!(f, "{major}.{minor}")
     }
 }
 
@@ -360,7 +357,8 @@ fn all_executables_in_paths(
         })
     });
 
-    log::debug!("Found executables: {:?}", executables.values());
+    let found_executables = executables.values();
+    log::debug!("Found executables: {found_executables:?}",);
     executables
 }
 
@@ -368,7 +366,7 @@ fn all_executables_in_paths(
 pub fn all_executables() -> HashMap<ExactVersion, PathBuf> {
     log::info!("Checking PATH environment variable");
     let path_entries = env_path();
-    log::debug!("PATH: {:?}", path_entries);
+    log::debug!("PATH: {path_entries:?}");
     let paths = flatten_directories(path_entries);
     all_executables_in_paths(paths)
 }

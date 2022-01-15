@@ -214,7 +214,7 @@ fn venv_executable_path(venv_root: &str) -> PathBuf {
 fn activated_venv() -> Option<PathBuf> {
     log::info!("Checking for VIRTUAL_ENV environment variable");
     env::var_os("VIRTUAL_ENV").map(|venv_root| {
-        log::debug!("VIRTUAL_ENV set to {:?}", venv_root);
+        log::debug!("VIRTUAL_ENV set to {venv_root:?}");
         venv_executable_path(&venv_root.to_string_lossy())
     })
 }
@@ -225,13 +225,12 @@ fn venv_path_search() -> Option<PathBuf> {
         None
     } else {
         let cwd = env::current_dir().unwrap();
-        log::info!(
-            "Searching for a venv in {} and parent directories",
-            cwd.display()
-        );
+        let printable_cwd = cwd.display();
+        log::info!("Searching for a venv in {printable_cwd} and parent directories");
         cwd.ancestors().find_map(|path| {
             let venv_path = path.join(relative_venv_path(true));
-            log::info!("Checking {}", venv_path.display());
+            let printable_venv_path = venv_path.display();
+            log::info!("Checking {printable_venv_path}");
             // bool::then_some() makes more sense, but still experimental.
             venv_path.is_file().then(|| venv_path)
         })
@@ -275,9 +274,9 @@ fn parse_python_shebang(reader: &mut impl Read) -> Option<RequestedVersion> {
             continue;
         }
 
-        log::debug!("Found shebang: {}", acceptable_path);
+        log::debug!("Found shebang: {acceptable_path}");
         let version = line[acceptable_path.len()..].to_string();
-        log::debug!("Found version: {}", version);
+        log::debug!("Found version: {version}");
         return RequestedVersion::from_str(&version).ok();
     }
 
@@ -300,7 +299,7 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
             // parsing and that's a **lot** of work for little gain. Hence we only care
             // about the first argument.
             let possible_file = &args[0];
-            log::info!("Checking {:?} for a shebang", possible_file);
+            log::info!("Checking {possible_file:?} for a shebang");
             if let Ok(mut open_file) = File::open(possible_file) {
                 if let Some(shebang_version) = parse_python_shebang(&mut open_file) {
                     requested_version = shebang_version;
@@ -311,15 +310,15 @@ fn find_executable(version: RequestedVersion, args: &[String]) -> crate::Result<
 
     if chosen_path.is_none() {
         if let Some(env_var) = requested_version.env_var() {
-            log::info!("Checking the {} environment variable", env_var);
+            log::info!("Checking the {env_var} environment variable");
             if let Ok(env_var_value) = env::var(&env_var) {
                 if !env_var_value.is_empty() {
-                    log::debug!("{} = '{}'", env_var, env_var_value);
+                    log::debug!("{env_var} = '{env_var_value}'");
                     let env_requested_version = RequestedVersion::from_str(&env_var_value)?;
                     requested_version = env_requested_version;
                 }
             } else {
-                log::info!("{} not set", env_var);
+                log::info!("{env_var} not set");
             };
         }
 

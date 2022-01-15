@@ -19,7 +19,7 @@ license = "MIT"
 keywords = ["Python"]
 categories = ["command-line-utilities"]
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.58"
 
 [badges]
 maintenance = { status = "actively-developed" }
