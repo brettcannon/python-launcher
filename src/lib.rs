@@ -65,11 +65,9 @@ impl fmt::Display for Error {
             Self::FileNameMissing => write!(f, "Path object lacks a file name"),
             Self::FileNameToStrError => write!(f, "Failed to convert file name to `str`"),
             Self::PathFileNameError => write!(f, "File name not of the format `pythonX.Y`"),
-            Self::NoExecutableFound(requested_version) => write!(
-                f,
-                "No executable found for {}",
-                requested_version.to_string()
-            ),
+            Self::NoExecutableFound(requested_version) => {
+                write!(f, "No executable found for {}", requested_version)
+            }
             Self::IllegalArgument(launcher_path, flag) => {
                 write!(
                     f,
