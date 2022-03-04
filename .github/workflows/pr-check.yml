@@ -35,3 +35,10 @@ jobs:
           file-pattern: |
             docs/control-flow/control_flow.png
             docs/control-flow/control_flow.svg
+
+      - name: PR impact specified
+        uses: mheap/github-action-required-labels@v1
+        with:
+          mode: "exactly"
+          count: 1
+          labels: "impact-breaking, impact-enhancement, impact-bugfix, impact-maintenance"
