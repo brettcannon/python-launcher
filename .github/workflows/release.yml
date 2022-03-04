@@ -16,7 +16,6 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
-      notes: ${{ env.RELEASE_NOTES }}
 
     steps:
       - uses: actions/checkout@v2
@@ -81,9 +80,7 @@ jobs:
         shell: bash
 
       - name: Create release
-        run: |
-          echo '${{ needs.details.outputs.notes }}' > /tmp/release_notes.md
-          gh release create ${{ needs.details.outputs.tag }} --draft --generate-notes
+        run: gh release create ${{ needs.details.outputs.tag }} --draft --generate-notes
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
