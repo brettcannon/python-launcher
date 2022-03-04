@@ -1,6 +1,6 @@
 import pathlib
 
-import toml
+import tomli
 
 CARGO_FILE = pathlib.Path(__file__).parent.parent / "Cargo.toml"
 
