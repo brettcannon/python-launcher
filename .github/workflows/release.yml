@@ -18,7 +18,7 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # OS-specific
       - uses: actions/cache@v2
@@ -51,7 +51,7 @@ jobs:
 
     steps:
       # Necessary to implicitly specify the repo to create the release for.
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # OS-specific
       - uses: actions/cache@v2
@@ -116,7 +116,7 @@ jobs:
             use-cross: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # OS-specific
       - uses: actions/cache@v2
@@ -171,7 +171,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
