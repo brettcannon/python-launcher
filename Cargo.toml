@@ -53,4 +53,5 @@ test-case = "1.2.0"
 split-debuginfo = "unpacked"
 
 [profile.release]
-lto = "fat"
+lto = true
+strip = true

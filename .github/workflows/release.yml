@@ -151,14 +151,6 @@ jobs:
           command: build
           args: --release --target ${{ matrix.target }}
 
-      - name: Strip binary
-        if: ${{ !matrix.use-cross }}
-        run: |
-          du -h target/${{ matrix.target }}/release/py
-          strip target/${{ matrix.target }}/release/py
-          du -h target/${{ matrix.target }}/release/py
-        shell: bash
-
       - name: Create tarball
         run: |
           TARBALL_PATH=`python -m release tarball --target ${{ matrix.target }}`
