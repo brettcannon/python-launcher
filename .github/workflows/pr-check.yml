@@ -36,8 +36,9 @@ jobs:
             docs/control-flow/control_flow.png
             docs/control-flow/control_flow.svg
 
-      - name: Changelog fragment
-        uses: brettcannon/check-for-changed-files@v1
+      - name: PR impact specified
+        uses: mheap/github-action-required-labels@v1
         with:
-          file-pattern: changelog.d/*.md
-          failure-message: "Missing a changelog fragment file in ${file-pattern}; please add one or apply the ${skip-label} label to the pull request"
+          mode: "exactly"
+          count: 1
+          labels: "impact-breaking, impact-enhancement, impact-bugfix, impact-maintenance"

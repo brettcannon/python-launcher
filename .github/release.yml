@@ -1,0 +1,17 @@
+changelog:
+  exclude:
+    authors:
+      - "dependabot"
+  categories:
+    - title: "Breaking Changes 🛠️"
+      labels:
+        - "impact-breaking"
+    - title: "New Features ✨"
+      labels:
+        - "impact-enhancement"
+    - title: "Bugfixes 🐜"
+      labels:
+        - "impact-bugfix"
+    - title: "Maintenance 👷‍♀️"
+      labels:
+        - "impact-maintenance"
