@@ -5,13 +5,9 @@ ROOT := justfile_directory()
 MAN_MD := join(ROOT, "docs", "man-page", "py.1.md")
 MAN_FILE := join(ROOT, "docs", "man-page", "py.1")
 CARGO_TOML := join(ROOT, "Cargo.toml")
-DOT_FILE := join(ROOT, "docs", "control-flow", "control_flow.dot")
-DOT_FILE_NO_STEM := without_extension(DOT_FILE)
-DOT_SVG := DOT_FILE_NO_STEM + ".svg"
-DOT_PNG := DOT_FILE_NO_STEM + ".png"
 
 # Set default recipes
-_default: lint test man dot
+_default: lint test man
 
 # Run the unit tests
 test:
@@ -61,14 +57,3 @@ man: _man-md
 
     with open("{{ MAN_FILE }}", "w", encoding="utf-8") as file:
         file.write(new_man_text)
-
-# Build the control flow diagram as a SVG
-dot_svg:
-    dot -T "svg" -o {{ DOT_SVG }} {{ DOT_FILE }}
-
-# Build the control flow diagram as a PNG
-dot_png:
-    dot -T "png" -o {{ DOT_PNG }} {{ DOT_FILE }}
-
-# Build the control flow diagram
-dot: dot_svg dot_png

@@ -9,7 +9,6 @@ include = [
     "/src/",
     "/tests/",
     "/completions/",
-    "/docs/control-flow/control_flow.svg",
     "/docs/man-page/py.1",
     "/README.md",
     "/CHANGELOG.md",

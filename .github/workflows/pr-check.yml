@@ -28,14 +28,6 @@ jobs:
           prereq-pattern: docs/man-page/py.1.md
           file-pattern: docs/man-page/py.1
 
-      - name: Control flow diagram up-to-date
-        uses: brettcannon/check-for-changed-files@v1
-        with:
-          prereq-pattern: docs/control-flow/control_flow.dot
-          file-pattern: |
-            docs/control-flow/control_flow.png
-            docs/control-flow/control_flow.svg
-
       - name: PR impact specified
         uses: mheap/github-action-required-labels@v1
         with:

@@ -19,13 +19,6 @@ for how to get it for your system.
 
 [Cog](https://pypi.org/project/cogapp/) is used to help maintain the README.
 
-## Changelog
-
-The tool used to maintain the changelog is
-[scriv](https://scriv.readthedocs.io). See the
-[`changelog.d` directory](https://github.com/brettcannon/python-launcher/tree/main/changelog.d)
-for details.
-
 # Releasing
 
 1. Adjust the version number in [`Cargo.toml`](https://github.com/brettcannon/python-launcher/blob/main/Cargo.toml) (previous [releases](https://github.com/brettcannon/python-launcher/releases)).

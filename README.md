@@ -232,7 +232,34 @@ The general control flow for finding the appropriate Python executable is the
 following (with Python 3.6, Python 3, and the newest version of Python installed
 as examples):
 
-<img src="https://raw.githubusercontent.com/brettcannon/python-launcher/main/docs/control-flow/control_flow.svg">
+```Mermaid
+graph TD
+    start[py ...] --> major_minor[-3.6]
+    start --> major_only[-3]
+    start --> best[No option specified]
+
+    major_minor --> $PATH
+
+    major_only --> PY_PYTHON3
+
+    $PATH --> exec
+
+    best --> env_var{$VIRTUAL_ENV}
+
+    env_var --> venv_dir{.venv}
+
+    venv_dir --> shebang{#! ...}
+    venv_dir --> exec
+
+    shebang --> PY_PYTHON([$PY_PYTHON])
+    shebang --> PY_PYTHON3([$PY_PYTHON3])
+
+    PY_PYTHON3 --> $PATH
+    PY_PYTHON --> $PATH
+    shebang --> $PATH
+
+    env_var --> exec[Execute Python]
+```
 
 See the
 [man page](https://github.com/brettcannon/python-launcher/blob/main/docs/man-page/py.1.md)
