@@ -2,12 +2,13 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directory: "/"
-    labels: []
+    labels: ["impact-maintenance"]
     schedule:
       interval: "weekly"
       day: "friday"
   - package-ecosystem: cargo
     directory: "/"
+    labels: ["impact-maintenance"]
     schedule:
       interval: "weekly"
       day: "friday"
