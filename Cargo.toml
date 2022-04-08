@@ -40,7 +40,7 @@ nix = "0.23.0"
 stderrlog = "0.5.1"
 
 [dev-dependencies]
-assert_cmd = "2.0.2"
+assert_cmd = "2.0.4"
 criterion = "0.3.5"
 predicates = "2.0.3"
 serial_test = "0.5.1"
