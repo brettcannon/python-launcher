@@ -67,15 +67,13 @@ jobs:
 
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
-          override: true
+          profile: minimal
+          toolchain: nightly
+          components: llvm-tools-preview
 
-      - name: Install tarpaulin
-        run: cargo install cargo-tarpaulin
+      - uses: Swatinem/fucov@v1
 
-      - name: Run coverage
-        run: cargo tarpaulin -v --out Xml --exclude-files tests/*
-
-      - uses: codecov/codecov-action@v2.1.0
+      - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          directory: coverage
