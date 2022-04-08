@@ -32,7 +32,7 @@ name = "py"
 path = "src/main.rs"
 
 [dependencies]
-comfy-table = "4.1.1"
+comfy-table = "5.0.1"
 exitcode = "1.1.2"
 human-panic = "1.0.3"
 log = "0.4.14"
@@ -46,7 +46,7 @@ predicates = "2.0.3"
 serial_test = "0.5.1"
 serial_test_derive = "0.5.1"
 tempfile = "3.3.0"
-test-case = "1.2.0"
+test-case = "2.0.2"
 
 [profile.dev]
 split-debuginfo = "unpacked"
