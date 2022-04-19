@@ -52,5 +52,7 @@ test-case = "2.0.2"
 split-debuginfo = "unpacked"
 
 [profile.release]
+# https://github.com/johnthagen/min-sized-rust
 lto = true
 strip = true
+codegen-units = 1
