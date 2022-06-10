@@ -44,7 +44,7 @@ assert_cmd = "2.0.4"
 criterion = "0.3.5"
 predicates = "2.1.1"
 serial_test = "0.5.1"
-serial_test_derive = "0.5.1"
+serial_test_derive = "0.7.0"
 tempfile = "3.3.0"
 test-case = "2.1.0"
 
