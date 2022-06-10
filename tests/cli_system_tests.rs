@@ -6,7 +6,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use serial_test_derive::serial;
+use serial_test::serial;
 
 use python_launcher::cli;
 use python_launcher::cli::Action;
