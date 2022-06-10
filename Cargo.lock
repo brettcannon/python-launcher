@@ -694,7 +694,6 @@ dependencies = [
  "nix",
  "predicates",
  "serial_test",
- "serial_test_derive 0.5.1",
  "stderrlog",
  "tempfile",
  "test-case",
@@ -871,17 +870,6 @@ dependencies = [
  "log",
  "parking_lot",
  "serial_test_derive 0.7.0",
-]
-
-[[package]]
-name = "serial_test_derive"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2acd6defeddb41eb60bb468f8825d0cfd0c2a76bc03bfd235b6a1dc4f6a1ad5"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
