@@ -2,10 +2,11 @@ name: cargo audit
 on:
   schedule:
     - cron: "0 0 * * 5"
-  pull_request:
-    paths:
-      - "**/Cargo.toml"
-      - "**/Cargo.lock"
+  # TODO: bring back once https://github.com/brettcannon/python-launcher/issues/211 is fixed.
+  # pull_request:
+  #   paths:
+  #     - "**/Cargo.toml"
+  #     - "**/Cargo.lock"
 
 jobs:
   audit:
