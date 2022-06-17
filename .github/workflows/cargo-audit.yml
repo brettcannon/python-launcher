@@ -1,4 +1,4 @@
-name: Security check
+name: cargo audit
 on:
   schedule:
     - cron: "0 0 * * 5"
