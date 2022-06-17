@@ -39,7 +39,7 @@ jobs:
           python-version: "3.x"
 
       - name: Install distro packages
-        run: sudo apt-get install -qq pandoc graphviz
+        run: sudo apt-get install -qq pandoc
 
       - name: Install `just`
         uses: extractions/setup-just@v1
