@@ -29,7 +29,7 @@ jobs:
           file-pattern: docs/man-page/py.1
 
       - name: PR impact specified
-        uses: mheap/github-action-required-labels@v1
+        uses: mheap/github-action-required-labels@v2
         with:
           mode: "exactly"
           count: 1
