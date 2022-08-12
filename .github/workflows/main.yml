@@ -47,39 +47,6 @@ jobs:
       - name: Run `just`
         run: just
 
-  coverage:
-    runs-on: ubuntu-latest
-    needs: test
-
-    env:
-      CARGO_TARGET_DIR: target
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-
-      - name: Install tarpaulin
-        run: cargo install cargo-tarpaulin
-
-      - name: Run coverage
-        run: cargo tarpaulin -v --out Xml --exclude-files tests/*
-
-      - uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
   format:
     runs-on: ubuntu-latest
 
