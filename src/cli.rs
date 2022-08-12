@@ -22,7 +22,7 @@ use crate::{ExactVersion, RequestedVersion};
 pub static DEFAULT_VENV_DIR: &str = ".venv";
 
 /// Represents the possible outcomes based on CLI arguments.
-#[derive(Clone, Debug, Hash, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
 pub enum Action {
     /// The help string for the Python Launcher along with the path to a Python
     /// executable.
