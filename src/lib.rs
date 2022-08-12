@@ -32,7 +32,7 @@ use std::{
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Error enum for the entire crate.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Error {
     /// Parsing a digit component from a string fails.
     ParseVersionComponentError(ParseIntError, String),
