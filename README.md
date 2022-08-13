@@ -345,6 +345,3 @@ set -gx PY_PYTHON (pyenv exec python -c "import sys; print('.'.join(map(str, sys
 - Python Launcher for Windows
   - [Documentation](https://docs.python.org/3/using/windows.html#launcher)
   - [Source](https://github.com/python/cpython/blob/master/PC/launcher.c)
-
-
-[![codecov](https://codecov.io/gh/brettcannon/python-launcher/branch/main/graph/badge.svg?token=s2ZuXJQPPd)](https://codecov.io/gh/brettcannon/python-launcher)
