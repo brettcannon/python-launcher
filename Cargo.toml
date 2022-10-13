@@ -45,7 +45,7 @@ criterion = "0.4.0"
 predicates = "2.1.1"
 serial_test = "0.9.0"
 tempfile = "3.3.0"
-test-case = "2.2.1"
+test-case = "2.2.2"
 
 [profile.dev]
 split-debuginfo = "unpacked"
