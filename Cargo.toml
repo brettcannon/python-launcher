@@ -32,7 +32,7 @@ name = "py"
 path = "src/main.rs"
 
 [dependencies]
-comfy-table = "6.1.0"
+comfy-table = "6.1.1"
 exitcode = "1.1.2"
 human-panic = "1.0.3"
 log = "0.4.17"
