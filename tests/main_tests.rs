@@ -47,7 +47,7 @@ fn any_version() {
         .expect("no Python executable found");
     let version = ExactVersion::from_path(&python).unwrap();
     let result = py_executable()
-        .args(&["-c", "import sys; print(sys.version)"])
+        .args(["-c", "import sys; print(sys.version)"])
         .assert();
 
     result
@@ -63,7 +63,7 @@ fn major_version() {
     let version = ExactVersion::from_path(&python).unwrap();
     let version_flag = format!("-{}", version.major);
     let result = py_executable()
-        .args(&[
+        .args([
             version_flag.as_str(),
             "-c",
             "import sys; print(sys.version)",
@@ -83,7 +83,7 @@ fn exact_version() {
     let version = ExactVersion::from_path(&python).unwrap();
     let version_flag = format!("-{}", version);
     let result = py_executable()
-        .args(&[
+        .args([
             version_flag.as_str(),
             "-c",
             "import sys; print(sys.version)",
@@ -99,7 +99,7 @@ fn exact_version() {
 #[test]
 fn logging_output() {
     let result = py_executable()
-        .args(&["-c", "pass"])
+        .args(["-c", "pass"])
         .env("PYLAUNCH_DEBUG", "1")
         .assert();
 
