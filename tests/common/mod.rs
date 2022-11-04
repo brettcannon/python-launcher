@@ -13,8 +13,8 @@ pub struct EnvVarState {
 impl Drop for EnvVarState {
     fn drop(&mut self) {
         self.changed.iter().for_each(|(k, v)| match &v {
-            Some(original_v) => env::set_var(&k, original_v),
-            None => env::remove_var(&k),
+            Some(original_v) => env::set_var(k, original_v),
+            None => env::remove_var(k),
         });
     }
 }
