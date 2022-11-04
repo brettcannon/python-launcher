@@ -37,7 +37,7 @@ exitcode = "1.1.2"
 human-panic = "1.0.3"
 log = "0.4.17"
 nix = "0.25.0"
-stderrlog = "0.5.3"
+stderrlog = "0.5.4"
 
 [dev-dependencies]
 assert_cmd = "2.0.5"
