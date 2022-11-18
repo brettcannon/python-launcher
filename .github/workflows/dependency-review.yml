@@ -21,6 +21,6 @@ jobs:
       - name: 'Checkout Repository'
         uses: actions/checkout@v3
       - name: 'Dependency Review'
-        uses: actions/dependency-review-action@v2
+        uses: actions/dependency-review-action@v3
         with:
           deny-licenses: gpl-2.0, gpl-3.0, agpl-3.0
