@@ -95,6 +95,7 @@ Requires Fedora 34 or higher.
 
 - https://src.fedoraproject.org/rpms/rust-python-launcher/
 - https://getfedora.org/
+
 </details>
 
 #### Pre-built binaries
