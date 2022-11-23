@@ -58,23 +58,34 @@ def platform_download(platform):
 
 ### Linux
 
-#### [Linuxbrew](https://docs.brew.sh/Homebrew-on-Linux)
+#### Package managers
+
+<details>
+    <summary>Linuxbrew</summary>
 
 ```
 brew install python-launcher
 ```
 
-https://formulae.brew.sh/formula/python-launcher
+- https://formulae.brew.sh/formula/python-launcher
+- https://docs.brew.sh/Homebrew-on-Linux
+    
+</details>
 
-#### [Arch](https://archlinux.org/)
+<details>
+    <summary>Arch</summary>
 
 ```
 yay -S python-launcher
 ```
 
-https://aur.archlinux.org/packages/python-launcher
+- https://aur.archlinux.org/packages/python-launcher
+- https://archlinux.org/
+    
+</details>
 
-#### [Fedora](https://getfedora.org/)
+<details>
+    <summary>Fedora</summary>
 
 ```
 sudo dnf install python-launcher
@@ -82,9 +93,15 @@ sudo dnf install python-launcher
 
 Requires Fedora 34 or higher.
 
-https://src.fedoraproject.org/rpms/rust-python-launcher/
+- https://src.fedoraproject.org/rpms/rust-python-launcher/
+- https://getfedora.org/
 
-#### RISC-V
+</details>
+
+#### Pre-built binaries
+
+<details>
+    <summary>RISC-V</summary>
 
 <!-- [[[cog
 platform_download("riscv64gc-unknown-linux-gnu")
@@ -102,7 +119,10 @@ tar --extract --strip-components 1 --directory /usr/local --file python_launcher
 ```
 <!-- [[[end]]] -->
 
-#### AArch64
+</details>
+    
+<details>
+    <summary>AArch64</summary>
 
 <!-- [[[cog
 platform_download("aarch64-unknown-linux-gnu")
@@ -120,7 +140,10 @@ tar --extract --strip-components 1 --directory /usr/local --file python_launcher
 ```
 <!-- [[[end]]] -->
 
-#### x86-64
+</details>
+    
+<details>
+    <summary>x86-64</summary>
 
 <!-- [[[cog
 platform_download("x86_64-unknown-linux-gnu")
@@ -137,18 +160,31 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz
 ```
 <!-- [[[end]]] -->
+    
+</details>
 
 ### macOS
 
-#### [Homebrew](https://brew.sh/)
+
+#### Package managers
+
+<details>
+    <summary>Homebrew</summary>
 
 ```
 brew install python-launcher
 ```
 
-https://formulae.brew.sh/formula/python-launcher
+- https://formulae.brew.sh/formula/python-launcher
+- https://brew.sh/
+    
+</details>
 
-#### Apple Silicon
+
+#### Pre-built binaries
+
+<details>
+    <summary>Apple Silicon</summary>
 
 <!-- [[[cog
 platform_download("aarch64-apple-darwin")
@@ -165,8 +201,11 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-aarch64-apple-darwin.tar.xz
 ```
 <!-- [[[end]]] -->
+    
+</details>
 
-#### x86-64
+<details>
+    <summary>x86-64</summary>
 
 <!-- [[[cog
 platform_download("x86_64-apple-darwin")
@@ -183,10 +222,14 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-apple-darwin.tar.xz
 ```
 <!-- [[[end]]] -->
+    
+</details>
 
 ### NetBSD
 
-#### x86-64
+#### Pre-built binaries
+<details>
+    <summary>x86-64</summary>
 
 <!-- [[[cog
 platform_download("x86_64-unknown-netbsd")
@@ -204,9 +247,12 @@ tar --extract --strip-components 1 --directory /usr/local --file python_launcher
 ```
 <!-- [[[end]]] -->
 
+</details>
+    
 ### Any OS supporting Rust
 
-#### [Crates.io](https://crates.io/)
+<details>
+    <summary>Crates.io</summary>
 
 ```
 
@@ -214,17 +260,26 @@ cargo install python-launcher
 
 ```
 
-https://crates.io/crates/python-launcher
+- https://crates.io/crates/python-launcher
+- https://crates.io
 
-#### [Source](https://github.com/brettcannon/python-launcher.git)
+</details>
+    
+    
+<details>
+    <summary>Source</summary>
 
+From a [repository](https://github.com/brettcannon/python-launcher.git) checkout:
 ```
 
 cargo install --path .
 
 ```
 
-https://github.com/brettcannon/python-launcher
+- https://github.com/brettcannon/python-launcher
+- https://github.com/brettcannon/python-launcher.git
+
+</details>
 
 ## Documentation
 
