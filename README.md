@@ -69,7 +69,7 @@ brew install python-launcher
 
 - https://formulae.brew.sh/formula/python-launcher
 - https://docs.brew.sh/Homebrew-on-Linux
-    
+
 </details>
 
 <details>
@@ -81,7 +81,7 @@ yay -S python-launcher
 
 - https://aur.archlinux.org/packages/python-launcher
 - https://archlinux.org/
-    
+
 </details>
 
 <details>
@@ -120,7 +120,7 @@ tar --extract --strip-components 1 --directory /usr/local --file python_launcher
 <!-- [[[end]]] -->
 
 </details>
-    
+
 <details>
     <summary>AArch64</summary>
 
@@ -141,7 +141,7 @@ tar --extract --strip-components 1 --directory /usr/local --file python_launcher
 <!-- [[[end]]] -->
 
 </details>
-    
+
 <details>
     <summary>x86-64</summary>
 
@@ -160,7 +160,7 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-unknown-linux-gnu.tar.xz
 ```
 <!-- [[[end]]] -->
-    
+
 </details>
 
 ### macOS
@@ -177,7 +177,7 @@ brew install python-launcher
 
 - https://formulae.brew.sh/formula/python-launcher
 - https://brew.sh/
-    
+
 </details>
 
 
@@ -201,7 +201,7 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-aarch64-apple-darwin.tar.xz
 ```
 <!-- [[[end]]] -->
-    
+
 </details>
 
 <details>
@@ -222,7 +222,7 @@ curl --location --remote-name https://github.com/brettcannon/python-launcher/rel
 tar --extract --strip-components 1 --directory /usr/local --file python_launcher-1.0.0-x86_64-apple-darwin.tar.xz
 ```
 <!-- [[[end]]] -->
-    
+
 </details>
 
 ### NetBSD
@@ -248,7 +248,7 @@ tar --extract --strip-components 1 --directory /usr/local --file python_launcher
 <!-- [[[end]]] -->
 
 </details>
-    
+
 ### Any OS supporting Rust
 
 <details>
@@ -264,8 +264,8 @@ cargo install python-launcher
 - https://crates.io
 
 </details>
-    
-    
+
+
 <details>
     <summary>Source</summary>
 
@@ -317,7 +317,7 @@ graph TD
 ```
 
 See the
-[man page](https://github.com/brettcannon/python-launcher/blob/main/docs/man-page/py.1.md)
+[man page](https://github.com/brettcannon/python-launcher/blob/main/man-page/py.1.md)
 or the top section of `py --help` for more details.
 
 See the [API docs](https://docs.rs/python-launcher/) for using this project to

@@ -2,8 +2,8 @@
 # Written for https://github.com/casey/just/tree/0.10.3 .
 
 ROOT := justfile_directory()
-MAN_MD := join(ROOT, "docs", "man-page", "py.1.md")
-MAN_FILE := join(ROOT, "docs", "man-page", "py.1")
+MAN_MD := join(ROOT, "man-page", "py.1.md")
+MAN_FILE := join(ROOT, "man-page", "py.1")
 CARGO_TOML := join(ROOT, "Cargo.toml")
 
 # Set default recipes

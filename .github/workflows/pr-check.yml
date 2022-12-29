@@ -25,8 +25,8 @@ jobs:
       - name: Man page up-to-date
         uses: brettcannon/check-for-changed-files@v1
         with:
-          prereq-pattern: docs/man-page/py.1.md
-          file-pattern: docs/man-page/py.1
+          prereq-pattern: man-page/py.1.md
+          file-pattern: man-page/py.1
 
       - name: PR impact specified
         uses: mheap/github-action-required-labels@v2
