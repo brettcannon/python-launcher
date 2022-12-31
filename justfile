@@ -33,19 +33,17 @@ man: _man-md
     import datetime
     import pathlib
     import re
+    import tomllib
 
     VERSION_REGEX = re.compile(r'version\s*=\s*"(?P<version>[\d.]+)"')
 
     with open("{{ CARGO_TOML }}", "r", encoding="utf-8") as file:
-        cargo_lines = file.readlines()
+        cargo_data = tomllib.load(file)
 
-    for line in cargo_lines:
-        version_match = VERSION_REGEX.match(line)
-        if version_match:
-            version = version_match.group("version")
-            break
-    else:
-        raise ValueError("'version' not found in {{ CARGO_TOML }}")
+    try:
+        version = cargo_data["package"]["version"]
+    except KeyError as exc:
+        raise ValueError("'version' not found in {{ CARGO_TOML }}") from exc
 
     with open("{{ MAN_FILE }}", "r", encoding="utf-8") as file:
         man_text = file.read()
