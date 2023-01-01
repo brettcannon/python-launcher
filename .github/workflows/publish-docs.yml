@@ -3,6 +3,7 @@ on:
     paths:
       - "Cargo.toml"
       - "justfile"
+      - ".github/workflows/publish-docs.yml"
       - "mkdocs.yml"
       - "docs/**"
 
