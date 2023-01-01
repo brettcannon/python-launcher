@@ -1,13 +1,13 @@
 #!/usr/bin/env just --justfile
-# Written for https://github.com/casey/just/tree/0.10.3 .
 
 ROOT := justfile_directory()
 MAN_MD := join(ROOT, "man-page", "py.1.md")
 MAN_FILE := join(ROOT, "man-page", "py.1")
 CARGO_TOML := join(ROOT, "Cargo.toml")
+VENV := join(ROOT, ".venv")
 
 # Set default recipes
-_default: lint test man
+_default: lint test man docs
 
 # Run the unit tests
 test:
@@ -26,7 +26,7 @@ install:
 _man-md:
     pandoc {{ MAN_MD }} --standalone -t man -o {{ MAN_FILE }}
 
-# Build the man page
+# Build the man page (requires Python >= 3.11)
 man: _man-md
     #!/usr/bin/env python3
 
@@ -37,7 +37,7 @@ man: _man-md
 
     VERSION_REGEX = re.compile(r'version\s*=\s*"(?P<version>[\d.]+)"')
 
-    with open("{{ CARGO_TOML }}", "r", encoding="utf-8") as file:
+    with open("{{ CARGO_TOML }}", "rb") as file:
         cargo_data = tomllib.load(file)
 
     try:
@@ -55,3 +55,16 @@ man: _man-md
 
     with open("{{ MAN_FILE }}", "w", encoding="utf-8") as file:
         file.write(new_man_text)
+
+# Create a virtual environment for building the docs
+docs-venv:
+    cargo run -- -m venv {{ VENV }}
+    cargo run -- -m pip install --quiet --disable-pip-version-check -r docs/requirements.txt
+
+# Launch the documentation dev server
+docs-dev: docs-venv
+    cargo run -- -m mkdocs serve
+
+# Build the documentation
+docs: docs-venv
+    cargo run -- -m mkdocs build

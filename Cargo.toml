@@ -3,6 +3,7 @@ name = "python-launcher"
 description = "The Python launcher for Unix"
 version = "1.0.0"
 authors = ["Brett Cannon <brett@python.org>"]
+homepage = "https://python-launcher.app"
 repository = "https://github.com/brettcannon/python-launcher"
 readme = "README.md"
 include = [
