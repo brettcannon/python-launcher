@@ -20,7 +20,7 @@ def main(args):
     readme_path = repo_path / "README.md"
     readme_tar = f"{sub_dir}/share/doc/py/README.md"
 
-    man_path = repo_path / "docs" / "man-page" / "py.1"
+    man_path = repo_path / "man-page" / "py.1"
     man_tar = f"{sub_dir}/share/man/man1/py.1"
 
     fish_path = repo_path / "completions" / "py.fish"

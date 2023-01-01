@@ -1,0 +1,48 @@
+name: "Publish Documentation"
+
+on:
+  push:
+    paths:
+      - "Cargo.toml"
+      - "justfile"
+      - ".github/workflows/publish-docs.yml"
+      - "mkdocs.yml"
+      - "docs/**"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    name: Publish to Cloudflare Pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install `just`
+        uses: extractions/setup-just@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build docs
+        run: just docs
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: "python-launcher"
+          directory: "site"
+          # Optional: Enable this if you want to have GitHub Deployments triggered
+          # gitHubToken: ${{ secrets.GITHUB_TOKEN }}
