@@ -21,12 +21,16 @@ jobs:
           prereq-pattern: Cargo.toml
           file-pattern: Cargo.lock
           skip-label: skip Cargo.lock
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Man page up-to-date
         uses: brettcannon/check-for-changed-files@v1
         with:
           prereq-pattern: man-page/py.1.md
           file-pattern: man-page/py.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: PR impact specified
         uses: mheap/github-action-required-labels@v2
@@ -34,3 +38,5 @@ jobs:
           mode: "exactly"
           count: 1
           labels: "impact-breaking, impact-enhancement, impact-bugfix, impact-maintenance"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
