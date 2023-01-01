@@ -1,4 +1,10 @@
-on: [push]
+on:
+  push:
+    paths:
+      - "Cargo.toml"
+      - "justfile"
+      - "mkdocs.yml"
+      - "docs/**"
 
 jobs:
   publish:
@@ -30,7 +36,7 @@ jobs:
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: "3c88f30f4e79c31a5d606787209cae2e"
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: "python-launcher"
           directory: "site"
           # Optional: Enable this if you want to have GitHub Deployments triggered
