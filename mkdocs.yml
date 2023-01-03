@@ -1,0 +1,42 @@
+site_name: "Python Launcher for Unix"
+site_url: "https://python-launcher.app"
+repo_url: "https://github.com/brettcannon/python-launcher"
+edit_uri: "https://github.dev/brettcannon/python-launcher/blob/main/docs/"
+site_description: "Launch your Python interpreter the lazy/smart way!"
+site_author: "Brett Cannon"
+copyright: "© 2022 Brett Cannon"
+theme:
+  name: "material"
+  features:
+    - "navigation.sections"
+    - "navigation.tabs"
+    - "navigation.tabs.sticky"
+    - "toc.integrate"
+markdown_extensions:
+  - "admonition"
+  - "pymdownx.details"
+  - "pymdownx.magiclink"
+  - "pymdownx.striphtml"
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+extra:
+  social:
+    - icon: fontawesome/solid/rss
+      link: https://snarky.ca/
+    - icon: fontawesome/brands/github
+      link: https://github.com/brettcannon/
+    - icon: fontawesome/brands/mastodon
+      link: https://fosstodon.org/@brettcannon
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/drbrettcannon/
+nav:
+  - Overview: "index.md"
+  - "install.md"
+  - "cli.md"
+  - FAQ: "faq.md"
+  - "development.md"
