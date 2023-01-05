@@ -36,4 +36,4 @@ See the [overview](index.md#environment-variables) for more details.
 
 ### `PYLAUNCH_DEBUG`
 
-When set, causes the Python Launcher to print out information about its interprter search to stderr.
+When set, causes the Python Launcher to print out information about its interpreter search to stderr.

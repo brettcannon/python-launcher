@@ -39,7 +39,7 @@ not necessity.
 
 The Python Launcher tries to launch the correct Python interpreter for your current situation.
 
-The Python Launcher will always prefer a Python intrepreter associated with the current context over a globally installed interpreter (e.g. a virtual environment in the current directory is better than an interpreter on `PATH`). Beyond that, the Python interpreter always prefers the newest Python version available.
+The Python Launcher will always prefer a Python interpreter associated with the current context over a globally installed interpreter (e.g. a virtual environment in the current directory is better than an interpreter on `PATH`). Beyond that, the Python interpreter always prefers the newest Python version available.
 
 To accomplish all of this is a two-step process of gathering inputs in its decision-making process:
 
@@ -52,7 +52,7 @@ The Python Launcher lets you restrict, to varying specificity, what Python versi
 
 #### On the command line
 
-The `py` command supports a single flag that Python itself does not: a version restriction.The argument can take one of two forms:
+The `py` command supports a single flag that Python itself does not: a version restriction. The argument can take one of two forms:
 
 1. Major version restriction, e.g. `-3` for Python 3.x.
 2. Major and minor version restriction, e.g. `-3.6` for Python 3.6.
