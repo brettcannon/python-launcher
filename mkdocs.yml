@@ -7,6 +7,8 @@ site_author: "Brett Cannon"
 copyright: "© 2022 Brett Cannon"
 theme:
   name: "material"
+  icon:
+    logo: octicons/terminal-16
   features:
     - "navigation.sections"
     - "navigation.tabs"
@@ -16,7 +18,6 @@ markdown_extensions:
   - "admonition"
   - "pymdownx.details"
   - "pymdownx.magiclink"
-  - "pymdownx.striphtml"
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
