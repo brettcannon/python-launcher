@@ -8,7 +8,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             let executables = python_launcher::all_executables();
             hint::black_box(executables);
         });
-    }
+    });
 }
 
 criterion_group!(benches, criterion_benchmark);
