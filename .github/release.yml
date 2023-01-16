@@ -12,6 +12,8 @@ changelog:
     - title: "Bugfixes 🐜"
       labels:
         - "impact-bugfix"
+    - title: "Documentation 📄"
+        - "impact-docs"
     - title: "Maintenance 👷‍♀️"
       labels:
         - "impact-maintenance"
