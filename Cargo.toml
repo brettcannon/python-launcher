@@ -37,7 +37,7 @@ comfy-table = "6.1.4"
 exitcode = "1.1.2"
 human-panic = "1.0.3"
 log = "0.4.17"
-nix = "0.26.1"
+nix = "0.26.2"
 stderrlog = "0.5.4"
 
 [dev-dependencies]
