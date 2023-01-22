@@ -12,6 +12,9 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # Don't run on forks as they lack access to the Cloudflare token.
+    # (Dependabot is run as if it's a fork, so ignore that, too.)
+    if: github.repository == "brettcannon/python-launcher" && github.actor != "dependabot[bot]"
     permissions:
       contents: read
       deployments: write
