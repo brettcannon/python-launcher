@@ -38,6 +38,8 @@ To build the docs, use `just docs`. This will create a virtual environment like 
 
 ## Appendix
 
+### PEPs
+
 - [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/)
 - [PEP 486: Make the Python Launcher aware of virtual environments](https://www.python.org/dev/peps/pep-0486/)
 
