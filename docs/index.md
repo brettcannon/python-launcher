@@ -4,6 +4,15 @@
 
 The goal of the Python Launcher for Unix is to figure out what Python interpreter you want when your run the `py` command. Its preference is to find the interpreter using the newest version of Python that is as specific as possible to your current context. This allows you to not have to think about or perform extra work.
 
+??? info "Differences from the Python Launcher for Windows"
+
+    While similar, the Python Launcher for Unix differs from the [official Windows Launcher](https://docs.python.org/3/using/windows.html#launcher) a few key ways (beyond what operating systems they support):
+
+    1. This project is not official (it's a [personal](https://github.com/brettcannon/) project)
+    2. This project is not shipped with CPython (see the [installation instructions](install.md))
+    3. No support for `-V:`/`-version:` (Windows-specific)
+    4. No support for `py.ini` files (use [environment variables](cli.md#environment-variables) instead)
+
 ## A common scenario
 
 The Python Launcher is optimized for a workflow where you create a virtual environment for each project in its directory/workspace (although it is not restricted to this workflow). When starting a project, use the Python Launcher to create a virtual environment in a `.venv` directory:

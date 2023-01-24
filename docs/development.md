@@ -16,7 +16,6 @@ While developing the website, you can run `just docs-dev` to start a local serve
 
 To build the docs, use `just docs`. This will create a virtual environment like `just docs-dev`.
 
-
 ## Releasing
 
 1. Adjust the version number in [`Cargo.toml`](https://github.com/brettcannon/python-launcher/blob/main/Cargo.toml) (previous [releases](https://github.com/brettcannon/python-launcher/releases)).
@@ -31,7 +30,6 @@ To build the docs, use `just docs`. This will create a virtual environment like 
    1. Create a
       [version upgrade](https://github.com/Homebrew/homebrew-core/blob/master/CONTRIBUTING.md#to-submit-a-version-upgrade-for-the-foo-formula) pull request with the [appropriate commit message](https://docs.brew.sh/Formula-Cookbook#commit)
 
-
 ## Useful links
 
 - [Repository](https://github.com/brettcannon/mousebender/)
@@ -40,9 +38,13 @@ To build the docs, use `just docs`. This will create a virtual environment like 
 
 ## Appendix
 
+### PEPs
+
 - [PEP 397: Python launcher for Windows](https://www.python.org/dev/peps/pep-0397/)
 - [PEP 486: Make the Python Launcher aware of virtual environments](https://www.python.org/dev/peps/pep-0486/)
-- Python Launcher for Windows
-  - [Documentation](https://docs.python.org/3/using/windows.html#launcher)
-  - [Source](https://github.com/python/cpython/blob/master/PC/launcher.c)
-  - [Experimental source](https://github.com/python/cpython/blob/main/PC/launcher2.c)
+
+### Python Launcher for Windows
+
+- [Documentation](https://docs.python.org/3/using/windows.html#launcher)
+- [Source](https://github.com/python/cpython/blob/master/PC/launcher.c)
+- [Experimental source](https://github.com/python/cpython/blob/main/PC/launcher2.c)

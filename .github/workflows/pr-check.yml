@@ -37,6 +37,6 @@ jobs:
         with:
           mode: "exactly"
           count: 1
-          labels: "impact-breaking, impact-enhancement, impact-bugfix, impact-maintenance"
+          labels: "impact-breaking, impact-enhancement, impact-bugfix, impact-docs, impact-maintenance"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
