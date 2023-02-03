@@ -28,7 +28,7 @@ fn from_main_help() {
                 assert_eq!(env_state.python37, python_path);
                 assert!(message.contains(python_path.to_str().unwrap()));
             }
-            _ => panic!("{:?} flag did not return Action::Help", flag),
+            _ => panic!("{flag:?} flag did not return Action::Help"),
         }
     }
 }
@@ -82,7 +82,7 @@ fn from_main_by_flag() {
         }
         Ok(Action::Help(_, _)) => panic!("Got back help"),
         Ok(Action::List(_)) => panic!("Got back a list of executables"),
-        Err(error) => panic!("No executable found in default case: {:?}", error),
+        Err(error) => panic!("No executable found in default case: {error:?}"),
     }
 
     match Action::from_main(&[launcher_location.clone(), "-2".to_string()]) {

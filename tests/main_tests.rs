@@ -81,7 +81,7 @@ fn exact_version() {
     let python = python_launcher::find_executable(RequestedVersion::Any)
         .expect("no Python executable found");
     let version = ExactVersion::from_path(&python).unwrap();
-    let version_flag = format!("-{}", version);
+    let version_flag = format!("-{version}");
     let result = py_executable()
         .args([
             version_flag.as_str(),
@@ -112,7 +112,7 @@ fn logging_output() {
 #[test_case("3."; "invalid version specifier")]
 #[test_case("0.1"; "non-existent version")]
 fn version_failure(version: &str) {
-    let flag = format!("-{}", version);
+    let flag = format!("-{version}");
     let result = py_executable().arg(flag).assert();
 
     result.failure().stdout(str::is_empty());
