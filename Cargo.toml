@@ -45,7 +45,7 @@ assert_cmd = "2.0.5"
 criterion = "0.4.0"
 predicates = "2.1.5"
 serial_test = "1.0.0"
-tempfile = "3.3.0"
+tempfile = "3.4.0"
 test-case = "3.0.0"
 
 [profile.dev]
