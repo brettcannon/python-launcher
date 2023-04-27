@@ -53,6 +53,6 @@ If you're using [pyenv](https://github.com/pyenv/pyenv) to manage your Python ve
 
 ## How do I disable the automatic search/usage of the `.venv` virtual environment?
 
-If you look at the [diagram of how the Launcher chooses what Python interpreter/environment to use](index.md#diagram-of-how-the-python-launcher-selects-a-python-interpreter), you will notice that the `.venv` virtual environment is only selected if you **don't** specify a verison restriction, e.g. `py -3`.
+If you look at the [diagram of how the Launcher chooses what Python interpreter/environment to use](index.md#diagram-of-how-the-python-launcher-selects-a-python-interpreter), you will notice that the `.venv` virtual environment is only selected if you **don't** specify a verison restriction, e.g. `py -3` disables the search.
 
-The thinking behind this is that if you want a specific Python version then you aren't interested in a specific virtual environment, and so the search for `.venv` is skipped.
+The thinking behind this is that if you want a specific Python version then you aren't interested in a specific virtual environmen., Thus the search for `.venv` is skipped when **any** specific version is requested.
