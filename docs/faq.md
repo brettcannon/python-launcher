@@ -27,16 +27,12 @@ This will then have your prompt list the Python version that will be used if you
 py --list | lines | split column "│" version path | str trim
 ```
 
-Do note that the character that is being split on is **not** the traditional
-[U+007C/"Vertical Line"/pipe character](https://www.compart.com/en/unicode/U+007C) (`|`),
-but [U+2502/"Box Drawings Light Vertical"](https://www.compart.com/en/unicode/U+2502) (`│`).
+Do note that the character that is being split on is **not** the traditional [U+007C/"Vertical Line"/pipe character](https://www.compart.com/en/unicode/U+007C) (`|`), but [U+2502/"Box Drawings Light Vertical"](https://www.compart.com/en/unicode/U+2502) (`│`).
 
 
 ## How can I make the Python Launcher use my default Python version from [pyenv](https://github.com/pyenv/pyenv)?
 
-If you're using [pyenv](https://github.com/pyenv/pyenv) to manage your Python
-versions, you'll want to set the version the Launcher uses to the pyenv
-[global version](https://github.com/pyenv/pyenv/blob/master/COMMANDS.md#pyenv-global).
+If you're using [pyenv](https://github.com/pyenv/pyenv) to manage your Python versions, you'll want to set the version the Launcher uses to the pyenv [global version](https://github.com/pyenv/pyenv/blob/master/COMMANDS.md#pyenv-global).
 
 
 === "bash/zsh"
@@ -54,3 +50,9 @@ versions, you'll want to set the version the Launcher uses to the pyenv
     ```console
     set -gx PY_PYTHON (pyenv exec python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")
     ```
+
+## How do I disable the automatic search/usage of the `.venv` virtual environment?
+
+If you look at the [diagram of how the Launcher chooses what Python interpreter/environment to use](index.md#diagram-of-how-the-python-launcher-selects-a-python-interpreter), you will notice that the `.venv` virtual environment is only selected if you **don't** specify a verison restriction, e.g. `py -3` disables the search.
+
+The thinking behind this is that if you want a specific Python version then you aren't interested in a specific virtual environmen., Thus the search for `.venv` is skipped when **any** specific version is requested.
