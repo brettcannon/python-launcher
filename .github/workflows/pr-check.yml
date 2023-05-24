@@ -32,7 +32,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: PR impact specified
+  impact:
+    name: Impact specified
+    runs-on: ubuntu-latest
+    steps:
+      - name: "`impact` label specified"
         uses: mheap/github-action-required-labels@v4
         with:
           mode: "exactly"
