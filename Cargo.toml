@@ -35,7 +35,7 @@ path = "src/main.rs"
 [dependencies]
 comfy-table = "7.0.0"
 exitcode = "1.1.2"
-human-panic = "1.1.4"
+human-panic = "1.1.5"
 log = "0.4.19"
 nix = "0.26.2"
 stderrlog = "0.5.4"
