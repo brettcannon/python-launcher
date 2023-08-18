@@ -36,7 +36,7 @@ path = "src/main.rs"
 comfy-table = "7.0.1"
 exitcode = "1.1.2"
 human-panic = "1.1.5"
-log = "0.4.19"
+log = "0.4.20"
 nix = "0.26.2"
 stderrlog = "0.5.4"
 
