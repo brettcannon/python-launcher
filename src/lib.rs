@@ -533,7 +533,7 @@ mod tests {
             python37_path,
         ];
 
-        let executables = all_executables_in_paths(files.into_iter());
+        let executables = all_executables_in_paths(files);
         assert_eq!(executables.len(), 3);
 
         let version = ExactVersion { major, minor };

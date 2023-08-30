@@ -37,12 +37,12 @@ comfy-table = "7.0.1"
 exitcode = "1.1.2"
 human-panic = "1.1.5"
 log = "0.4.20"
-nix = "0.26.2"
+nix = {version = "0.27.1", features = ["process"]}
 stderrlog = "0.5.4"
 
 [dev-dependencies]
 assert_cmd = "2.0.12"
-criterion = "0.4.0"
+criterion = "0.5.1"
 predicates = "3.0.3"
 serial_test = "2.0.0"
 tempfile = "3.7.0"
