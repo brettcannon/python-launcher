@@ -12,4 +12,9 @@ updates:
     schedule:
       interval: "weekly"
       day: "friday"
-    
+  - package-ecosystem: "pip"
+    directory: "/"
+    labels: ["impact-maintenance"]
+    schedule:
+      interval: "weekly"
+      day: "friday"
