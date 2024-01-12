@@ -44,7 +44,7 @@ stderrlog = "0.5.4"
 assert_cmd = "2.0.12"
 criterion = "0.5.1"
 predicates = "3.0.4"
-serial_test = "2.0.0"
+serial_test = "3.0.0"
 tempfile = "3.9.0"
 test-case = "3.3.1"
 
