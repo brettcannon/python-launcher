@@ -43,7 +43,7 @@ stderrlog = "0.5.4"
 [dev-dependencies]
 assert_cmd = "2.0.13"
 criterion = "0.5.1"
-predicates = "3.0.4"
+predicates = "3.1.0"
 serial_test = "3.0.0"
 tempfile = "3.9.0"
 test-case = "3.3.1"
