@@ -38,7 +38,7 @@ exitcode = "1.1.2"
 human-panic = "1.2.3"
 log = "0.4.20"
 nix = {version = "0.27.1", features = ["process"]}
-stderrlog = "0.5.4"
+stderrlog = "0.6.0"
 
 [dev-dependencies]
 assert_cmd = "2.0.13"
