@@ -41,7 +41,7 @@ nix = {version = "0.27.1", features = ["process"]}
 stderrlog = "0.6.0"
 
 [dev-dependencies]
-assert_cmd = "2.0.13"
+assert_cmd = "2.0.14"
 criterion = "0.5.1"
 predicates = "3.1.0"
 serial_test = "3.0.0"
