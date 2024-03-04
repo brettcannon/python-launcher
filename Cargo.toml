@@ -37,7 +37,7 @@ comfy-table = "7.1.0"
 exitcode = "1.1.2"
 human-panic = "1.2.3"
 log = "0.4.21"
-nix = {version = "0.27.1", features = ["process"]}
+nix = {version = "0.28.0", features = ["process"]}
 stderrlog = "0.6.0"
 
 [dev-dependencies]
