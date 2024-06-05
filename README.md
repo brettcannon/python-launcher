@@ -1,6 +1,7 @@
 # The Python Launcher for Unix
 
-https://python-launcher.app is the full documentation for this project.
+- [Documentation](https://python-launcher.app)
+- [Rust crate](https://crates.io/crates/python-launcher)
 
 ## Motivation
 
