@@ -232,7 +232,7 @@ fn venv_path_search() -> Option<PathBuf> {
             let printable_venv_path = venv_path.display();
             log::info!("Checking {printable_venv_path}");
             // bool::then_some() makes more sense, but still experimental.
-            venv_path.is_file().then(|| venv_path)
+            venv_path.is_file().then_some(venv_path)
         })
     }
 }
