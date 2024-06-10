@@ -32,7 +32,7 @@ To build the docs, use `just docs`. This will create a virtual environment like 
 
 ## Useful links
 
-- [Repository](https://github.com/brettcannon/mousebender/)
+- [Repository](https://github.com/brettcannon/python-launcher/)
 - [crates.io page](https://crates.io/crates/python-launcher)
 - [API docs](https://docs.rs/python-launcher/)
 
