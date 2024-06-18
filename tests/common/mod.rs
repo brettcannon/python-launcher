@@ -50,6 +50,7 @@ impl EnvVarState {
     }
 }
 
+#[allow(dead_code)]
 pub struct CurrentDir {
     _original_dir: PathBuf,
     pub dir: TempDir,
