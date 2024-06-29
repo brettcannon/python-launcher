@@ -140,7 +140,7 @@ fn empty_activated_virtual_env() {
 }
 
 #[test]
-fn unexecutable() {
+fn no_executable() {
     let cwd = CurrentDir::new();
     let cwd_name = cwd.dir.path().as_os_str();
     let fake_python = PathBuf::from("python0.1");

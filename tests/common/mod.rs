@@ -58,7 +58,7 @@ pub struct CurrentDir {
 
 impl Drop for CurrentDir {
     fn drop(&mut self) {
-        env::set_current_dir(&self._original_dir).unwrap();
+        let _ = env::set_current_dir(&self._original_dir);
     }
 }
 
