@@ -35,18 +35,21 @@
 
 use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
+use human_panic::Metadata;
+
+use nix::errno::Errno;
 use nix::unistd;
 
 use python_launcher::cli;
 
 #[cfg(not(tarpaulin_include))]
 fn main() {
-    human_panic::setup_panic!(Metadata {
-        name: env!("CARGO_PKG_DESCRIPTION").into(),
-        version: env!("CARGO_PKG_VERSION").into(),
-        authors: env!("CARGO_PKG_AUTHORS").into(),
-        homepage: env!("CARGO_PKG_REPOSITORY").into(),
-    });
+    human_panic::setup_panic!(Metadata::new(
+        env!("CARGO_PKG_DESCRIPTION"),
+        env!("CARGO_PKG_VERSION")
+    )
+    .authors(env!("CARGO_PKG_AUTHORS"))
+    .homepage(env!("CARGO_PKG_REPOSITORY")));
 
     let log_level = if env::var_os("PYLAUNCH_DEBUG").is_some() {
         3
@@ -69,14 +72,14 @@ fn main() {
             cli::Action::Help(message, executable) => {
                 print!("{message}");
                 run(&executable, &["--help".to_string()])
-                    .map_err(|message| log_exit(nix::errno::errno(), message))
+                    .map_err(|message| log_exit(Errno::last_raw(), message))
                     .unwrap()
             }
             cli::Action::List(output) => print!("{output}"),
             cli::Action::Execute {
                 executable, args, ..
             } => run(&executable, &args)
-                .map_err(|message| log_exit(nix::errno::errno(), message))
+                .map_err(|message| log_exit(Errno::last_raw(), message))
                 .unwrap(),
         },
         Err(message) => log_exit(message.exit_code(), message),
