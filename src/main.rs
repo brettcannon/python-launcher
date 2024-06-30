@@ -37,6 +37,7 @@ use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
 use human_panic::Metadata;
 
+use nix::errno::Errno;
 use nix::unistd;
 
 use python_launcher::cli;
@@ -71,14 +72,14 @@ fn main() {
             cli::Action::Help(message, executable) => {
                 print!("{message}");
                 run(&executable, &["--help".to_string()])
-                    .map_err(|message| log_exit(nix::errno::errno(), message))
+                    .map_err(|message| log_exit(Errno::last_raw(), message))
                     .unwrap()
             }
             cli::Action::List(output) => print!("{output}"),
             cli::Action::Execute {
                 executable, args, ..
             } => run(&executable, &args)
-                .map_err(|message| log_exit(nix::errno::errno(), message))
+                .map_err(|message| log_exit(Errno::last_raw(), message))
                 .unwrap(),
         },
         Err(message) => log_exit(message.exit_code(), message),
