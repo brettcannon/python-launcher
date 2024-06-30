@@ -10,7 +10,7 @@ CARGO_FILE = pathlib.Path(__file__).parent.parent / "Cargo.toml"
 
 def get_version():
     """Read the version from Cargo.toml."""
-    with CARGO_FILE.open("r", encoding="utf-8") as file:
+    with CARGO_FILE.open("rb") as file:
         cargo_toml = tomllib.load(file)
 
     return cargo_toml["package"]["version"]
