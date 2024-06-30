@@ -53,11 +53,11 @@ interpreter.
 
 # OPTIONS
 
-**-h**/**--help**
+**-h**, **\--help**
 : Print a help message and exit; must be specified on its own.
 
-**--list**
-: List all known interpreters (except activated virtual environment);
+**\--list**
+: List all known interpreters (except virtual environments);
 must be specified on its own.
 
 **-[X]**
