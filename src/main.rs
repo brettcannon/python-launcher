@@ -35,18 +35,20 @@
 
 use std::{env, ffi::CString, os::unix::ffi::OsStrExt, path::Path};
 
+use human_panic::Metadata;
+
 use nix::unistd;
 
 use python_launcher::cli;
 
 #[cfg(not(tarpaulin_include))]
 fn main() {
-    human_panic::setup_panic!(Metadata {
-        name: env!("CARGO_PKG_DESCRIPTION").into(),
-        version: env!("CARGO_PKG_VERSION").into(),
-        authors: env!("CARGO_PKG_AUTHORS").into(),
-        homepage: env!("CARGO_PKG_REPOSITORY").into(),
-    });
+    human_panic::setup_panic!(Metadata::new(
+        env!("CARGO_PKG_DESCRIPTION"),
+        env!("CARGO_PKG_VERSION")
+    )
+    .authors(env!("CARGO_PKG_AUTHORS"))
+    .homepage(env!("CARGO_PKG_REPOSITORY")));
 
     let log_level = if env::var_os("PYLAUNCH_DEBUG").is_some() {
         3
