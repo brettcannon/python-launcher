@@ -62,6 +62,11 @@ docs-lock:
 
 # Create a virtual environment for building the docs
 docs-venv:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    if [ -d {{ VENV }} ]; then
+        rm -rf {{ VENV }}
+    fi
     cargo run -- -m venv {{ VENV }}
     cargo run -- -m pip install --quiet --disable-pip-version-check -r docs/requirements.txt
 
