@@ -2,6 +2,8 @@
 
 <!-- [[[cog
 
+import cog
+
 download_template = """
 1. [Download `python_launcher-{version}-{platform}.tar.xz`](https://github.com/brettcannon/python-launcher/releases/download/{tag}/python_launcher-{version}-{platform}.tar.xz):
 
@@ -19,7 +21,7 @@ tar --extract --strip-components 1 --directory /usr/local --file python_launcher
 def platform_download(platform):
     instructions = download_template.format(tag=TAG, version=VERSION,
                                             platform=platform)
-    print(instructions)
+    cog.outl(instructions)
 
 ]]] -->
 

@@ -5,6 +5,7 @@ MAN_MD := join(ROOT, "man-page", "py.1.md")
 MAN_FILE := join(ROOT, "man-page", "py.1")
 CARGO_TOML := join(ROOT, "Cargo.toml")
 VENV := join(ROOT, ".venv")
+INSTALL_DOCS := join(ROOT, "docs", "install.md")
 
 # Set default recipes
 _default: lint test man docs
@@ -35,7 +36,6 @@ man: _man-md
     import re
     import tomllib
 
-    VERSION_REGEX = re.compile(r'version\s*=\s*"(?P<version>[\d.]+)"')
 
     with open("{{ CARGO_TOML }}", "rb") as file:
         cargo_data = tomllib.load(file)
@@ -60,8 +60,20 @@ man: _man-md
 docs-lock:
   pipx run --spec pip-tools pip-compile --generate-hashes --allow-unsafe -o docs/requirements.txt docs/requirements.in
 
+# Update insfall instructions for a specific version
+docs-install:
+  #!/usr/bin/env bash
+  set -euxo pipefail
+  version=`cargo run -- -m release version`
+  pipx run cogapp -D VERSION=${version} -D TAG=v${version} -r {{ INSTALL_DOCS }}
+
 # Create a virtual environment for building the docs
 docs-venv:
+    #!/usr/bin/env bash
+    set -euxo pipefail
+    if [ -d {{ VENV }} ]; then
+        rm -rf {{ VENV }}
+    fi
     cargo run -- -m venv {{ VENV }}
     cargo run -- -m pip install --quiet --disable-pip-version-check -r docs/requirements.txt
 
@@ -70,5 +82,5 @@ docs-dev: docs-venv
     cargo run -- -m mkdocs serve
 
 # Build the documentation
-docs: docs-venv
+docs: docs-venv docs-install
     cargo run -- -m mkdocs build
