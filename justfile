@@ -56,6 +56,10 @@ man: _man-md
     with open("{{ MAN_FILE }}", "w", encoding="utf-8") as file:
         file.write(new_man_text)
 
+# Create a lock file for docs/
+docs-lock:
+  pipx run --spec pip-tools pip-compile --generate-hashes --allow-unsafe -o docs/requirements.txt docs/requirements.in
+
 # Create a virtual environment for building the docs
 docs-venv:
     cargo run -- -m venv {{ VENV }}
