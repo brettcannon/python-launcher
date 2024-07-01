@@ -14,7 +14,7 @@ The website is built using [MkDocs](https://www.mkdocs.org/) and [Material for M
 
 While developing the website, you can run `just docs-dev` to start a local server that will automatically reload when you make changes. This will create a virtual environment in `.venv` and install the necessary dependencies.
 
-To build the docs, use `just docs`. This will create a virtual environment like `just docs-dev`.
+To build the docs, use `just docs`.
 
 ## Releasing
 
@@ -22,6 +22,7 @@ To build the docs, use `just docs`. This will create a virtual environment like 
 1. Check that the relevant [action workflows](https://github.com/brettcannon/python-launcher/actions) are passing.
 1. Run the [`release` pipeline](https://github.com/brettcannon/python-launcher/actions/workflows/release.yml).
 1. Publish the [release](https://github.com/brettcannon/python-launcher/releases).
+1. Make sure the docs are up-to-date based on the published version (e.g. the [installation instructions](install.md) link to the newest files)
 1. Update the
    [Homebrew formula](https://github.com/Homebrew/homebrew-core/blob/master/Formula/python-launcher.rb)
    1. Get the URL to the
