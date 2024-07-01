@@ -53,23 +53,6 @@ jobs:
       # Necessary to implicitly specify the repo to create the release for.
       - uses: actions/checkout@v4
 
-      # OS-specific
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('release/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-
-      - name: Install dependencies
-        run: python -m pip install -r release/requirements.txt
-        shell: bash
-
       - name: Create release
         run: gh release create ${{ needs.details.outputs.tag }} --draft --generate-notes
         shell: bash
