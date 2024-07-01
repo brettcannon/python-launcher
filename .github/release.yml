@@ -13,6 +13,7 @@ changelog:
       labels:
         - "impact-bugfix"
     - title: "Documentation 📄"
+      labels:
         - "impact-docs"
     - title: "Maintenance 👷‍♀️"
       labels:
