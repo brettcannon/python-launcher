@@ -26,14 +26,6 @@ To build the docs, use `just docs`.
 1. Publish the [release](https://github.com/brettcannon/python-launcher/releases).
 1. Make sure the docs are up-to-date based on the published version (e.g. the [installation instructions](install.md) link to the newest files)
 
-### [Homebrew formula](https://github.com/Homebrew/homebrew-core/blob/master/Formula/python-launcher.rb)
-
-1. Get the URL to the
-   [release](https://github.com/brettcannon/python-launcher/releases) tarball
-1. `curl --location <URL to tarball> | shasum --algorithm 256`
-1. Create a
-   [version upgrade](https://github.com/Homebrew/homebrew-core/blob/master/CONTRIBUTING.md#to-submit-a-version-upgrade-for-the-foo-formula) pull request with the [appropriate commit message](https://docs.brew.sh/Formula-Cookbook#commit)
-
 ## Useful links
 
 - [Repository](https://github.com/brettcannon/python-launcher/)
