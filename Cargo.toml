@@ -9,6 +9,7 @@ readme = "README.md"
 include = [
     "/src/",
     "/tests/",
+    "/benches/",
     "/completions/",
     "/man-page/py.1",
     "/README.md",

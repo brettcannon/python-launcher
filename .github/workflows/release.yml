@@ -40,8 +40,8 @@ jobs:
       - name: Version details
         id: version
         run: |
-          echo "::set-output name=version::`python -m release version`"
-          echo "::set-output name=tag::`python -m release version --tag`"
+          echo "version=`python -m release version`" >> $GITHUB_OUTPUT
+          echo "tag=`python -m release version --tag`" >> $GITHUB_OUTPUT
         shell: bash
 
   release:
