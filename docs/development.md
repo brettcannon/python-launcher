@@ -18,18 +18,21 @@ To build the docs, use `just docs`.
 
 ## Releasing
 
+### [GitHub Releases](https://github.com/brettcannon/python-launcher/releases)
+
 1. Adjust the version number in [`Cargo.toml`](https://github.com/brettcannon/python-launcher/blob/main/Cargo.toml) (previous [releases](https://github.com/brettcannon/python-launcher/releases)).
 1. Check that the relevant [action workflows](https://github.com/brettcannon/python-launcher/actions) are passing.
 1. Run the [`release` pipeline](https://github.com/brettcannon/python-launcher/actions/workflows/release.yml).
 1. Publish the [release](https://github.com/brettcannon/python-launcher/releases).
 1. Make sure the docs are up-to-date based on the published version (e.g. the [installation instructions](install.md) link to the newest files)
-1. Update the
-   [Homebrew formula](https://github.com/Homebrew/homebrew-core/blob/master/Formula/python-launcher.rb)
-   1. Get the URL to the
-      [release](https://github.com/brettcannon/python-launcher/releases) tarball
-   1. `curl --location <URL to tarball> | shasum --algorithm 256`
-   1. Create a
-      [version upgrade](https://github.com/Homebrew/homebrew-core/blob/master/CONTRIBUTING.md#to-submit-a-version-upgrade-for-the-foo-formula) pull request with the [appropriate commit message](https://docs.brew.sh/Formula-Cookbook#commit)
+
+### [Homebrew formula](https://github.com/Homebrew/homebrew-core/blob/master/Formula/python-launcher.rb)
+
+1. Get the URL to the
+   [release](https://github.com/brettcannon/python-launcher/releases) tarball
+1. `curl --location <URL to tarball> | shasum --algorithm 256`
+1. Create a
+   [version upgrade](https://github.com/Homebrew/homebrew-core/blob/master/CONTRIBUTING.md#to-submit-a-version-upgrade-for-the-foo-formula) pull request with the [appropriate commit message](https://docs.brew.sh/Formula-Cookbook#commit)
 
 ## Useful links
 
