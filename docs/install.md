@@ -34,6 +34,8 @@ There are three ways to install the Python Launcher for Unix:
 
 Which option is available and best for you will depend on your operating system and your own personal preferences.
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/python-launcher.svg)](https://repology.org/project/python-launcher/versions)
+
 ## Linux
 
 ### [Linuxbrew](https://docs.brew.sh/Homebrew-on-Linux)
