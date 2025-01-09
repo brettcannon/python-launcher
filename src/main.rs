@@ -42,7 +42,6 @@ use nix::unistd;
 
 use python_launcher::cli;
 
-#[cfg(not(tarpaulin_include))]
 fn main() {
     human_panic::setup_panic!(Metadata::new(
         env!("CARGO_PKG_DESCRIPTION"),
@@ -86,13 +85,11 @@ fn main() {
     }
 }
 
-#[cfg(not(tarpaulin_include))]
 fn log_exit(return_code: i32, message: impl std::error::Error) {
     log::error!("{message}");
     std::process::exit(return_code);
 }
 
-#[cfg(not(tarpaulin_include))]
 fn run(executable: &Path, args: &[String]) -> nix::Result<()> {
     let printable_executable = executable.display();
     if executable.is_file() {
