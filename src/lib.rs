@@ -50,7 +50,6 @@ pub enum Error {
     IllegalArgument(PathBuf, String),
 }
 
-#[cfg(not(tarpaulin_include))]
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -75,7 +74,6 @@ impl fmt::Display for Error {
     }
 }
 
-#[cfg(not(tarpaulin_include))]
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
@@ -90,7 +88,6 @@ impl std::error::Error for Error {
     }
 }
 
-#[cfg(not(tarpaulin_include))]
 impl Error {
     /// Returns the appropriate [exit code](`exitcode::ExitCode`) for the error.
     pub fn exit_code(&self) -> exitcode::ExitCode {
