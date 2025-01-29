@@ -58,7 +58,7 @@ man: _man-md
 
 # Create a lock file for docs/
 docs-lock:
-  pipx run --spec pip-tools pip-compile --generate-hashes --allow-unsafe -o docs/requirements.txt docs/requirements.in
+  pipx run --spec pip-tools pip-compile --generate-hashes --allow-unsafe -o requirements.txt requirements.in
 
 # Update insfall instructions for a specific version
 docs-install:
@@ -75,7 +75,7 @@ docs-venv:
         rm -rf {{ VENV }}
     fi
     cargo run -- -m venv {{ VENV }}
-    cargo run -- -m pip install --quiet --disable-pip-version-check -r docs/requirements.txt
+    cargo run -- -m pip install --quiet --disable-pip-version-check -r requirements.txt
 
 # Launch the documentation dev server
 docs-dev: docs-venv
