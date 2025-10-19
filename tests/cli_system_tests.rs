@@ -68,7 +68,7 @@ fn from_main_by_flag() {
     let _working_dir = common::CurrentDir::new();
     let env_state = common::EnvState::new();
     let launcher_location = "/path/to/py".to_string();
-    let no_argv = Action::from_main(std::slice::from_ref(&launcher_location)]);
+    let no_argv = Action::from_main(std::slice::from_ref(&launcher_location));
 
     match no_argv {
         Ok(Action::Execute {
