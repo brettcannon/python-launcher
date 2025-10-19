@@ -1,3 +1,15 @@
 [build]
 command = "mkdocs build"
 publish = "site"
+
+[[redirects]]
+from = "http://python-launcher.app/*"
+to = " https://pythoncode.run/:splat"
+status = 301
+force = true
+
+[[redirects]]
+from = "https://python-launcher.app/*"
+to = " https://pythoncode.run/:splat"
+status = 301
+force = true
