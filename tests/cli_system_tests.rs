@@ -68,7 +68,7 @@ fn from_main_by_flag() {
     let _working_dir = common::CurrentDir::new();
     let env_state = common::EnvState::new();
     let launcher_location = "/path/to/py".to_string();
-    let no_argv = Action::from_main(&[launcher_location.clone()]);
+    let no_argv = Action::from_main(std::slice::from_ref(&launcher_location));
 
     match no_argv {
         Ok(Action::Execute {
@@ -259,7 +259,7 @@ fn from_main_env_var() {
     env_state.env_vars.change("PY_PYTHON", Some("3.6"));
     let launcher_location = "/path/to/py".to_string();
 
-    match Action::from_main(&[launcher_location.clone()]) {
+    match Action::from_main(std::slice::from_ref(&launcher_location)) {
         Ok(Action::Execute {
             launcher_path,
             executable,
