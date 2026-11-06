@@ -1,0 +1,3 @@
+docs/** linguist-documentation
+man-page/py.1.md linguist-documentation
+man-page/*.1 linguist-generated
